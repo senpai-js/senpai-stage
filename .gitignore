@@ -1,0 +1,5 @@
+node_modules
+assets/sound
+dist
+.cache
+*.swp

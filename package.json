@@ -1,0 +1,17 @@
+{
+  "name": "senpai-stage",
+  "version": "1.0.0",
+  "description": "View layer for senpai-js",
+  "main": "main.js",
+  "repository": "https://github.com/senpai-js/senpai-stage",
+  "author": "Joshua <tenner.joshua@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "tslint": "tslint --fix --project ./"
+  },
+  "devDependencies": {
+    "tsc": "^1.20150623.0",
+    "tslint": "^5.11.0",
+    "typescript": "^2.9.2"
+  }
+}
