@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+"@types/css-font-loading-module@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@types/css-font-loading-module/-/css-font-loading-module-0.0.2.tgz#09f1f1772975777e37851b7b7a4389d97c210add"
+
 "@types/node@^10.5.4":
   version "10.5.4"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.5.4.tgz#6eccc158504357d1da91434d75e86acde94bb10b"
