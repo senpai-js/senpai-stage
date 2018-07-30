@@ -60,8 +60,3 @@ export class Label extends Sprite implements ILabel {
     return this;
   }
 }
-
-export async function loadLabel(props: ILabelProps): Promise<ILabel> {
-  const label = new Label(props);
-  return label;
-}

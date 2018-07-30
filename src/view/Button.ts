@@ -73,21 +73,3 @@ export class Button extends Sprite implements IButton {
 export interface ILoadButtonProps extends IButtonProps, ILoadProps {
 
 }
-
-export async function loadButton(props: ILoadButtonProps): Promise<IButton> {
-  const img = loadImage(props.src);
-  const textures: ITextureMap = await createTextureMap(props.definition, img);
-
-  ["Active", "Inactive"].forEach(active => {
-    ["Hover", "NoHover"].forEach(hover => {
-      ["Selected", "Unselected"].forEach(selected => {
-        assert(textures[`${active}_${hover}_${selected}`]);
-      });
-    });
-  });
-
-  props.textures = textures;
-  const button = new Button(props);
-
-  return button;
-}

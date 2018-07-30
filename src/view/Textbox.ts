@@ -180,15 +180,3 @@ export class Textbox extends Sprite implements ITextbox {
 export interface ILoadTextboxProps extends ITextboxProps, ILoadProps {
 
 }
-
-export async function loadTextbox(props: ILoadTextboxProps): Promise<ITextbox> {
-  const img = loadImage(props.src);
-  const textures: ITextureMap = await createTextureMap(props.definition, img);
-
-  assert(textures.Texture);
-
-  props.textures = textures;
-  const textbox = new Textbox(props);
-
-  return textbox;
-}

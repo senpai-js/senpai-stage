@@ -29,13 +29,3 @@ export class Character extends Sprite implements ICharacter {
 export interface ILoadCharacterProps extends ICharacterProps, ILoadProps {
 
 }
-
-export async function loadCharacter(props: ILoadCharacterProps): Promise<ICharacter> {
-  const img = loadImage(props.src);
-  const textures = await createTextureMap(props.definition, img);
-
-  props.textures = textures;
-  const character = new Character(props);
-
-  return character;
-}

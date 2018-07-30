@@ -115,20 +115,3 @@ export class Slider extends Sprite implements ISlider {
 export interface ILoadSliderProps extends ISliderProps, ILoadProps {
 
 }
-
-export async function loadSlider(props: ILoadSliderProps): Promise<ISlider> {
-  const img = loadImage(props.src);
-  const textures: ITextureMap = await createTextureMap(props.definition, img);
-
-  assert(textures.Line_Cap_Left);
-  assert(textures.Line_Cap_Right);
-  assert(textures.Line);
-  assert(textures.Pill);
-  assert(textures.Pill_Active);
-  assert(textures.Pill_Hover);
-
-  props.textures = textures;
-
-  const slider = new Slider(props);
-  return slider;
-}

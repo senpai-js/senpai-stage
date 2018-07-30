@@ -232,8 +232,6 @@ export class Sprite extends EventEmitter implements ISprite {
     }
   }
   public setTexture(texture: string): this {
-    assert(this.textures[texture]);
-
     const oldTexture = this.texture;
     this.texture = this.textures[texture];
     this.width = this.texture.width;
@@ -253,11 +251,4 @@ export class Sprite extends EventEmitter implements ISprite {
 
 export interface ILoadSpriteProps extends ISpriteProps, ILoadProps {
 
-}
-
-export async function loadSprite(props: ILoadSpriteProps): Promise<ISprite> {
-  const img = loadImage(props.src);
-  const textures: ITextureMap = await createTextureMap(props.definition, img);
-  props.textures = textures;
-  return new Sprite(props);
 }

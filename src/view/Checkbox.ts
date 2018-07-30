@@ -94,21 +94,3 @@ export class Checkbox extends Sprite implements ICheckbox {
 export interface ILoadCheckboxProps extends ICheckboxProps, ILoadProps {
 
 }
-
-export async function loadCheckbox(props: ILoadCheckboxProps): Promise<ICheckbox> {
-  const img = loadImage(props.src);
-  const textures: ITextureMap = await createTextureMap(props.definition, img);
-
-  ["Active", "Inactive"].forEach(active => {
-    ["Hover", "NoHover"].forEach(hover => {
-      ["Checked", "Unchecked"].forEach(checked => {
-        assert(textures[`${active}_${hover}_${checked}`]);
-      });
-    });
-  });
-
-  props.textures = textures;
-  const checkbox = new Checkbox(props);
-
-  return checkbox;
-}

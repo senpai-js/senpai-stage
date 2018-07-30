@@ -124,15 +124,3 @@ export class Panel extends Sprite implements IPanel {
 export interface ILoadPanelProps extends IPanelProps, ILoadProps {
 
 }
-
-export async function loadPanel(props: ILoadPanelProps): Promise<IPanel> {
-  const img = loadImage(props.src);
-  const textures: ITextureMap = await createTextureMap(props.definition, img);
-
-  assert(textures.Texture);
-
-  props.textures = textures;
-  const panel = new Panel(props);
-
-  return panel;
-}

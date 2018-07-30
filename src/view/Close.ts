@@ -27,19 +27,3 @@ export class Close extends Sprite implements IClose {
 export interface ILoadCloseProps extends ICloseProps, ILoadProps {
 
 }
-
-export async function loadClose(props: ILoadCloseProps): Promise<IClose> {
-  const img = loadImage(props.src);
-  const textures: ITextureMap = await createTextureMap(props.definition, img);
-
-  ["Active", "Inactive"].forEach(active => {
-    ["Hover", "NoHover"].forEach(hover => {
-      assert(textures[`${active}_${hover}`]);
-    });
-  });
-
-  props.textures = textures;
-  const button = new Close(props);
-
-  return button;
-}
