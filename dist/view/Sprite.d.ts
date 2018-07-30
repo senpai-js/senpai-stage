@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { EventEmitter } from "events";
-import { ISpriteSheet, IInteractionPoint, IKeyState, ISize, ITextureMap } from "../util";
+import { IInteractionPoint, IKeyState, ISize, ISpriteSheet, ITextureMap } from "../util";
 import { IStage } from "./Stage";
 export interface ISprite extends ISize {
     id: string;

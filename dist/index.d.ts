@@ -1,5 +1,5 @@
-import * as Matrix from "./matrix";
 import * as Ease from "./ease";
+import * as Matrix from "./matrix";
 import * as Util from "./util";
 export { Matrix, Ease, Util };
 export * from "./view/Button";
