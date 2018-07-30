@@ -2,7 +2,7 @@ import assert from "assert";
 import { EventEmitter } from "events";
 import * as eases from "../ease";
 import * as m from "../matrix";
-import { createTextureMap, IInteractionPoint, IKeyState, ILoadProps, ISize, ITextureMap, loadImage } from "../util";
+import { ISpriteSheet, createTextureMap, IInteractionPoint, IKeyState, ISize, ITextureMap, loadImage } from "../util";
 import { IStage } from "./Stage";
 
 export interface ISprite extends ISize {
@@ -32,6 +32,7 @@ export interface ISprite extends ISize {
   hover: boolean;
   down: boolean;
   cursor: "pointer" | "default";
+  loaded: Promise<void>;
 
   texture: ImageBitmap | HTMLCanvasElement | HTMLImageElement;
 
@@ -70,6 +71,8 @@ export interface ISpriteProps {
   textures?: ITextureMap;
   alpha?: number;
   z?: number;
+  source: Promise<Response>;
+  definition: ISpriteSheet;
 }
 
 export class Sprite extends EventEmitter implements ISprite {
@@ -95,6 +98,7 @@ export class Sprite extends EventEmitter implements ISprite {
   public down: boolean = false;
   public textures: ITextureMap = {};
   public texture: ImageBitmap | HTMLCanvasElement | HTMLImageElement = new Image();
+  public loaded : Promise<void> = null;
 
   public width: number = 0;
   public height: number = 0;
@@ -114,6 +118,7 @@ export class Sprite extends EventEmitter implements ISprite {
     if (props.hasOwnProperty("z")) {
       this.z = props.z;
     }
+    this.loaded = props.source ? this.loadTexture(props.source, props.definition) : Promise.resolve();
   }
 
   public broadPhase(point: IInteractionPoint): boolean {
@@ -247,8 +252,14 @@ export class Sprite extends EventEmitter implements ISprite {
   public render(ctx: CanvasRenderingContext2D): void {
     ctx.drawImage(this.texture, 0, 0);
   }
+
+  private async loadTexture(res: Promise<Response>, definition: ISpriteSheet) : Promise<void> {
+    const resp = await res;
+    const blob = await resp.blob();
+    this.textures = await createTextureMap(definition, createImageBitmap(blob));
+  }
 }
 
-export interface ILoadSpriteProps extends ISpriteProps, ILoadProps {
+export interface ILoadSpriteProps extends ISpriteProps {
 
 }
