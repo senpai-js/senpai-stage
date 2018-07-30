@@ -2,7 +2,7 @@ import assert from "assert";
 import { EventEmitter } from "events";
 import * as eases from "../ease";
 import * as m from "../matrix";
-import { ISpriteSheet, createTextureMap, IInteractionPoint, IKeyState, ISize, ITextureMap, loadImage } from "../util";
+import { createTextureMap, IInteractionPoint, IKeyState, ISize, ISpriteSheet, ITextureMap, loadImage } from "../util";
 import { IStage } from "./Stage";
 
 export interface ISprite extends ISize {
@@ -98,7 +98,7 @@ export class Sprite extends EventEmitter implements ISprite {
   public down: boolean = false;
   public textures: ITextureMap = {};
   public texture: ImageBitmap | HTMLCanvasElement | HTMLImageElement = new Image();
-  public loaded : Promise<void> = null;
+  public loaded: Promise<void> = null;
 
   public width: number = 0;
   public height: number = 0;
@@ -253,7 +253,7 @@ export class Sprite extends EventEmitter implements ISprite {
     ctx.drawImage(this.texture, 0, 0);
   }
 
-  private async loadTexture(res: Promise<Response>, definition: ISpriteSheet) : Promise<void> {
+  private async loadTexture(res: Promise<Response>, definition: ISpriteSheet): Promise<void> {
     const resp = await res;
     const blob = await resp.blob();
     this.textures = await createTextureMap(definition, createImageBitmap(blob));
