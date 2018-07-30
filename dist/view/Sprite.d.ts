@@ -1,0 +1,101 @@
+/// <reference types="node" />
+import { EventEmitter } from "events";
+import { ISpriteSheet, IInteractionPoint, IKeyState, ISize, ITextureMap } from "../util";
+import { IStage } from "./Stage";
+export interface ISprite extends ISize {
+    id: string;
+    parent: IStage | ISprite;
+    previousPosition: Float64Array;
+    position: Float64Array;
+    inverse: Float64Array;
+    alpha: number;
+    interpolatedAlpha: number;
+    previousAlpha: number;
+    z: number;
+    lastInterpolated: number;
+    interpolatedPosition: Float64Array;
+    animationStart: number;
+    animationLength: number;
+    wait: number;
+    active: boolean;
+    hover: boolean;
+    down: boolean;
+    cursor: "pointer" | "default";
+    loaded: Promise<void>;
+    texture: ImageBitmap | HTMLCanvasElement | HTMLImageElement;
+    ease(ratio: number): number;
+    broadPhase(point: IInteractionPoint): boolean;
+    narrowPhase(point: IInteractionPoint): ISprite;
+    isHovering(point: IInteractionPoint, now: number): ISprite;
+    pointCollision(point: IInteractionPoint): boolean;
+    keyStateChange(key: IKeyState): void;
+    setTexture(texture: string): this;
+    over(timespan: number, wait: number, ease: (ratio: number) => number): this;
+    move(position: number[] | Float64Array): this;
+    setZ(z: number): this;
+    setAlpha(alpha: number): this;
+    interpolate(now: number): void;
+    skipAnimation(now: number): boolean;
+    update(): void;
+    render(ctx: CanvasRenderingContext2D): void;
+    emit(event: string, ...args: any[]): boolean;
+    on(event: "point-move", callback: (sprite: ISprite, point: IInteractionPoint) => void): any;
+    on(event: string, callback: () => void): this;
+    on(event: "point-move", callback: (sprite: ISprite, point: IInteractionPoint) => void): any;
+    once(event: string, callback: () => void): this;
+    removeAllListeners(event: string | symbol): this;
+    eventNames(): Array<string | symbol>;
+}
+export interface ISpriteProps {
+    id: string;
+    position: Float64Array | number[];
+    textures?: ITextureMap;
+    alpha?: number;
+    z?: number;
+    source: Promise<Response>;
+    definition: ISpriteSheet;
+}
+export declare class Sprite extends EventEmitter implements ISprite {
+    id: string;
+    position: Float64Array;
+    previousPosition: Float64Array;
+    interpolatedPosition: Float64Array;
+    inverse: Float64Array;
+    alpha: number;
+    interpolatedAlpha: number;
+    previousAlpha: number;
+    z: number;
+    parent: ISprite;
+    wait: number;
+    lastInterpolated: number;
+    animationStart: number;
+    ease: (ratio: number) => number;
+    cursor: ("pointer" | "default");
+    animationLength: number;
+    active: boolean;
+    hover: boolean;
+    down: boolean;
+    textures: ITextureMap;
+    texture: ImageBitmap | HTMLCanvasElement | HTMLImageElement;
+    loaded: Promise<void>;
+    width: number;
+    height: number;
+    constructor(props: ISpriteProps);
+    broadPhase(point: IInteractionPoint): boolean;
+    narrowPhase(point: IInteractionPoint): ISprite;
+    pointCollision(point: IInteractionPoint): boolean;
+    isHovering(point: IInteractionPoint, now: number): ISprite;
+    move(position: number[] | Float64Array): this;
+    setAlpha(alpha: number): this;
+    setZ(z: number): this;
+    over(timespan: number, wait?: number, ease?: (ratio: number) => number): this;
+    keyStateChange(key: IKeyState): void;
+    skipAnimation(now: number): boolean;
+    update(): void;
+    interpolate(now: number): void;
+    setTexture(texture: string): this;
+    render(ctx: CanvasRenderingContext2D): void;
+    private loadTexture;
+}
+export interface ILoadSpriteProps extends ISpriteProps {
+}
