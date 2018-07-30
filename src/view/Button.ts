@@ -1,4 +1,4 @@
-import { createTextureMap, ILoadProps, ITextureMap, loadImage, TextAlign, TextBaseline } from "../util";
+import { createTextureMap,  ITextureMap, loadImage, TextAlign, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 import assert from "assert";
@@ -70,6 +70,6 @@ export class Button extends Sprite implements IButton {
   }
 }
 
-export interface ILoadButtonProps extends IButtonProps, ILoadProps {
+export interface ILoadButtonProps extends IButtonProps {
 
 }

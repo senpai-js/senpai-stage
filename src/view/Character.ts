@@ -1,5 +1,5 @@
 import assert from "assert";
-import { createTextureMap, ILoadProps, loadImage } from "../util";
+import { createTextureMap, loadImage } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 export interface ICharacterProps extends ISpriteProps {
@@ -26,6 +26,6 @@ export class Character extends Sprite implements ICharacter {
   }
 }
 
-export interface ILoadCharacterProps extends ICharacterProps, ILoadProps {
+export interface ILoadCharacterProps extends ICharacterProps {
 
 }

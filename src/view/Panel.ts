@@ -1,6 +1,6 @@
 import assert from "assert";
 import { transformPoint } from "../matrix";
-import { createTextureMap, IInteractionPoint, ILoadProps, ITextureMap, loadImage } from "../util";
+import { createTextureMap, IInteractionPoint, ITextureMap, loadImage } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 const sortZ = (a: ISprite, b: ISprite): number => a.z - b.z;
@@ -121,6 +121,6 @@ export class Panel extends Sprite implements IPanel {
   }
 }
 
-export interface ILoadPanelProps extends IPanelProps, ILoadProps {
+export interface ILoadPanelProps extends IPanelProps {
 
 }

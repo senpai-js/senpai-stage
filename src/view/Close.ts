@@ -1,5 +1,5 @@
 import assert from "assert";
-import { createTextureMap, ILoadProps, ITextureMap, loadImage } from "../util";
+import { createTextureMap, ITextureMap, loadImage } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 export interface IClose extends ISprite {
@@ -24,6 +24,6 @@ export class Close extends Sprite implements IClose {
   }
 }
 
-export interface ILoadCloseProps extends ICloseProps, ILoadProps {
+export interface ILoadCloseProps extends ICloseProps {
 
 }

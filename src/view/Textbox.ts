@@ -1,5 +1,5 @@
 import assert from "assert";
-import { createTextureMap, ILoadProps, IPadding, ITextureMap, loadImage, TextAlign, TextBaseline } from "../util";
+import { createTextureMap, IPadding, ITextureMap, loadImage, TextAlign, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 const tempctx = document.createElement("canvas").getContext("2d");
@@ -177,6 +177,6 @@ export class Textbox extends Sprite implements ITextbox {
   }
 }
 
-export interface ILoadTextboxProps extends ITextboxProps, ILoadProps {
+export interface ILoadTextboxProps extends ITextboxProps {
 
 }

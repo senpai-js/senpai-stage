@@ -2,7 +2,6 @@ import assert from "assert";
 import {
   createTextureMap,
   IInteractionPoint,
-  ILoadProps,
   ITextureMap,
   loadImage,
   TextAlign,
@@ -91,6 +90,6 @@ export class Checkbox extends Sprite implements ICheckbox {
   }
 }
 
-export interface ILoadCheckboxProps extends ICheckboxProps, ILoadProps {
+export interface ILoadCheckboxProps extends ICheckboxProps {
 
 }

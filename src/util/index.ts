@@ -5,11 +5,6 @@ export interface IPoint {
   y: number;
 }
 
-export interface ILoadProps {
-  src: string;
-  definition: ISpriteSheet;
-}
-
 export interface ISpriteSheet {
   frames: ISpriteSheetFrameMap;
   meta: ISpriteSheetMeta;

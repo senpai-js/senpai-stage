@@ -1,4 +1,4 @@
-import {IAudio, IAudioProps, ILoadProps, ISoundSpriteSheet, PlayState } from "../util";
+import {IAudio, IAudioProps, ISoundSpriteSheet, PlayState } from "../util";
 
 export interface ISFX extends IAudio {
   loop: false; // it will always be false
@@ -7,7 +7,7 @@ export interface ISFX extends IAudio {
 export interface ISFXProps extends IAudioProps {
 }
 
-export interface ILoadSFXProps extends ILoadProps {
+export interface ILoadSFXProps {
   name: string;
   texture: string;
 }
