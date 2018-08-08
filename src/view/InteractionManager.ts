@@ -163,6 +163,7 @@ export class InteractionManager extends Container implements IInteractionManager
   public pointDown(point: IInteractionPoint, position: Touch | MouseEvent): void {
     this.pointMove(point, position);
     if (point.hover) {
+      point.down = true;
       point.active = point.hover;
       point.active.down = true;
       point.active.active = true;
@@ -173,13 +174,14 @@ export class InteractionManager extends Container implements IInteractionManager
 
   public pointUp(point: IInteractionPoint, position: Touch | MouseEvent): void {
     this.pointMove(point, position);
+    point.down = false;
     if (point.active) {
-      point.active.emit("up", point);
-    }
-    if (point.active && point.hover === point.active) {
-      point.active.emit("click", point);
       point.active.down = false;
       point.active.active = false;
+      point.active.emit("up", point);
+      if (point.hover === point.active) {
+        point.active.emit("click", point);
+      }
       point.active = null;
     }
     this.emit("click", point);
