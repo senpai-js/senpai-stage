@@ -14,6 +14,7 @@ export interface IInteractionManager extends IContainer {
 
   hookEvents(): void;
   dispose(): void;
+  createInteractionPoint(id: string, type: "Touch" | "Mouse"): IInteractionPoint;
   addTouchPoint(touch: Touch): IInteractionPoint;
   removeTouchPoint(touch: Touch): void;
   pointDown(point: IInteractionPoint, position: Touch | MouseEvent): void;
@@ -224,7 +225,7 @@ export class InteractionManager extends Container implements IInteractionManager
     }
   }
 
-  public addTouchPoint(touch: Touch): IInteractionPoint {
+  public createInteractionPoint(id: string, type: "Touch" | "Mouse"): IInteractionPoint {
     const point: IInteractionPoint = {
       active: null,
       captured: false,
@@ -232,15 +233,21 @@ export class InteractionManager extends Container implements IInteractionManager
       down: false,
       firstDown: false,
       hover: null,
-      id: touch.identifier.toString(),
+      id,
       tx: 0,
       ty: 0,
-      type: "Touch",
+      type,
       x: 0,
       y: 0,
     };
+
+    return point;
+  }
+
+  public addTouchPoint(touch: Touch): IInteractionPoint {
+    const point = this.createInteractionPoint(touch.identifier.toString(), "Touch");
+    this.addPoint(point);
     this.touchPointIndex[touch.identifier] = point;
-    this.points.push(point);
     return point;
   }
 
