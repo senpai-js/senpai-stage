@@ -147,63 +147,140 @@ describe("InteractionManager tests", () => {
     expect(button.active).toBe(false);
   });
 
-  test("When calling pointDown() and pointUp(), appropriate button events are fired", () => {
+  test("When calling pointDown(), down button event is fired", () => {
     const ip = addPointToInteractionManager(im);
     const callback = jest.fn();
     
     button.once("down",  callback); // emitted first on pointDown
-    button.once("up",    callback); // emitted first on pointUp
-    button.once("click", callback); // emitted second on pointUp
+    
+    im.pointDown(ip, {clientX: x, clientY: y});
+
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback).toHaveBeenCalledWith(ip);
+  });
+  
+  test("When calling pointDown() and pointUp(), up button event is fired", () => {
+    const ip = addPointToInteractionManager(im);
+    const callback = jest.fn();
+    
+    button.once("up",  callback); // emitted first on pointDown
     
     im.pointDown(ip, {clientX: x, clientY: y});
     im.pointUp(ip, {clientX: x, clientY: y});
 
-    expect(callback).toHaveBeenCalledTimes(3);
-    expect(callback).toHaveBeenNthCalledWith(1, ip);
-    expect(callback).toHaveBeenNthCalledWith(2, ip);
-    expect(callback).toHaveBeenNthCalledWith(3, ip);
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback).toHaveBeenCalledWith(ip);
   });
   
-  test("When calling pointDown() and pointUp(), appropriate interaction manager events are fired", () => {
+  test("When calling pointDown() and pointUp(), click button event is fired", () => {
+    const ip = addPointToInteractionManager(im);
+    const callback = jest.fn();
+    
+    button.once("click",  callback); // emitted first on pointDown
+    
+    im.pointDown(ip, {clientX: x, clientY: y});
+    im.pointUp(ip, {clientX: x, clientY: y});
+
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback).toHaveBeenCalledWith(ip);
+  });
+  
+  test("When calling pointDown(), firstdown interaction manager event is fired", () => {
     const ip = addPointToInteractionManager(im);
     const callback = jest.fn();
     
     im.once("firstdown",  callback); // emitted first on pointDown
-    im.once("click",      callback); // emitted first on pointUp
+    
+    im.pointDown(ip, {clientX: x, clientY: y});
+
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback).toHaveBeenCalledWith(ip);
+  });
+  
+  test("When calling pointDown() and pointUp(), click interaction manager event is fired", () => {
+    const ip = addPointToInteractionManager(im);
+    const callback = jest.fn();
+    
+    im.once("click",  callback); // emitted first on pointDown
     
     im.pointDown(ip, {clientX: x, clientY: y});
     im.pointUp(ip, {clientX: x, clientY: y});
 
-    expect(callback).toHaveBeenCalledTimes(2);
-    expect(callback).toHaveBeenNthCalledWith(1, ip);
-    expect(callback).toHaveBeenNthCalledWith(2, ip);
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback).toHaveBeenCalledWith(ip);
   });
-
-  test("When events are fired on overlapping buttons, only the button with the highest Z index gets clicked", () => {
+  
+  test("When buttons overlap, the 'down' event is captured by the button with the highest z level", () => {
     const ip = addPointToInteractionManager(im);
     const callback1 = jest.fn();
     const callback2 = jest.fn();
-
+    
     // add a second button
     const button2 = createButton("button2", x, y);
     im.addSprite(button2);
-
+    
     // set z indices - since button2 has a higher z index, it should be clicked
     // while the original button should not be
     button.setZ(0);
     button2.setZ(1);
-
+    
     button.once("down",   callback1);
-    button.once("up",     callback1);
-    button.once("click",  callback1);
     button2.once("down",  callback2);
-    button2.once("up",    callback2);
-    button2.once("click", callback2);
+    
+    im.pointDown(ip, {clientX: x, clientY: y});
+    
+    expect(callback1).toHaveBeenCalledTimes(0);
+    expect(callback2).toHaveBeenCalledTimes(1);
+  });
+  
+  test("When buttons overlap, the 'up' event is captured by the button with the highest z level", () => {
+    const ip = addPointToInteractionManager(im);
+    const callback1 = jest.fn();
+    const callback2 = jest.fn();
+    
+    // add a second button
+    const button2 = createButton("button2", x, y);
+    im.addSprite(button2);
+    
+    // set z indices - since button2 has a higher z index, it should be clicked
+    // while the original button should not be
+    button.setZ(0);
+    button2.setZ(1);
+    
+    button.once("up",   callback1);
+    button2.once("up",  callback2);
     
     im.pointDown(ip, {clientX: x, clientY: y});
     im.pointUp(ip, {clientX: x, clientY: y});
-
+    
     expect(callback1).toHaveBeenCalledTimes(0);
-    expect(callback2).toHaveBeenCalledTimes(3);
+    expect(callback2).toHaveBeenCalledTimes(1);
   });
+
+  test("When buttons overlap, the 'click' event is captured by the button with the highest z level", () => {
+    const ip = addPointToInteractionManager(im);
+    const callback1 = jest.fn();
+    const callback2 = jest.fn();
+    
+    // add a second button
+    const button2 = createButton("button2", x, y);
+    im.addSprite(button2);
+    
+    // set z indices - since button2 has a higher z index, it should be clicked
+    // while the original button should not be
+    button.setZ(0);
+    button2.setZ(1);
+    
+    button.once("click",   callback1);
+    button2.once("click",  callback2);
+    
+    im.pointDown(ip, {clientX: x, clientY: y});
+    im.pointUp(ip, {clientX: x, clientY: y});
+    
+    expect(callback1).toHaveBeenCalledTimes(0);
+    expect(callback2).toHaveBeenCalledTimes(1);
+  });
+
+  // TODO: ensure that when pointDown or pointUp is called repeatedly (twice), 
+  // the event is still only fired once
 });
