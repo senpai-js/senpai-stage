@@ -210,6 +210,7 @@ export class InteractionManager extends Container implements IInteractionManager
         point.hover = hoveringSprite;
         hoveringSprite.pointCollision(point);
         hoveringSprite.emit("point-move", point);
+        break; // we've found the highest z level sprite the point collides with
       }
     }
 
