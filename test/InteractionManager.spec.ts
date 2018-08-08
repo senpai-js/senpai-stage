@@ -137,4 +137,73 @@ describe("InteractionManager tests", () => {
     
     expect(ip.down).toBe(false);
   });
+
+  test("When calling InteractionManager.pointUp(), the button's 'active' flag is false", () => {
+    const ip = addPointToInteractionManager(im);
+
+    im.pointDown(ip, {clientX: x, clientY: y}); // ensure that "active" flag has previously been set
+    im.pointUp(ip, {clientX: x, clientY: y});
+
+    expect(button.active).toBe(false);
+  });
+
+  test("When calling pointDown() and pointUp(), appropriate button events are fired", () => {
+    const ip = addPointToInteractionManager(im);
+    const callback = jest.fn();
+    
+    button.once("down",  callback); // emitted first on pointDown
+    button.once("up",    callback); // emitted first on pointUp
+    button.once("click", callback); // emitted second on pointUp
+    
+    im.pointDown(ip, {clientX: x, clientY: y});
+    im.pointUp(ip, {clientX: x, clientY: y});
+
+    expect(callback).toHaveBeenCalledTimes(3);
+    expect(callback).toHaveBeenNthCalledWith(1, ip);
+    expect(callback).toHaveBeenNthCalledWith(2, ip);
+    expect(callback).toHaveBeenNthCalledWith(3, ip);
+  });
+  
+  test("When calling pointDown() and pointUp(), appropriate interaction manager events are fired", () => {
+    const ip = addPointToInteractionManager(im);
+    const callback = jest.fn();
+    
+    im.once("firstdown",  callback); // emitted first on pointDown
+    im.once("click",      callback); // emitted first on pointUp
+    
+    im.pointDown(ip, {clientX: x, clientY: y});
+    im.pointUp(ip, {clientX: x, clientY: y});
+
+    expect(callback).toHaveBeenCalledTimes(2);
+    expect(callback).toHaveBeenNthCalledWith(1, ip);
+    expect(callback).toHaveBeenNthCalledWith(2, ip);
+  });
+
+  test("When events are fired on overlapping buttons, only the button with the highest Z index gets clicked", () => {
+    const ip = addPointToInteractionManager(im);
+    const callback1 = jest.fn();
+    const callback2 = jest.fn();
+
+    // add a second button
+    const button2 = createButton("button2", x, y);
+    im.addSprite(button2);
+
+    // set z indices - since button2 has a higher z index, it should be clicked
+    // while the original button should not be
+    button.setZ(0);
+    button2.setZ(1);
+
+    button.once("down",   callback1);
+    button.once("up",     callback1);
+    button.once("click",  callback1);
+    button2.once("down",  callback2);
+    button2.once("up",    callback2);
+    button2.once("click", callback2);
+    
+    im.pointDown(ip, {clientX: x, clientY: y});
+    im.pointUp(ip, {clientX: x, clientY: y});
+
+    expect(callback1).toHaveBeenCalledTimes(0);
+    expect(callback2).toHaveBeenCalledTimes(3);
+  });
 });
