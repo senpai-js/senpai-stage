@@ -143,6 +143,9 @@ export async function loadImage(src: string): Promise<ImageBitmap> {
   return bmp;
 }
 
+/**
+ * Sort by z level in ascending order.
+ */
 export function zSort(left: ISprite, right: ISprite): number {
   return left.z - right.z;
 }

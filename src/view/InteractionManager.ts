@@ -197,8 +197,13 @@ export class InteractionManager extends Container implements IInteractionManager
       point.hover.hover = false;
       point.hover = null;
     }
+    // sprites sorted by ascending z level
+    // REASON: Higher z levels are drawn last, so forward-iterating through the
+    // array and drawing the sprites will yield the correct result.
     this.sprites.sort(zSort);
 
+    // find the highest z level sprite the point collides with
+    // loop is reversed due to z levels being sorted ascendingly
     let sprite: ISprite;
     let hoveringSprite: ISprite;
     for (let i = this.sprites.length - 1; i >= 0; i--) {
@@ -207,7 +212,7 @@ export class InteractionManager extends Container implements IInteractionManager
 
       if (hoveringSprite) {
         hoveringSprite.hover = true;
-        point.hover = hoveringSprite;
+        point.hover = hoveringSprite; // this can later be used by pointDown and pointUp
         hoveringSprite.pointCollision(point);
         hoveringSprite.emit("point-move", point);
         break; // we've found the highest z level sprite the point collides with
