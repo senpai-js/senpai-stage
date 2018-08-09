@@ -2,6 +2,8 @@ import { EventEmitter } from "events";
 import { IInteractionPoint, IPlayable } from "../util";
 import { ISprite } from "./Sprite";
 
+type ICallback = (...args: any[]) => any;
+
 export interface IContainer {
   sprites: ISprite[];
   playables: IPlayable[];
@@ -14,6 +16,11 @@ export interface IContainer {
   removePlayable(sprite: IPlayable): this;
   addPoint(point: IInteractionPoint): this;
   removePoint(point: IInteractionPoint): this;
+
+  on(event: string, callback: ICallback): this;
+  once(event: string, callback: ICallback): this;
+  removeListener(event: string, callback: ICallback): this;
+  removeAllListeners(event: string): this;
 }
 
 export interface IContainerProps {

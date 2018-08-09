@@ -162,6 +162,9 @@ export class InteractionManager extends Container implements IInteractionManager
   }
   public pointDown(point: IInteractionPoint, position: Touch | MouseEvent): void {
     this.pointMove(point, position);
+    if (point.down) {
+      return;
+    }
     if (point.hover) {
       point.down = true;
       point.active = point.hover;
@@ -169,11 +172,14 @@ export class InteractionManager extends Container implements IInteractionManager
       point.active.active = true;
       point.active.emit("down", point);
     }
-    this.emit("firstdown", point);
+    this.emit("point-down", point);
   }
 
   public pointUp(point: IInteractionPoint, position: Touch | MouseEvent): void {
     this.pointMove(point, position);
+    if (!point.down) {
+      return;
+    }
     point.down = false;
     if (point.active) {
       point.active.down = false;
@@ -184,7 +190,8 @@ export class InteractionManager extends Container implements IInteractionManager
       }
       point.active = null;
     }
-    this.emit("click", point);
+    super.emit("point-up", point);
+    super.emit("click", point);
   }
 
   public pointMove(point: IInteractionPoint, position: Touch | MouseEvent): void {
