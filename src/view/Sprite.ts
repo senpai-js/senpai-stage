@@ -34,7 +34,7 @@ export interface ISprite extends ISize {
   cursor: "pointer" | "default";
   loaded: Promise<void>;
 
-  texture: ImageBitmap | HTMLCanvasElement | HTMLImageElement;
+  texture: string;
 
   // this is set by the over function
   ease(ratio: number): number;
@@ -97,7 +97,7 @@ export class Sprite extends EventEmitter implements ISprite {
   public hover: boolean = false;
   public down: boolean = false;
   public textures: ITextureMap = {};
-  public texture: ImageBitmap | HTMLCanvasElement | HTMLImageElement = new Image();
+  public texture: string;
   public loaded: Promise<void> = null;
 
   public width: number = 0;
@@ -238,9 +238,9 @@ export class Sprite extends EventEmitter implements ISprite {
   }
   public setTexture(texture: string): this {
     const oldTexture = this.texture;
-    this.texture = this.textures[texture];
-    this.width = this.texture.width;
-    this.height = this.texture.height;
+    this.texture = texture;
+    this.width = this.textures[this.texture].width;
+    this.height = this.textures[this.texture].height;
 
     if (oldTexture !== this.texture) {
       this.emit("texture-change", this.texture);
@@ -250,7 +250,7 @@ export class Sprite extends EventEmitter implements ISprite {
   }
 
   public render(ctx: CanvasRenderingContext2D): void {
-    ctx.drawImage(this.texture, 0, 0);
+    ctx.drawImage(this.textures[this.texture], 0, 0);
   }
 
   private async loadTexture(res: Promise<Response>, definition: ISpriteSheet): Promise<void> {

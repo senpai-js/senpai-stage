@@ -70,11 +70,11 @@ export class Textbox extends Sprite implements ITextbox {
   }
 
   public update() {
-    const maxWidth = this.texture.width - this.padding.left - this.padding.right;
+    const maxWidth = this.textures[this.texture].width - this.padding.left - this.padding.right;
     this.textIndex = Math.min(this.text.length, this.textIndex + this.textSpeed);
     const words = this.text.match(Textbox.regex);
     this.interpolatedText = [""];
-    const maxLines = (this.texture.height - this.padding.top - this.padding.bottom) / this.lineHeight;
+    const maxLines = (this.textures[this.texture].height - this.padding.top - this.padding.bottom) / this.lineHeight;
     let line: string = "";
     let lineIndex: number = 0;
     let measurement: TextMetrics;
@@ -127,7 +127,7 @@ export class Textbox extends Sprite implements ITextbox {
 
   public render(ctx: CanvasRenderingContext2D) {
     super.render(ctx);
-    const maxHeight = this.texture.height - this.padding.top;
+    const maxHeight = this.textures[this.texture].height - this.padding.top;
     let currentHeight = this.padding.top;
 
     ctx.font = `${this.fontSize}px ${this.font}`;
