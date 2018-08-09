@@ -3,6 +3,8 @@ import { AudioContext } from "web-audio-test-api";
 import { Button } from "../src/view/Button"
 import * as m from "../src/matrix";
 
+import { setup } from "./setupUtil";
+
 /**
  * Helper function: create a new Stage with a fresh audio context.
  */
@@ -58,156 +60,147 @@ describe("Button tests", () => {
   const x = 50;
   const y = 50;
 
-  const touch = {clientX: x, clientY: y};
-  
-  let stage : IStage = null;
-  
   // setup before each test
   beforeEach(() => {
-    stage = createStage();
   });
 
   // teardown after each test
   afterEach(() => {
-    stage = null;
   })
 
   // TODO: check that a button has a width
   // TODO: assert that update() guarantees the cursor to be changed
 
   test("If a button is added to the stage after the point is moved, the collision is still registered", () => {
-    const ip = addPointToInteractionManager(stage);
-    
-    stage.pointMove(ip, touch);
-    const button = createButton("button", x, y);
-    stage.addSprite(button);
-    
-    stage.update();
+    let { sprites: {button} } = setup()
+      .addInteractionPoint("ip")
+      .movePoint("ip", x, y)
+      .addButton("button", x, y)
+      .updateStage()
+      .values;
+
     expect(button.cursor).toBe("pointer");
   });
 
   // tests asserting that all states of the button are achievable
 
   test("State 'Active_Hover_Selected' is achievable", () => {
-    const button = createButton("button", x, y);
-    stage.addSprite(button);
-    
-    const ip = addPointToInteractionManager(stage);
-
-    button.selected = true;
-    stage.pointDown(ip, touch); // cause both hover and active to happen
-    
-    stage.update();
+    let { sprites: {button} } = setup()
+      .addButton("button", x, y)
+      .setSelected("button", true)
+      .addInteractionPoint("ip")
+      .pointDown("ip", x, y)
+      .updateStage()
+      .values;
     
     expect(button.active).toBe(true);
     expect(button.hover).toBe(true);
     expect(button.selected).toBe(true);
+    expect(button.texture).toBe("Active_Hover_Selected");
   });
+  
   test("State 'Inactive_Hover_Selected' is achievable", () => {
-    const button = createButton("button", x, y);
-    stage.addSprite(button);
-    
-    const ip = addPointToInteractionManager(stage);
-
-    button.selected = true;
-    stage.pointMove(ip, touch); // cause hover
-    
-    stage.update();
+    let { sprites: {button} } = setup()
+      .addButton("button", x, y)
+      .setSelected("button", true)
+      .addInteractionPoint("ip")
+      .movePoint("ip", x, y)
+      .updateStage()
+      .values;
     
     expect(button.active).toBe(false);
     expect(button.hover).toBe(true);
     expect(button.selected).toBe(true);
+    expect(button.texture).toBe("Inactive_Hover_Selected");
   });
+  
   test("State 'Active_NoHover_Selected' is achievable", () => {
-    const button = createButton("button", x, y);
-    stage.addSprite(button);
-    
-    const ip = addPointToInteractionManager(stage);
-
-    button.selected = true;
-    stage.pointDown(ip, touch); // cause active
-    stage.pointMove(ip, {clientX: 0, clientY: 0}); // cause nohover
-    
-    stage.update();
+    let { sprites: {button} } = setup()
+      .addButton("button", x, y)
+      .setSelected("button", true)
+      .addInteractionPoint("ip")
+      .pointDown("ip", x, y) // activate button
+      .movePoint("ip", 0, 0) // move away from button to unhover
+      .updateStage()
+      .values;
     
     expect(button.active).toBe(true);
     expect(button.hover).toBe(false);
     expect(button.selected).toBe(true);
+    expect(button.texture).toBe("Active_NoHover_Selected");
   });
+  
   test("State 'Inactive_NoHover_Selected' is achievable", () => {
-    const button = createButton("button", x, y);
-    stage.addSprite(button);
-    
-    const ip = addPointToInteractionManager(stage);
-
-    button.selected = true;
-    // NOTE: we don't move the point, so the button is not activated/hovered
-    
-    stage.update();
+    let { sprites: {button} } = setup()
+      .addButton("button", x, y)
+      .setSelected("button", true)
+      .addInteractionPoint("ip") // add point, but don't move it over the button
+      .updateStage()
+      .values;
     
     expect(button.active).toBe(false);
     expect(button.hover).toBe(false);
     expect(button.selected).toBe(true);
+    expect(button.texture).toBe("Inactive_NoHover_Selected");
   });
+  
   test("State 'Active_Hover_Unselected' is achievable", () => {
-    const button = createButton("button", x, y);
-    stage.addSprite(button);
-    
-    const ip = addPointToInteractionManager(stage);
-
-    button.selected = false;
-    stage.pointDown(ip, touch); // cause both hover and active to happen
-    
-    stage.update();
+    let { sprites: {button} } = setup()
+      .addButton("button", x, y)
+      .setSelected("button", false)
+      .addInteractionPoint("ip")
+      .pointDown("ip", x, y)
+      .updateStage()
+      .values;
     
     expect(button.active).toBe(true);
     expect(button.hover).toBe(true);
     expect(button.selected).toBe(false);
+    expect(button.texture).toBe("Active_Hover_Unselected");
   });
+  
   test("State 'Inactive_Hover_Unselected' is achievable", () => {
-    const button = createButton("button", x, y);
-    stage.addSprite(button);
-    
-    const ip = addPointToInteractionManager(stage);
-
-    button.selected = false;
-    stage.pointMove(ip, touch); // cause hover
-    
-    stage.update();
+    let { sprites: {button} } = setup()
+      .addButton("button", x, y)
+      .setSelected("button", false)
+      .addInteractionPoint("ip")
+      .movePoint("ip", x, y) // hover
+      .updateStage()
+      .values;
     
     expect(button.active).toBe(false);
     expect(button.hover).toBe(true);
     expect(button.selected).toBe(false);
+    expect(button.texture).toBe("Inactive_Hover_Unselected");
   });
+  
   test("State 'Active_NoHover_Unselected' is achievable", () => {
-    const button = createButton("button", x, y);
-    stage.addSprite(button);
-    
-    const ip = addPointToInteractionManager(stage);
-
-    button.selected = false;
-    stage.pointDown(ip, touch); // cause active
-    stage.pointMove(ip, {clientX: 0, clientY: 0}); // cause nohover
-    
-    stage.update();
+    let { sprites: {button} } = setup()
+      .addButton("button", x, y)
+      .setSelected("button", false)
+      .addInteractionPoint("ip")
+      .pointDown("ip", x, y) // activate
+      .movePoint("ip", 0, 0) // move point away to unhover
+      .updateStage()
+      .values;
     
     expect(button.active).toBe(true);
     expect(button.hover).toBe(false);
     expect(button.selected).toBe(false);
+    expect(button.texture).toBe("Active_NoHover_Unselected");
   });
+  
   test("State 'Inactive_NoHover_Unselected' is achievable", () => {
-    const button = createButton("button", x, y);
-    stage.addSprite(button);
-    
-    const ip = addPointToInteractionManager(stage);
-
-    button.selected = false;
-    // NOTE: we don't move the point, so the button is not activated/hovered
-    
-    stage.update();
+    let { sprites: {button} } = setup()
+      .addButton("button", x, y)
+      .setSelected("button", false)
+      .addInteractionPoint("ip")
+      .updateStage()
+      .values;
     
     expect(button.active).toBe(false);
     expect(button.hover).toBe(false);
     expect(button.selected).toBe(false);
+    expect(button.texture).toBe("Inactive_NoHover_Unselected");
   });
 });
