@@ -14,6 +14,7 @@ export interface IInteractionManager extends IContainer {
 
   hookEvents(): void;
   dispose(): void;
+  createInteractionPoint(id: string, type: "Touch" | "Mouse"): IInteractionPoint;
   addTouchPoint(touch: Touch): IInteractionPoint;
   removeTouchPoint(touch: Touch): void;
   pointDown(point: IInteractionPoint, position: Touch | MouseEvent): void;
@@ -162,6 +163,7 @@ export class InteractionManager extends Container implements IInteractionManager
   public pointDown(point: IInteractionPoint, position: Touch | MouseEvent): void {
     this.pointMove(point, position);
     if (point.hover) {
+      point.down = true;
       point.active = point.hover;
       point.active.down = true;
       point.active.active = true;
@@ -172,13 +174,14 @@ export class InteractionManager extends Container implements IInteractionManager
 
   public pointUp(point: IInteractionPoint, position: Touch | MouseEvent): void {
     this.pointMove(point, position);
+    point.down = false;
     if (point.active) {
-      point.active.emit("up", point);
-    }
-    if (point.active && point.hover === point.active) {
-      point.active.emit("click", point);
       point.active.down = false;
       point.active.active = false;
+      point.active.emit("up", point);
+      if (point.hover === point.active) {
+        point.active.emit("click", point);
+      }
       point.active = null;
     }
     this.emit("click", point);
@@ -194,8 +197,13 @@ export class InteractionManager extends Container implements IInteractionManager
       point.hover.hover = false;
       point.hover = null;
     }
+    // sprites sorted by ascending z level
+    // REASON: Higher z levels are drawn last, so forward-iterating through the
+    // array and drawing the sprites will yield the correct result.
     this.sprites.sort(zSort);
 
+    // find the highest z level sprite the point collides with
+    // loop is reversed due to z levels being sorted ascendingly
     let sprite: ISprite;
     let hoveringSprite: ISprite;
     for (let i = this.sprites.length - 1; i >= 0; i--) {
@@ -204,9 +212,10 @@ export class InteractionManager extends Container implements IInteractionManager
 
       if (hoveringSprite) {
         hoveringSprite.hover = true;
-        point.hover = hoveringSprite;
+        point.hover = hoveringSprite; // this can later be used by pointDown and pointUp
         hoveringSprite.pointCollision(point);
         hoveringSprite.emit("point-move", point);
+        break; // we've found the highest z level sprite the point collides with
       }
     }
 
@@ -224,7 +233,7 @@ export class InteractionManager extends Container implements IInteractionManager
     }
   }
 
-  public addTouchPoint(touch: Touch): IInteractionPoint {
+  public createInteractionPoint(id: string, type: "Touch" | "Mouse"): IInteractionPoint {
     const point: IInteractionPoint = {
       active: null,
       captured: false,
@@ -232,15 +241,21 @@ export class InteractionManager extends Container implements IInteractionManager
       down: false,
       firstDown: false,
       hover: null,
-      id: touch.identifier.toString(),
+      id,
       tx: 0,
       ty: 0,
-      type: "Touch",
+      type,
       x: 0,
       y: 0,
     };
+
+    return point;
+  }
+
+  public addTouchPoint(touch: Touch): IInteractionPoint {
+    const point = this.createInteractionPoint(touch.identifier.toString(), "Touch");
+    this.addPoint(point);
     this.touchPointIndex[touch.identifier] = point;
-    this.points.push(point);
     return point;
   }
 
