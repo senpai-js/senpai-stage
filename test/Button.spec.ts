@@ -96,7 +96,7 @@ describe("Button tests", () => {
 
   test("State 'Active_Hover_Selected' is achievable", () => {
     let { sprites: {button} } = stateTests
-      .feed(setupTemplate => setupTemplate
+      .feed(t => t
         .setSelected("button", true)
         .pointDown("ip", x, y) // activate button
       ).run().values;
@@ -109,7 +109,7 @@ describe("Button tests", () => {
   
   test("State 'Inactive_Hover_Selected' is achievable", () => {
     let { sprites: {button} } = stateTests
-      .feed(setupTemplate => setupTemplate
+      .feed(t => t
         .setSelected("button", true)
         .movePoint("ip", x, y) // hover over button
       ).run().values;
@@ -122,7 +122,7 @@ describe("Button tests", () => {
   
   test("State 'Active_NoHover_Selected' is achievable", () => {
     let { sprites: {button} } = stateTests
-      .feed(setupTemplate => setupTemplate
+      .feed(t => t
         .setSelected("button", true)
         .pointDown("ip", x, y) // activate button
         .movePoint("ip", 0, 0) // move away from button to unhover
@@ -136,7 +136,7 @@ describe("Button tests", () => {
   
   test("State 'Inactive_NoHover_Selected' is achievable", () => {
     let { sprites: {button} } = stateTests
-      .feed(setupTemplate => setupTemplate
+      .feed(t => t
         .setSelected("button", true)
       ).run().values;
     
@@ -148,7 +148,7 @@ describe("Button tests", () => {
   
   test("State 'Active_Hover_Unselected' is achievable", () => {
     let { sprites: {button} } = stateTests
-      .feed(setupTemplate => setupTemplate
+      .feed(t => t
         .setSelected("button", false)
         .pointDown("ip", x, y)
       ).run().values;
@@ -161,7 +161,7 @@ describe("Button tests", () => {
   
   test("State 'Inactive_Hover_Unselected' is achievable", () => {
     let { sprites: {button} } = stateTests
-      .feed(setupTemplate => setupTemplate
+      .feed(t => t
         .setSelected("button", false)
         .movePoint("ip", x, y)
       ).run().values;
@@ -174,7 +174,7 @@ describe("Button tests", () => {
   
   test("State 'Active_NoHover_Unselected' is achievable", () => {
     let { sprites: {button} } = stateTests
-      .feed(setupTemplate => setupTemplate
+      .feed(t => t
         .setSelected("button", false)
         .pointDown("ip", x, y)
         .movePoint("ip", 0, 0)
@@ -188,7 +188,7 @@ describe("Button tests", () => {
   
   test("State 'Inactive_NoHover_Unselected' is achievable", () => {
     let { sprites: {button} } = stateTests
-      .feed(setupTemplate => setupTemplate
+      .feed(t => t
         .setSelected("button", false)
       ).run().values;
     
