@@ -5,57 +5,6 @@ import * as m from "../src/matrix";
 
 import { setup } from "./setupUtil";
 
-/**
- * Helper function: create a new Stage with a fresh audio context.
- */
-const createStage = () : IStage => {
-  const audioContext = new AudioContext();
-  const canvas = document.createElement("canvas");
-  return new Stage({
-    audioContext,
-    canvas,
-    height: 600,
-    width: 800,
-  });
-};
-
-/**
- * Helper function: create a button at 50,50.
- */
-const createButton = (id: string, x: number, y: number): Button => {
-  const buttonPos = m.chain([1, 0, 0, 1, 0, 0]).translate(x, y).value;
-  
-  const textures = {};
-  ["Active", "Inactive"].forEach(a => {
-    ["Hover", "NoHover"].forEach(b => {
-      ["Selected", "Unselected"].forEach(c => {
-        textures[`${a}_${b}_${c}`] = new Image();
-      })
-    })
-  });
-  
-  // create button
-  // NOTE: it needs a texture
-  const button = new Button({
-    definition: null, // TODO: change?
-    id,
-    position: buttonPos,
-    source: null, // TODO: change?
-    textures,
-  });
-  return button;
-};
-
-/**
- * Helper function: create and add an interaction point to the interaction
- * manager, then return it.
- */
-const addPointToInteractionManager = (im: IInteractionManager): IInteractionPoint => {
-  const ip = im.createInteractionPoint("pointName", "Touch");
-  im.addPoint(ip);
-  return ip;
-};
-
 describe("Button tests", () => {
   // location of button
   const x = 50;
@@ -66,7 +15,8 @@ describe("Button tests", () => {
   
   // setup before each test
   beforeEach(() => {
-    stateTests = setup().template.perform(t => t
+    stateTests = setup().template
+      .perform(t => t
         .addButton("button", x, y)
         .addInteractionPoint("ip"))
       .placeholder()
