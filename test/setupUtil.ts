@@ -1,7 +1,10 @@
+import { AudioContext } from "web-audio-test-api";
+
 import * as m from "../src/matrix";
 import { Stage, IStage } from "../src/view/Stage"
 import { ISprite } from "../src/view/Sprite"
 import { Button } from "../src/view/Button"
+import { Checkbox } from "../src/view/Checkbox"
 import { ITextureMap, IInteractionPoint } from "../src/util"
 
 /**
@@ -41,6 +44,12 @@ export interface ITestSetup {
    * to the stage.
    */
   addButton(id: string, x: number, y: number): this;
+
+  /**
+   * Create a Checkbox with the given id at the given (x, y) coordinate and add
+   * it to the stage.
+   */
+  addCheckbox(id: string, x: number, y: number): this;
   
   /**
    * Move the given point to the given (x, y) coordinate.
@@ -167,12 +176,43 @@ export class TestSetup implements ITestSetup {
     return this;
   }
 
+  public addCheckbox(id: string, x: number, y: number): this {
+    if (this.idIsTaken(id)) {
+      throw new Error(`Cannot add Checkbox with id ${id}: element with id already exists.`);
+    }
+    const checkboxPos = m.chain([1, 0, 0, 1, 0, 0]).translate(x, y).value;
+    const textures = new TextureBuilder()
+      .attr("Active", "Inactive")
+      .attr("Hover", "NoHover")
+      .attr("Checked", "Unchecked")
+      .build();
+
+    this.values.sprites[id] = new Checkbox({
+      definition: null,
+      id,
+      position: checkboxPos,
+      source: null,
+      textures,
+    })
+    this.values.stage.addSprite(this.values.sprites[id]);
+    return this;
+  }
+
   public setSelected(id: string, val: boolean): this {
     if (!this.existsSprite(id)) {
       throw new Error(`Cannot set the 'selected' property of Button with id ${id}: button does not exist.`);
     }
 
     this.values.sprites[id].selected = val;
+    return this;
+  }
+  
+  public setChecked(id: string, val: boolean): this {
+    if (!this.existsSprite(id)) {
+      throw new Error(`Cannot set the 'checked' property of Checkbox with id ${id}: checkbox does not exist.`);
+    }
+
+    this.values.sprites[id].checked = val;
     return this;
   }
 
