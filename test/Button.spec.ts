@@ -57,11 +57,21 @@ const addPointToInteractionManager = (im: IInteractionManager): IInteractionPoin
 };
 
 describe("Button tests", () => {
+  // location of button
   const x = 50;
   const y = 50;
 
+  // create a setup template for the very similar state test cases
+  let stateTests;
+  
   // setup before each test
   beforeEach(() => {
+    stateTests = setup().template.perform(t => t
+        .addButton("button", x, y)
+        .addInteractionPoint("ip"))
+      .placeholder()
+      .perform(t => t
+        .updateStage());
   });
 
   // teardown after each test
@@ -85,13 +95,11 @@ describe("Button tests", () => {
   // tests asserting that all states of the button are achievable
 
   test("State 'Active_Hover_Selected' is achievable", () => {
-    let { sprites: {button} } = setup()
-      .addButton("button", x, y)
-      .setSelected("button", true)
-      .addInteractionPoint("ip")
-      .pointDown("ip", x, y)
-      .updateStage()
-      .values;
+    let { sprites: {button} } = stateTests
+      .feed(setupTemplate => setupTemplate
+        .setSelected("button", true)
+        .pointDown("ip", x, y) // activate button
+      ).run().values;
     
     expect(button.active).toBe(true);
     expect(button.hover).toBe(true);
@@ -100,13 +108,11 @@ describe("Button tests", () => {
   });
   
   test("State 'Inactive_Hover_Selected' is achievable", () => {
-    let { sprites: {button} } = setup()
-      .addButton("button", x, y)
-      .setSelected("button", true)
-      .addInteractionPoint("ip")
-      .movePoint("ip", x, y)
-      .updateStage()
-      .values;
+    let { sprites: {button} } = stateTests
+      .feed(setupTemplate => setupTemplate
+        .setSelected("button", true)
+        .movePoint("ip", x, y) // hover over button
+      ).run().values;
     
     expect(button.active).toBe(false);
     expect(button.hover).toBe(true);
@@ -115,14 +121,12 @@ describe("Button tests", () => {
   });
   
   test("State 'Active_NoHover_Selected' is achievable", () => {
-    let { sprites: {button} } = setup()
-      .addButton("button", x, y)
-      .setSelected("button", true)
-      .addInteractionPoint("ip")
-      .pointDown("ip", x, y) // activate button
-      .movePoint("ip", 0, 0) // move away from button to unhover
-      .updateStage()
-      .values;
+    let { sprites: {button} } = stateTests
+      .feed(setupTemplate => setupTemplate
+        .setSelected("button", true)
+        .pointDown("ip", x, y) // activate button
+        .movePoint("ip", 0, 0) // move away from button to unhover
+      ).run().values;
     
     expect(button.active).toBe(true);
     expect(button.hover).toBe(false);
@@ -131,12 +135,10 @@ describe("Button tests", () => {
   });
   
   test("State 'Inactive_NoHover_Selected' is achievable", () => {
-    let { sprites: {button} } = setup()
-      .addButton("button", x, y)
-      .setSelected("button", true)
-      .addInteractionPoint("ip") // add point, but don't move it over the button
-      .updateStage()
-      .values;
+    let { sprites: {button} } = stateTests
+      .feed(setupTemplate => setupTemplate
+        .setSelected("button", true)
+      ).run().values;
     
     expect(button.active).toBe(false);
     expect(button.hover).toBe(false);
@@ -145,13 +147,11 @@ describe("Button tests", () => {
   });
   
   test("State 'Active_Hover_Unselected' is achievable", () => {
-    let { sprites: {button} } = setup()
-      .addButton("button", x, y)
-      .setSelected("button", false)
-      .addInteractionPoint("ip")
-      .pointDown("ip", x, y)
-      .updateStage()
-      .values;
+    let { sprites: {button} } = stateTests
+      .feed(setupTemplate => setupTemplate
+        .setSelected("button", false)
+        .pointDown("ip", x, y)
+      ).run().values;
     
     expect(button.active).toBe(true);
     expect(button.hover).toBe(true);
@@ -160,13 +160,11 @@ describe("Button tests", () => {
   });
   
   test("State 'Inactive_Hover_Unselected' is achievable", () => {
-    let { sprites: {button} } = setup()
-      .addButton("button", x, y)
-      .setSelected("button", false)
-      .addInteractionPoint("ip")
-      .movePoint("ip", x, y) // hover
-      .updateStage()
-      .values;
+    let { sprites: {button} } = stateTests
+      .feed(setupTemplate => setupTemplate
+        .setSelected("button", false)
+        .movePoint("ip", x, y)
+      ).run().values;
     
     expect(button.active).toBe(false);
     expect(button.hover).toBe(true);
@@ -175,14 +173,12 @@ describe("Button tests", () => {
   });
   
   test("State 'Active_NoHover_Unselected' is achievable", () => {
-    let { sprites: {button} } = setup()
-      .addButton("button", x, y)
-      .setSelected("button", false)
-      .addInteractionPoint("ip")
-      .pointDown("ip", x, y) // activate
-      .movePoint("ip", 0, 0) // move point away to unhover
-      .updateStage()
-      .values;
+    let { sprites: {button} } = stateTests
+      .feed(setupTemplate => setupTemplate
+        .setSelected("button", false)
+        .pointDown("ip", x, y)
+        .movePoint("ip", 0, 0)
+      ).run().values;
     
     expect(button.active).toBe(true);
     expect(button.hover).toBe(false);
@@ -191,12 +187,10 @@ describe("Button tests", () => {
   });
   
   test("State 'Inactive_NoHover_Unselected' is achievable", () => {
-    let { sprites: {button} } = setup()
-      .addButton("button", x, y)
-      .setSelected("button", false)
-      .addInteractionPoint("ip")
-      .updateStage()
-      .values;
+    let { sprites: {button} } = stateTests
+      .feed(setupTemplate => setupTemplate
+        .setSelected("button", false)
+      ).run().values;
     
     expect(button.active).toBe(false);
     expect(button.hover).toBe(false);
