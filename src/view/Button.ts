@@ -56,7 +56,7 @@ export class Button extends Sprite implements IButton {
 
   public render(ctx: CanvasRenderingContext2D): void {
     super.render(ctx);
-    ctx.translate(this.texture.width * 0.5, this.texture.height * 0.5);
+    ctx.translate(this.textures[this.texture].width * 0.5, this.textures[this.texture].height * 0.5);
     ctx.textBaseline = TextBaseline.middle;
     ctx.textAlign = TextAlign.center;
     ctx.font = `${this.fontSize}px ${this.font}`;
