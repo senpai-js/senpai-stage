@@ -61,6 +61,12 @@ export interface ITestSetup {
    * it to the stage.
    */
   addCheckbox(id: string, x: number, y: number): this;
+
+  /**
+   * Create a Label with the given id at the given (x, y) coordinate and add it
+   * to the stage.
+   */
+  addLabel(id: string, x: number, y: number): this;
   
   /**
    * Move the given point to the given (x, y) coordinate.
@@ -71,6 +77,11 @@ export interface ITestSetup {
    * Set the "selected" property of a button to be true or false.
    */
   setSelected(id: string, val: boolean): this;
+
+  /**
+   * Set the "text" property of a label to a given string.
+   */
+  setLabelText(id: string, val: string): this;
 
   /**
    * Call the stage update() method.
@@ -230,6 +241,24 @@ export class TestSetup implements ITestSetup {
     this.values.stage.addSprite(this.values.sprites[id]);
     return this;
   }
+  
+  public addLabel(id: string, x: number, y: number): this {
+    if (this.idIsTaken(id)) {
+      throw new Error(`Cannot add Label with id ${id}: element with id already exists.`);
+    }
+    const labelPos = m.chain([1, 0, 0, 1, 0, 0]).translate(x, y).value;
+    const textures = new TextureBuilder().attr("texture").build();
+
+    this.values.sprites[id] = new Label({
+      definition: null,
+      id,
+      position: labelPos,
+      source: null,
+      textures,
+    })
+    this.values.stage.addSprite(this.values.sprites[id]);
+    return this;
+  }
 
   public setSelected(id: string, val: boolean): this {
     if (!this.existsSprite(id)) {
@@ -237,6 +266,15 @@ export class TestSetup implements ITestSetup {
     }
 
     this.values.sprites[id].selected = val;
+    return this;
+  }
+
+  public setLabelText(id: string, val: string): this {
+    if (!this.existsSprite(id)) {
+      throw new Error(`Cannot set the 'text' property of Label with id ${id}: label does not exist.`);
+    }
+    
+    this.values.sprites[id].setText(val);
     return this;
   }
   
