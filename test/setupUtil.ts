@@ -1,11 +1,13 @@
 import { AudioContext } from "web-audio-test-api";
 
 import * as m from "../src/matrix";
-import { Stage, IStage } from "../src/view/Stage"
-import { ISprite } from "../src/view/Sprite"
-import { Button } from "../src/view/Button"
-import { Checkbox } from "../src/view/Checkbox"
-import { ITextureMap, IInteractionPoint } from "../src/util"
+import { Stage, IStage } from "../src/view/Stage";
+import { ISprite } from "../src/view/Sprite";
+import { Button } from "../src/view/Button";
+import { Close } from "../src/view/Close";
+import { Label } from "../src/view/Label";
+import { Checkbox } from "../src/view/Checkbox";
+import { ITextureMap, IInteractionPoint } from "../src/util";
 
 /**
  * Create setup utility object.
@@ -46,10 +48,25 @@ export interface ITestSetup {
   addButton(id: string, x: number, y: number): this;
 
   /**
+   * Create a Close button with the given id at the given (x, y) coordinate and
+   * add it to the stage.
+   *
+   * NOTE: The Close button has the same states as the regular Button sans the
+   * "Selected" part.
+   */
+  addCloseButton(id: string, x: number, y: number): this;
+
+  /**
    * Create a Checkbox with the given id at the given (x, y) coordinate and add
    * it to the stage.
    */
   addCheckbox(id: string, x: number, y: number): this;
+
+  /**
+   * Create a Label with the given id at the given (x, y) coordinate and add it
+   * to the stage.
+   */
+  addLabel(id: string, x: number, y: number): this;
   
   /**
    * Move the given point to the given (x, y) coordinate.
@@ -60,6 +77,11 @@ export interface ITestSetup {
    * Set the "selected" property of a button to be true or false.
    */
   setSelected(id: string, val: boolean): this;
+
+  /**
+   * Set the "text" property of a label to a given string.
+   */
+  setLabelText(id: string, val: string): this;
 
   /**
    * Call the stage update() method.
@@ -176,6 +198,28 @@ export class TestSetup implements ITestSetup {
     return this;
   }
 
+  public addCloseButton(id: string, x: number, y: number): this {
+    if (this.idIsTaken(id)) {
+      throw new Error(`Cannot add Close button with id ${id}: element with id already exists.`);
+    }
+    
+    const buttonPos = m.chain([1, 0, 0, 1, 0, 0]).translate(x, y).value;
+    const textures = new TextureBuilder()
+      .attr("Active", "Inactive")
+      .attr("Hover", "NoHover")
+      .build();
+    
+    this.values.sprites[id] = new Close({
+      definition: null,
+      id,
+      position: buttonPos,
+      source: null,
+      textures,
+    });
+    this.values.stage.addSprite(this.values.sprites[id]);
+    return this;
+  }
+
   public addCheckbox(id: string, x: number, y: number): this {
     if (this.idIsTaken(id)) {
       throw new Error(`Cannot add Checkbox with id ${id}: element with id already exists.`);
@@ -197,6 +241,24 @@ export class TestSetup implements ITestSetup {
     this.values.stage.addSprite(this.values.sprites[id]);
     return this;
   }
+  
+  public addLabel(id: string, x: number, y: number): this {
+    if (this.idIsTaken(id)) {
+      throw new Error(`Cannot add Label with id ${id}: element with id already exists.`);
+    }
+    const labelPos = m.chain([1, 0, 0, 1, 0, 0]).translate(x, y).value;
+    const textures = new TextureBuilder().attr("texture").build();
+
+    this.values.sprites[id] = new Label({
+      definition: null,
+      id,
+      position: labelPos,
+      source: null,
+      textures,
+    })
+    this.values.stage.addSprite(this.values.sprites[id]);
+    return this;
+  }
 
   public setSelected(id: string, val: boolean): this {
     if (!this.existsSprite(id)) {
@@ -204,6 +266,15 @@ export class TestSetup implements ITestSetup {
     }
 
     this.values.sprites[id].selected = val;
+    return this;
+  }
+
+  public setLabelText(id: string, val: string): this {
+    if (!this.existsSprite(id)) {
+      throw new Error(`Cannot set the 'text' property of Label with id ${id}: label does not exist.`);
+    }
+    
+    this.values.sprites[id].setText(val);
     return this;
   }
   
