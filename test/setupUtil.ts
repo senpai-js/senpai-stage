@@ -1,11 +1,13 @@
 import { AudioContext } from "web-audio-test-api";
 
 import * as m from "../src/matrix";
-import { Stage, IStage } from "../src/view/Stage"
-import { ISprite } from "../src/view/Sprite"
-import { Button } from "../src/view/Button"
-import { Checkbox } from "../src/view/Checkbox"
-import { ITextureMap, IInteractionPoint } from "../src/util"
+import { Stage, IStage } from "../src/view/Stage";
+import { ISprite } from "../src/view/Sprite";
+import { Button } from "../src/view/Button";
+import { Close } from "../src/view/Close";
+import { Label } from "../src/view/Label";
+import { Checkbox } from "../src/view/Checkbox";
+import { ITextureMap, IInteractionPoint } from "../src/util";
 
 /**
  * Create setup utility object.
@@ -44,6 +46,15 @@ export interface ITestSetup {
    * to the stage.
    */
   addButton(id: string, x: number, y: number): this;
+
+  /**
+   * Create a Close button with the given id at the given (x, y) coordinate and
+   * add it to the stage.
+   *
+   * NOTE: The Close button has the same states as the regular Button sans the
+   * "Selected" part.
+   */
+  addCloseButton(id: string, x: number, y: number): this;
 
   /**
    * Create a Checkbox with the given id at the given (x, y) coordinate and add
@@ -166,6 +177,28 @@ export class TestSetup implements ITestSetup {
       .build();
     
     this.values.sprites[id] = new Button({
+      definition: null,
+      id,
+      position: buttonPos,
+      source: null,
+      textures,
+    });
+    this.values.stage.addSprite(this.values.sprites[id]);
+    return this;
+  }
+
+  public addCloseButton(id: string, x: number, y: number): this {
+    if (this.idIsTaken(id)) {
+      throw new Error(`Cannot add Close button with id ${id}: element with id already exists.`);
+    }
+    
+    const buttonPos = m.chain([1, 0, 0, 1, 0, 0]).translate(x, y).value;
+    const textures = new TextureBuilder()
+      .attr("Active", "Inactive")
+      .attr("Hover", "NoHover")
+      .build();
+    
+    this.values.sprites[id] = new Close({
       definition: null,
       id,
       position: buttonPos,
