@@ -30,6 +30,14 @@ import { setup } from "./setupUtil";
 // TODO: Review and update all the test names. Most probably don't make any
 // sense atm.
 describe("Slider tests", () => {
+  test("Hover over Slider body changes 'cursor' property to 'pointer'", () => {
+    throw new Error("Not implemented");
+  });
+  
+  test("Hover over pill changes 'cursor' property to 'pointer'", () => {
+    throw new Error("Not implemented");
+  });
+
   test("Hover over Slider body does not change pill location", () => {
     throw new Error("Not implemented");
   });
@@ -119,6 +127,10 @@ describe("Slider tests", () => {
   });
 
   test("Moving point off slider while slider is active projects value onto slider", () => {
+    throw new Error("Not implemented");
+  });
+  
+  test("Moving point off slider while slider is active keeps 'cursor' property as 'pointer'", () => {
     throw new Error("Not implemented");
   });
 
