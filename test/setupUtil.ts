@@ -4,6 +4,7 @@ import * as m from "../src/matrix";
 import { Stage, IStage } from "../src/view/Stage";
 import { ISprite } from "../src/view/Sprite";
 import { Button } from "../src/view/Button";
+import { Slider } from "../src/view/Slider";
 import { Close } from "../src/view/Close";
 import { Label } from "../src/view/Label";
 import { Checkbox } from "../src/view/Checkbox";
@@ -82,6 +83,15 @@ export interface ITestSetup {
    * Set the "text" property of a label to a given string.
    */
   setLabelText(id: string, val: string): this;
+
+  /**
+   * Set the textures of a given sprite to the specified image value.
+   *
+   * If no textureNames are specified, the method assumes that all textures
+   * should have their value changed. Else, it only changes the ones specified
+   * in textureNames.
+   */
+  setTextures(id: string, val: ImageBitmap, ...textureNames: string[]): this;
 
   /**
    * Call the stage update() method.
@@ -260,6 +270,34 @@ export class TestSetup implements ITestSetup {
     return this;
   }
 
+  public addSlider(id: string, x: number, y: number): this {
+    if (this.idIsTaken(id)) {
+      throw new Error(`Cannot add Slider with id ${id}: element with id already exists.`);
+    }
+    const sliderPos = m.chain([1, 0, 0, 1, 0, 0]).translate(x, y).value;
+    const textures = new TextureChainBuilder()
+      .attr("Pill")
+      .sometimes()
+      .attr("Active", "Hover")
+      .and()
+      .attr("Line")
+      .sometimes()
+      .attr("Cap")
+      .attr("Left", "Right")
+      .build();
+
+    this.values.sprites[id] = new Slider({
+      definition: null,
+      id,
+      position: sliderPos,
+      source: null,
+      textures,
+      width: 100,
+    })
+    this.values.stage.addSprite(this.values.sprites[id]);
+    return this;
+  }
+
   public setSelected(id: string, val: boolean): this {
     if (!this.existsSprite(id)) {
       throw new Error(`Cannot set the 'selected' property of Button with id ${id}: button does not exist.`);
@@ -284,6 +322,14 @@ export class TestSetup implements ITestSetup {
     }
 
     this.values.sprites[id].checked = val;
+    return this;
+  }
+  
+  public setTextures(id: string, val: ImageBitmap, ...textureNames: string[]): this {
+    let textures : string[] = textureNames.length ? textureNames : Object.keys(this.values.sprites[id].textures);
+    for (let texture of textures) {
+      this.values.sprites[id].textures[texture] = val;
+    }
     return this;
   }
 
@@ -370,9 +416,46 @@ interface ITextureBuilder {
   build(): ITextureMap;
 }
 
+/**
+ * This is a helper class which can chain together multiple texture builders and
+ * use them to build a single ITextureMap.
+ */
+interface ITextureChainBuilder extends ITextureBuilder {
+  /**
+   * Create a new texture builder.
+   */
+  and(): this;
+
+  /**
+   * Use the current texture builder's attributes as the basis of a new texture
+   * builder with more attributes.
+   */
+  sometimes(): this;
+
+  /**
+   * Delegate to current texture builder.
+   */
+  attr(...variations: string[]): this;
+  
+  /**
+   * Delegate to current texture builder.
+   */
+  separator(sep: string): this;
+
+  /**
+   * Create single texture map from all texture builders.
+   */
+  build(): ITextureMap;
+}
+
 class TextureBuilder implements ITextureBuilder {
   private sep: string = "_";
   private attributes: string[][] = [];
+
+  constructor(attr:? string[][]) {
+    if (attr)
+      this.attributes = attr.slice();
+  }
   
   public separator(sep: string): this {
     this.sep = sep;
@@ -400,6 +483,45 @@ class TextureBuilder implements ITextureBuilder {
       textures = temp.slice();
     });
     return textures.reduce((acc, x) => {acc[x] = new Image(); return acc}, {});
+  }
+}
+
+class TextureChainBuilder implements ITextureChainBuilder {
+  private builders: ITextureBuilder[] = [new TextureBuilder()];
+  
+  public and(): this {
+    this.builders.push(new TextureBuilder());
+    return this;
+  }
+
+  public sometimes(): this {
+    this.builders.push(new TextureBuilder(this.currentBuilder().attributes))
+    return this;
+  }
+
+  public separator(sep: string): this {
+    this.currentBuilder().separator(sep);
+    return this;
+  }
+
+  public attr(...variations: string[]): this {
+    this.currentBuilder().attr(...variations);
+    return this;
+  }
+
+  public build(): ITextureMap {
+    const tm: ITextureMap = {};
+    this.builders.forEach(b => {
+      const tmp = b.build();
+      for (let texture in tmp) {
+        tm[texture] = tmp[texture];
+      }
+    });
+    return tm;
+  }
+
+  private currentBuilder(): ITextureBuilder {
+    return this.builders[this.builders.length-1];
   }
 }
 

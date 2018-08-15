@@ -49,9 +49,13 @@ export class Slider extends Sprite implements ISlider {
   }
 
   public narrowPhase(point: IInteractionPoint): ISprite {
-    if (this.active) {
+    if (this.active || point.firstDown) {
       return this;
     }
+
+    /*
+     * NOTE: this checks if the cursor is strictly hovering over the pill
+     */
     const sliderDistance = this.width - this.textures.Pill_Hover.width;
     const sliderValuePercent = (this.value - this.min) / (this.max - this.min);
     const valueX = sliderDistance * sliderValuePercent;
