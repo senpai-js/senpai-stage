@@ -84,6 +84,15 @@ export interface ITestSetup {
   setLabelText(id: string, val: string): this;
 
   /**
+   * Set the textures of a given sprite to the specified image value.
+   *
+   * If no textureNames are specified, the method assumes that all textures
+   * should have their value changed. Else, it only changes the ones specified
+   * in textureNames.
+   */
+  setTextures(id: string, val: ImageBitmap, ...textureNames: string[]): this;
+
+  /**
    * Call the stage update() method.
    */
   updateStage(): this;
@@ -284,6 +293,14 @@ export class TestSetup implements ITestSetup {
     }
 
     this.values.sprites[id].checked = val;
+    return this;
+  }
+  
+  public setTextures(id: string, val: ImageBitmap, ...textureNames: string[]): this {
+    let textures : string[] = textureNames.length ? textureNames : Object.keys(this.values.sprites[id].textures);
+    for (let texture of textures) {
+      this.values.sprites[id].textures[texture] = val;
+    }
     return this;
   }
 
