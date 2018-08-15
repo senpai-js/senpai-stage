@@ -161,18 +161,23 @@ export class InteractionManager extends Container implements IInteractionManager
     }
   }
   public pointDown(point: IInteractionPoint, position: Touch | MouseEvent): void {
+    const alreadyDown = point.down;
+    if (!alreadyDown) {
+       point.down = true;
+       point.firstDown = true;
+    }
     this.pointMove(point, position);
-    if (point.down) {
+    if (alreadyDown) {
       return;
     }
     if (point.hover) {
-      point.down = true;
       point.active = point.hover;
       point.active.down = true;
       point.active.active = true;
       point.active.emit("down", point);
     }
     this.emit("point-down", point);
+    point.firstDown = false; // after this point, the point will not be considered "just recently pressed"
   }
 
   public pointUp(point: IInteractionPoint, position: Touch | MouseEvent): void {
