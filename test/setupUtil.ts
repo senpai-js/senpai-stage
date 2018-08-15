@@ -4,6 +4,7 @@ import * as m from "../src/matrix";
 import { Stage, IStage } from "../src/view/Stage";
 import { ISprite } from "../src/view/Sprite";
 import { Button } from "../src/view/Button";
+import { Slider } from "../src/view/Slider";
 import { Close } from "../src/view/Close";
 import { Label } from "../src/view/Label";
 import { Checkbox } from "../src/view/Checkbox";
@@ -264,6 +265,34 @@ export class TestSetup implements ITestSetup {
       position: labelPos,
       source: null,
       textures,
+    })
+    this.values.stage.addSprite(this.values.sprites[id]);
+    return this;
+  }
+
+  public addSlider(id: string, x: number, y: number): this {
+    if (this.idIsTaken(id)) {
+      throw new Error(`Cannot add Slider with id ${id}: element with id already exists.`);
+    }
+    const sliderPos = m.chain([1, 0, 0, 1, 0, 0]).translate(x, y).value;
+    const textures = new TextureChainBuilder()
+      .attr("Pill")
+      .sometimes()
+      .attr("Active", "Hover")
+      .and()
+      .attr("Line")
+      .sometimes()
+      .attr("Cap")
+      .attr("Left", "Right")
+      .build();
+
+    this.values.sprites[id] = new Slider({
+      definition: null,
+      id,
+      position: sliderPos,
+      source: null,
+      textures,
+      width: 100,
     })
     this.values.stage.addSprite(this.values.sprites[id]);
     return this;
