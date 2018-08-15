@@ -147,20 +147,6 @@ describe("Slider tests", () => {
     expect(slider.narrowPhase(ip)).toBe(slider);
   });
   
-  /**
-   * NOTE: This works, but not for the reason you might think.
-   *
-   * You might think that by the time we're testing this, the system is somehow
-   * aware that the point is down, and thus it knows that the slider should be
-   * returned. THIS IS NOT TRUE. What happens is, the pill's location changes
-   * due to the value being updated in the pointCollision() method which is
-   * called on stage.pointMove(), and by the time we're testing, the point is
-   * hovering above the pill, which is the reason this test passes.
-   *
-   * In order to check that the test passes specifically because the point was
-   * down, we'd have to test it in the middle of the `pointDown` method call,
-   * which is infeasible. So in conclusion, AAAAAAARRRGGHHHHH THIS FUCKING TEST
-   */
   test("When point was just pressed down on body, narrowPhase returns Slider", () =>  {
     // setup without any action in the placeholder spot
     let { points: {ip}, sprites: {slider} } = template.feed(t => t).run().values;
