@@ -13,11 +13,13 @@ import { setup } from "./setupUtil";
 
 // NOTE: Behavior on max <= min? Should this be allowed? Should it error?
 // Should it silently reconfigure?
+// ANSWER: Error
 
 // NOTE: What happens if pointDown is called repeatedly with no pointUp in
 // between when slider is active? Does the slider become inactive if the user
 // calls pointDown on the outside of the body, even if the point is already
 // down?
+// ANSWER: TODO
 
 // NOTE: I notice that some parts of the code uses "hasOwnProperty" to decide
 // whether to set an optional property, while others use the || operator. Are
@@ -25,120 +27,235 @@ import { setup } from "./setupUtil";
 // preferable to have the code refactored to consistently use one over the other
 // if applicable?
 // ^ not directly related to Slider behavior
+// ANSWER: We can change this later
 
 // TODO: Read up on slider implementation
-// TODO: Review and update all the test names. Most probably don't make any
-// sense atm.
 describe("Slider tests", () => {
-  test("Hover over Slider body changes 'cursor' property to 'pointer'", () => {
-    throw new Error("Not implemented");
+  const x = 50;
+  const y = 50;
+
+  /*
+  const template = setup().template
+    .perform(t => t
+      .addSlider("slider", x, y)
+      .setTextures("slider", new Image(20, 20)) // set all textures to a 20x20 image
+      .addInteractionPoint("ip"))
+    .placeholder()
+    .perform(t => t.updateStage());
+  */
+  let template;
+  beforeEach(() => {
+    template = setup().template
+      .perform(t => t
+        .addSlider("slider", x, y)
+        .setTextures("slider", new Image(20, 20)) // set all textures to a 20x20 image
+        .addInteractionPoint("ip"))
+      .placeholder()
+      .perform(t => t.updateStage());
+  })
+  
+  test("Hover over Slider body makes broadPhase() return true",  () => {
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.movePoint("ip", x+50, y)) // to the right of the pill by 30px
+      .run()
+      .values;
+    
+    expect(slider.broadPhase(ip)).toBe(true);
+  });
+  
+  test("Hover over pill makes broadPhase() return true",  () => {
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.movePoint("ip", x, y))
+      .run()
+      .values;
+    
+    expect(slider.broadPhase(ip)).toBe(true);
+  });
+  
+  test("Hover over Slider body makes narrowPhase() return undefined",  () => {
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.movePoint("ip", x+50, y)) // to the right of the pill by 30px
+      .run()
+      .values;
+
+    expect(slider.narrowPhase(ip)).toBe(undefined);
+  });
+  
+  test("Hover over pill makes narrowPhase() return slider",  () => {
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.movePoint("ip", x, y))
+      .run()
+      .values;
+    
+    expect(slider.narrowPhase(ip)).toBe(slider);
+  });
+
+  test("Hover over Slider body does not change 'cursor' property to 'pointer'", () => {
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.movePoint("ip", x+50, y)) // to the right of the pill by 30px
+      .run()
+      .values;
+
+    expect(slider.cursor).toBe("default");
   });
   
   test("Hover over pill changes 'cursor' property to 'pointer'", () => {
-    throw new Error("Not implemented");
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.movePoint("ip", x, y))
+      .run()
+      .values;
+
+    expect(slider.cursor).toBe("pointer");
   });
 
-  test("Hover over Slider body does not change pill location", () => {
-    throw new Error("Not implemented");
-  });
-  
   test("Hover over Slider body does not change Slider value", () => {
-    throw new Error("Not implemented");
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.movePoint("ip", x+50, y))
+      .run()
+      .values;
+
+    expect(slider.value).toBe(0);
   });
   
-  test("Clicking outside Slider body does not change pill location", () => {
-    throw new Error("Not implemented");
-  });
-  
+  /*
+   * Reason for removal: Not prioritized
+
   test("Clicking outside Slider body does not change Slider value", () => {
     throw new Error("Not implemented");
   });
+   */
 
-  test("Clicking on Slider body changes pill location", () => {
-    throw new Error("Not implemented");
-  });
-  
   test("Clicking on Slider body changes Slider value", () => {
-    throw new Error("Not implemented");
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.pointDown("ip", x+50, y))
+      .run()
+      .values;
+
+    expect(slider.value).not.toBe(0);
   });
 
   test("Clicking on Slider body fires value change event", () => {
     throw new Error("Not implemented");
   });
   
-  test("Hover over pill makes narrowPhase return pill", () =>  {
-    throw new Error("Not implemented");
+  test("Point down on pill makes narrowPhase return Slider", () =>  {
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.pointDown("ip", x, y))
+      .run()
+      .values;
+
+    expect(slider.narrowPhase(ip)).toBe(slider);
   });
   
-  test("Point down on pill makes narrowPhase return pill", () =>  {
-    throw new Error("Not implemented");
-  });
+  /**
+   * NOTE: This works, but not for the reason you might think.
+   *
+   * You might think that by the time we're testing this, the system is somehow
+   * aware that the point is down, and thus it knows that the slider should be
+   * returned. THIS IS NOT TRUE. What happens is, the pill's location changes
+   * due to the value being updated in the pointCollision() method which is
+   * called on stage.pointMove(), and by the time we're testing, the point is
+   * hovering above the pill, which is the reason this test passes.
+   *
+   * In order to check that the test passes specifically because the point was
+   * down, we'd have to test it in the middle of the `pointDown` method call,
+   * which is infeasible. So in conclusion, AAAAAAARRRGGHHHHH THIS FUCKING TEST
+   */
+  test("When point was just pressed down on body, narrowPhase returns Slider", () =>  {
+    // setup without any action in the placeholder spot
+    let { points: {ip}, sprites: {slider} } = template.feed(t => t).run().values;
+    ip.firstDown = true; // this indicates that the point was just pressed down
 
-  test("Hover over pill makes broadPhase return true", () => {
-    throw new Error("Not implemented");
-  })
-
-  test("Hover over body makes broadPhase return true", () => {
-    throw new Error("Not implemented");
+    expect(slider.narrowPhase(ip)).toBe(slider);
   });
 
   test("Hover outside of body makes broadPhase return false", () => {
-    throw new Error("Not implemented");
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.movePoint("ip", x+200, y+100))
+      .run()
+      .values;
+
+    expect(slider.broadPhase(ip)).toBe(false);
   });
 
-  test("Hover outside of body makes narrowPhase return null", () => {
-    throw new Error("Not implemented");
+  test("Hover outside of body makes narrowPhase return undefined", () => {
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.movePoint("ip", x+200, y+100))
+      .run()
+      .values;
+
+    expect(slider.narrowPhase(ip)).toBe(undefined);
   });
   
-  test("After point move narrowPhase still returns pill if Slider is active", () => {
-    throw new Error("Not implemented");
+  test("After point down and move narrowPhase still returns Slider", () => {
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x+200, y+100))
+      .run()
+      .values;
+
+    expect(slider.narrowPhase(ip)).toBe(slider);
   });
 
-  test("After point move broadPhase still returns true if Slider is active", () => {
-    throw new Error("Not implemented");
-  });
+  test("After point down and move broadPhase still returns true", () => {
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x+200, y+100))
+      .run()
+      .values;
 
-  test("Activating Slider and then clicking outside of the body makes narrowPhase return null", () => {
-    throw new Error("Not implemented");
-  });
-
-  test("Clicking on the Slider body but not on the pill makes broadPhase return true", () => {
-    throw new Error("Not implemented");
+    expect(slider.broadPhase(ip)).toBe(true);
   });
   
-  test("Clicking on the Slider body but not on the pill makes narrowPhase return null", () => {
-    throw new Error("Not implemented");
-  });
-  
-  test("Activating the slider and moving the point beyond the start stops the pill at the start of the body", () => {
-    throw new Error("Not implemented");
-  });
-
   test("Activating the Slider and moving the point beyond the start stops the value at min", () => {
-    throw new Error("Not implemented");
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.pointDown("ip", x, y).movePoint("ip", 0, y))
+      .run()
+      .values;
+
+    expect(slider.value).toBe(slider.min);
   });
   
-  test("Activating the Slider and moving the point beyond the end stops the pill at the end of the body", () => {
-    throw new Error("Not implemented");
-  });
-
   test("Activating the Slider and moving the point beyond the end stops the value at max", () => {
-    throw new Error("Not implemented");
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x+200, y))
+      .run()
+      .values;
+
+    expect(slider.value).toBe(slider.max);
   });
 
   test("Moving point off slider while slider is active projects value onto slider", () => {
-    throw new Error("Not implemented");
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x+50, y+100))
+      .run()
+      .values;
+
+    throw new Error("Not implemented"); // TODO: compute expected value
   });
   
   test("Moving point off slider while slider is active keeps 'cursor' property as 'pointer'", () => {
-    throw new Error("Not implemented");
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x+50, y+100))
+      .run()
+      .values;
+
+    expect(slider.cursor).toBe("pointer");
   });
 
   test("When pointMove is called, value event fires even if the point location doesn't change", () => {
-    throw new Error("Not implemented");
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x, y))
+      .run()
+      .values;
+
+    throw new Error("Not implemented"); // TODO: check if event fires
   });
   
   test("When pointMove is called, value event fires even if the point location changes", () => {
-    throw new Error("Not implemented");
+    let { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x+50, y))
+      .run()
+      .values;
+
+    throw new Error("Not implemented"); // TODO: check if event fires
   });
 });
