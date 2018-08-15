@@ -387,9 +387,46 @@ interface ITextureBuilder {
   build(): ITextureMap;
 }
 
+/**
+ * This is a helper class which can chain together multiple texture builders and
+ * use them to build a single ITextureMap.
+ */
+interface ITextureChainBuilder extends ITextureBuilder {
+  /**
+   * Create a new texture builder.
+   */
+  and(): this;
+
+  /**
+   * Use the current texture builder's attributes as the basis of a new texture
+   * builder with more attributes.
+   */
+  sometimes(): this;
+
+  /**
+   * Delegate to current texture builder.
+   */
+  attr(...variations: string[]): this;
+  
+  /**
+   * Delegate to current texture builder.
+   */
+  separator(sep: string): this;
+
+  /**
+   * Create single texture map from all texture builders.
+   */
+  build(): ITextureMap;
+}
+
 class TextureBuilder implements ITextureBuilder {
   private sep: string = "_";
   private attributes: string[][] = [];
+
+  constructor(attr:? string[][]) {
+    if (attr)
+      this.attributes = attr.slice();
+  }
   
   public separator(sep: string): this {
     this.sep = sep;
@@ -417,6 +454,45 @@ class TextureBuilder implements ITextureBuilder {
       textures = temp.slice();
     });
     return textures.reduce((acc, x) => {acc[x] = new Image(); return acc}, {});
+  }
+}
+
+class TextureChainBuilder implements ITextureChainBuilder {
+  private builders: ITextureBuilder[] = [new TextureBuilder()];
+  
+  public and(): this {
+    this.builders.push(new TextureBuilder());
+    return this;
+  }
+
+  public sometimes(): this {
+    this.builders.push(new TextureBuilder(this.currentBuilder().attributes))
+    return this;
+  }
+
+  public separator(sep: string): this {
+    this.currentBuilder().separator(sep);
+    return this;
+  }
+
+  public attr(...variations: string[]): this {
+    this.currentBuilder().attr(...variations);
+    return this;
+  }
+
+  public build(): ITextureMap {
+    const tm: ITextureMap = {};
+    this.builders.forEach(b => {
+      const tmp = b.build();
+      for (let texture in tmp) {
+        tm[texture] = tmp[texture];
+      }
+    });
+    return tm;
+  }
+
+  private currentBuilder(): ITextureBuilder {
+    return this.builders[this.builders.length-1];
   }
 }
 
