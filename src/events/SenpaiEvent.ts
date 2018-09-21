@@ -1,7 +1,7 @@
 import { ISprite } from "../view/Sprite";
 import { IStage } from "../view/Stage";
 
-export type EventCallback<T> = (props: T) => void;
+export type EventCallback<T> = (events: T) => void;
 
 export interface ISenpaiEvent {
   eventType: string;
@@ -16,7 +16,7 @@ export interface IValueChangeEvent<T> extends ISenpaiEvent {
   previousValue: T;
 }
 
-interface IDisposer {
+export interface IDisposer {
   dispose: () => void;
 }
 
@@ -25,7 +25,7 @@ export class EventEmitter<T extends ISenpaiEvent> {
   public clear() {
     this.callbacks = [];
   }
-  public on(callback: EventCallback<T>): IDisposer {
+  public listen(callback: EventCallback<T>): IDisposer {
     this.callbacks.push(callback);
     return {
       dispose: () => {
@@ -38,16 +38,25 @@ export class EventEmitter<T extends ISenpaiEvent> {
       },
     };
   }
+  public promise(): Promise<T> {
+    return new Promise((resolve, reject) => {
+      const disposer = this.listen((event) => {
+        disposer.dispose();
+        resolve(event);
+      });
+    });
+  }
   public once(callback: EventCallback<T>): IDisposer {
-    const disposer = this.on((props: T) => {
-      callback(props);
+    const disposer = this.listen((events: T) => {
+      callback(events);
       disposer.dispose();
     });
     return disposer;
   }
-  public emit(props: T): void {
+
+  public emit(events: T): void {
     for (const callback of this.callbacks.slice()) {
-      callback(props);
+      callback(events);
     }
   }
 }
