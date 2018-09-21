@@ -174,9 +174,9 @@ export class InteractionManager extends Container implements IInteractionManager
       point.active = point.hover;
       point.active.down = true;
       point.active.active = true;
-      point.active.emit("down", point);
+      // point.active.emit("down", point); // TODO
     }
-    this.emit("point-down", point);
+    // this.emit("point-down", point); // TODO
     point.firstDown = false; // after this point, the point will not be considered "just recently pressed"
   }
 
@@ -189,14 +189,14 @@ export class InteractionManager extends Container implements IInteractionManager
     if (point.active) {
       point.active.down = false;
       point.active.active = false;
-      point.active.emit("up", point);
+      // point.active.emit("up", point); // TODO
       if (point.hover === point.active) {
-        point.active.emit("click", point);
+        // point.active.emit("click", point); // TODO
       }
       point.active = null;
     }
-    super.emit("point-up", point);
-    super.emit("click", point);
+    // super.emit("point-up", point); // TODO
+    // super.emit("click", point); // TODO
   }
 
   public pointMove(point: IInteractionPoint, position: Touch | MouseEvent): void {
@@ -226,12 +226,12 @@ export class InteractionManager extends Container implements IInteractionManager
         hoveringSprite.hover = true;
         point.hover = hoveringSprite; // this can later be used by pointDown and pointUp
         hoveringSprite.pointCollision(point);
-        hoveringSprite.emit("point-move", point);
+        // hoveringSprite.emit("point-move", point); // TODO
         break; // we've found the highest z level sprite the point collides with
       }
     }
 
-    super.emit("point-move", point);
+    // super.emit("point-move", point); // TODO
   }
 
   public pointCancel(point: IInteractionPoint, position: Touch | MouseEvent): void {

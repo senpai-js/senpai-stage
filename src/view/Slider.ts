@@ -1,4 +1,5 @@
 import assert from "assert";
+import { EventEmitter, IValueChangeEvent } from "../events";
 import { createTextureMap, IInteractionPoint, ITextureMap, loadImage } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
@@ -7,6 +8,8 @@ export interface ISlider extends ISprite {
   max: number;
   min: number;
   width: number;
+
+  valueChangeEvent: EventEmitter<IValueChangeEvent<number>>;
 }
 
 export interface ISliderProps extends ISpriteProps {
@@ -21,6 +24,8 @@ export class Slider extends Sprite implements ISlider {
   public max: number = 1;
   public min: number = 0;
   public width: number = 100;
+
+  public valueChangeEvent: EventEmitter<IValueChangeEvent<number>> = new EventEmitter<IValueChangeEvent<number>>();
 
   private sliderPattern: CanvasPattern = null;
   private pillTexture: ImageBitmap = null;
@@ -80,7 +85,7 @@ export class Slider extends Sprite implements ISlider {
 
       this.value = this.min + range * clampedTX / sliderDistance;
       if (this.value !== previousValue) {
-        super.emit("value-change", this);
+        // super.emit("value-change", this); // TODO
       }
     }
 

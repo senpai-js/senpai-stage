@@ -1,4 +1,5 @@
 import assert from "assert";
+import { EventEmitter, IValueChangeEvent } from "../events";
 import {
   createTextureMap,
   IInteractionPoint,
@@ -17,6 +18,8 @@ export interface ICheckbox extends ISprite {
   fontSize: number;
   textAlign: TextAlign;
   textBaseline: TextBaseline;
+
+  toggleEvent: EventEmitter<IValueChangeEvent<boolean>>;
 
   setText(text: string): this;
   toggle(): this;
@@ -40,6 +43,7 @@ export class Checkbox extends Sprite implements ICheckbox {
   public fontSize: number = 12;
   public textAlign: TextAlign = TextAlign.left;
   public textBaseline: TextBaseline = TextBaseline.middle;
+  public toggleEvent: EventEmitter<IValueChangeEvent<boolean>> = new EventEmitter<IValueChangeEvent<boolean>>();
 
   constructor(props: ICheckboxProps) {
     super(props);
@@ -59,7 +63,7 @@ export class Checkbox extends Sprite implements ICheckbox {
   public pointCollision(point: IInteractionPoint): boolean {
     if (point.clicked && point.active === this) {
       this.toggle();
-      this.emit("toggle", point);
+      // this.emit("toggle", point); // TODO
     }
     return super.pointCollision(point);
   }

@@ -1,6 +1,6 @@
 import assert from "assert";
-import { EventEmitter } from "events";
 import * as eases from "../ease";
+import { EventEmitter, IPointEvent, IValueChangeEvent } from "../events";
 import * as m from "../matrix";
 import { createTextureMap, IInteractionPoint, IKeyState, ISize, ISpriteSheet, ITextureMap, loadImage } from "../util";
 import { IStage } from "./Stage";
@@ -36,6 +36,13 @@ export interface ISprite extends ISize {
 
   texture: string;
 
+  // events
+
+  clickEvent: EventEmitter<IPointEvent>;
+  upEvent: EventEmitter<IPointEvent>;
+  downEvent: EventEmitter<IPointEvent>;
+  textureChangeEvent: EventEmitter<IValueChangeEvent<string>>;
+
   // this is set by the over function
   ease(ratio: number): number;
 
@@ -53,6 +60,8 @@ export interface ISprite extends ISize {
   skipAnimation(now: number): boolean;
   update(): void;
   render(ctx: CanvasRenderingContext2D): void;
+
+  /*
   emit(event: string, ...args: any[]): boolean;
 
   on(event: "point-move", callback: (sprite: ISprite, point: IInteractionPoint) => void);
@@ -63,6 +72,7 @@ export interface ISprite extends ISize {
 
   removeAllListeners(event: string | symbol): this;
   eventNames(): Array<string | symbol>;
+  */
 }
 
 export interface ISpriteProps {
@@ -75,7 +85,7 @@ export interface ISpriteProps {
   definition: ISpriteSheet;
 }
 
-export class Sprite extends EventEmitter implements ISprite {
+export class Sprite implements ISprite {
   public id: string = "";
   public position: Float64Array = new Float64Array(6);
   public previousPosition: Float64Array = new Float64Array(6);
@@ -103,8 +113,12 @@ export class Sprite extends EventEmitter implements ISprite {
   public width: number = 0;
   public height: number = 0;
 
+  public clickEvent: EventEmitter<IPointEvent> = new EventEmitter<IPointEvent>();
+  public downEvent: EventEmitter<IPointEvent> = new EventEmitter<IPointEvent>();
+  public upEvent: EventEmitter<IPointEvent> = new EventEmitter<IPointEvent>();
+  public textureChangeEvent: EventEmitter<IValueChangeEvent<string>> = new EventEmitter<IValueChangeEvent<string>>();
+
   constructor(props: ISpriteProps) {
-    super();
     this.id = props.id;
     const position = props.position || m.Identity;
     this.textures = props.textures ? props.textures : this.textures;
@@ -243,7 +257,7 @@ export class Sprite extends EventEmitter implements ISprite {
     this.height = this.textures[this.texture].height;
 
     if (oldTexture !== this.texture) {
-      this.emit("texture-change", this.texture);
+      // this.emit("texture-change", this.texture); // TODO
     }
 
     return this;
