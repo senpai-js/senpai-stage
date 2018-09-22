@@ -1,3 +1,14 @@
+import {
+  EventEmitter,
+  IPostHoverCheckEvent,
+  IPostInterpolateEvent,
+  IPostRenderEvent,
+  IPostUpdateEvent,
+  IPreHoverCheckEvent,
+  IPreInterpolateEvent,
+  IPreRenderEvent,
+  IPreUpdateEvent,
+} from "../events";
 import { IContainer } from "./Container";
 import { IInteractionManagerProps, InteractionManager } from "./InteractionManager";
 import { ISprite } from "./Sprite";
@@ -7,12 +18,27 @@ export interface IStageProps extends IInteractionManagerProps {
 }
 
 export interface IStage extends IContainer {
+  postInterpolateEvent: EventEmitter<IPostInterpolateEvent>;
+  preInterpolateEvent: EventEmitter<IPreInterpolateEvent>;
+  preUpdateEvent: EventEmitter<IPreUpdateEvent>;
+  postUpdateEvent: EventEmitter<IPostUpdateEvent>;
+  preRenderEvent: EventEmitter<IPreRenderEvent>;
+  postRenderEvent: EventEmitter<IPostRenderEvent>;
   update(): this;
   render(): this;
   skipAnimations(): boolean;
 }
 
 export class Stage extends InteractionManager implements IStage {
+  public postInterpolateEvent: EventEmitter<IPostInterpolateEvent> = new EventEmitter<IPostInterpolateEvent>();
+  public preInterpolateEvent: EventEmitter<IPreInterpolateEvent> = new EventEmitter<IPreInterpolateEvent>();
+  public preHoverCheckEvent: EventEmitter<IPreHoverCheckEvent> = new EventEmitter<IPreHoverCheckEvent>();
+  public postHoverCheckEvent: EventEmitter<IPostHoverCheckEvent> = new EventEmitter<IPostHoverCheckEvent>();
+  public preUpdateEvent: EventEmitter<IPreUpdateEvent> = new EventEmitter<IPreUpdateEvent>();
+  public postUpdateEvent: EventEmitter<IPostUpdateEvent> = new EventEmitter<IPostUpdateEvent>();
+  public preRenderEvent: EventEmitter<IPreRenderEvent> = new EventEmitter<IPreRenderEvent>();
+  public postRenderEvent: EventEmitter<IPostRenderEvent> = new EventEmitter<IPostRenderEvent>();
+
   constructor(props: IStageProps) {
     super(props);
   }
@@ -20,27 +46,58 @@ export class Stage extends InteractionManager implements IStage {
     const now = Date.now();
     let sprite: ISprite;
 
-    // TODO: implement super.emit("pre-interpolate");
+    this.preInterpolateEvent.emit({
+      eventType: "PreInterpolate",
+      source: this,
+      stage: this,
+    });
     for (sprite of this.sprites) {
       sprite.interpolate(now);
     }
-    // TODO: implment super.emit("post-interpolate");
+    this.postInterpolateEvent.emit({
+      eventType: "PostInterpolate",
+      source: this,
+      stage: this,
+    });
 
-    // TODO: implement super.emit("pre-hover-check");
+    this.preHoverCheckEvent.emit({
+      eventType: "PreHoverCheck",
+      source: this,
+      stage: this,
+    });
     this.hoverCheck(now);
-    // TODO: implement super.emit("post-hover-check");
+    this.postHoverCheckEvent.emit({
+      eventType: "PostHoverCheck",
+      source: this,
+      stage: this,
+    });
 
-    // TODO: implement super.emit("pre-update");
+    this.preUpdateEvent.emit({
+      eventType: "PreUpdate",
+      source: this,
+      stage: this,
+    });
+
     for (sprite of this.sprites) {
       sprite.update();
     }
-    // TODO: implement super.emit("post-update");
+
+    this.postUpdateEvent.emit({
+      eventType: "PostUpdate",
+      source: this,
+      stage: this,
+    });
 
     return this;
   }
 
   public render(): this {
-    // TODO: implement super.emit("pre-render");
+    this.preRenderEvent.emit({
+      eventType: "PreRender",
+      source: this,
+      stage: this,
+    });
+
     let sprite: ISprite;
     let pointer: boolean = false;
     const ctx = this.ctx;
@@ -65,7 +122,11 @@ export class Stage extends InteractionManager implements IStage {
 
     this.canvas.style.cursor = pointer ? "pointer" : "default";
 
-    // TODO: implement super.emit("post-render");
+    this.postRenderEvent.emit({
+      eventType: "PostRender",
+      source: this,
+      stage: this,
+    });
     return this;
   }
 

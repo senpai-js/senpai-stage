@@ -1,12 +1,12 @@
+import { IInteractionManager } from "../view/InteractionManager";
 import { ISprite } from "../view/Sprite";
-import { IStage } from "../view/Stage";
 
 export type EventCallback<T> = (events: T) => void;
 
 export interface ISenpaiEvent {
   eventType: string;
-  stage: IStage;
-  source: ISprite | IStage;
+  stage: IInteractionManager;
+  source: ISprite | IInteractionManager;
 }
 
 export interface IValueChangeEvent<T> extends ISenpaiEvent {

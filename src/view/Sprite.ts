@@ -1,8 +1,17 @@
-import assert from "assert";
 import * as eases from "../ease";
-import { EventEmitter, IPointEvent, IValueChangeEvent } from "../events";
+import {
+  EventEmitter,
+  IKeyDownEvent,
+  IKeyUpEvent,
+  IPointClickEvent,
+  IPointDownEvent,
+  IPointEvent,
+  IPointMoveEvent,
+  IPointUpEvent,
+  IValueChangeEvent,
+} from "../events";
 import * as m from "../matrix";
-import { createTextureMap, IInteractionPoint, IKeyState, ISize, ISpriteSheet, ITextureMap, loadImage } from "../util";
+import { createTextureMap, IInteractionPoint, ISize, ISpriteSheet, ITextureMap, loadImage } from "../util";
 import { IStage } from "./Stage";
 
 export interface ISprite extends ISize {
@@ -31,6 +40,9 @@ export interface ISprite extends ISize {
   active: boolean;
   hover: boolean;
   down: boolean;
+  focused: boolean;
+  tabIndex: number;
+
   cursor: "pointer" | "default";
   loaded: Promise<void>;
 
@@ -38,9 +50,14 @@ export interface ISprite extends ISize {
 
   // events
 
-  clickEvent: EventEmitter<IPointEvent>;
-  upEvent: EventEmitter<IPointEvent>;
-  downEvent: EventEmitter<IPointEvent>;
+  clickEvent: EventEmitter<IPointClickEvent>;
+  pointUpEvent: EventEmitter<IPointUpEvent>;
+  pointDownEvent: EventEmitter<IPointEvent>;
+  pointClickEvent: EventEmitter<IPointClickEvent>;
+  pointMoveEvent: EventEmitter<IPointMoveEvent>;
+  keyDownEvent: EventEmitter<IKeyDownEvent>;
+  keyUpEvent: EventEmitter<IKeyUpEvent>;
+
   textureChangeEvent: EventEmitter<IValueChangeEvent<string>>;
 
   // this is set by the over function
@@ -50,7 +67,6 @@ export interface ISprite extends ISize {
   narrowPhase(point: IInteractionPoint): ISprite;
   isHovering(point: IInteractionPoint, now: number): ISprite;
   pointCollision(point: IInteractionPoint): boolean;
-  keyStateChange(key: IKeyState): void;
   setTexture(texture: string): this;
   over(timespan: number, wait: number, ease: (ratio: number) => number): this;
   move(position: number[] | Float64Array): this;
@@ -60,19 +76,7 @@ export interface ISprite extends ISize {
   skipAnimation(now: number): boolean;
   update(): void;
   render(ctx: CanvasRenderingContext2D): void;
-
-  /*
-  emit(event: string, ...args: any[]): boolean;
-
-  on(event: "point-move", callback: (sprite: ISprite, point: IInteractionPoint) => void);
-  on(event: string, callback: () => void): this;
-
-  on(event: "point-move", callback: (sprite: ISprite, point: IInteractionPoint) => void);
-  once(event: string, callback: () => void): this;
-
-  removeAllListeners(event: string | symbol): this;
-  eventNames(): Array<string | symbol>;
-  */
+  focus(sprite: ISprite): void;
 }
 
 export interface ISpriteProps {
@@ -109,13 +113,20 @@ export class Sprite implements ISprite {
   public textures: ITextureMap = {};
   public texture: string;
   public loaded: Promise<void> = null;
+  public focused: boolean = false;
+  public tabIndex: number = 0;
 
   public width: number = 0;
   public height: number = 0;
 
-  public clickEvent: EventEmitter<IPointEvent> = new EventEmitter<IPointEvent>();
-  public downEvent: EventEmitter<IPointEvent> = new EventEmitter<IPointEvent>();
-  public upEvent: EventEmitter<IPointEvent> = new EventEmitter<IPointEvent>();
+  public clickEvent: EventEmitter<IPointClickEvent> = new EventEmitter<IPointClickEvent>();
+  public pointDownEvent: EventEmitter<IPointDownEvent> = new EventEmitter<IPointDownEvent>();
+  public pointUpEvent: EventEmitter<IPointUpEvent> = new EventEmitter<IPointUpEvent>();
+  public pointMoveEvent: EventEmitter<IPointMoveEvent> = new EventEmitter<IPointMoveEvent>();
+  public pointClickEvent: EventEmitter<IPointClickEvent> = new EventEmitter<IPointClickEvent>();
+  public keyDownEvent: EventEmitter<IKeyDownEvent> = new EventEmitter<IKeyDownEvent>();
+  public keyUpEvent: EventEmitter<IKeyUpEvent> = new EventEmitter<IKeyUpEvent>();
+
   public textureChangeEvent: EventEmitter<IValueChangeEvent<string>> = new EventEmitter<IValueChangeEvent<string>>();
 
   constructor(props: ISpriteProps) {
@@ -191,10 +202,6 @@ export class Sprite implements ISprite {
     return this;
   }
 
-  public keyStateChange(key: IKeyState): void {
-    throw new Error("Not implemented.");
-  }
-
   public skipAnimation(now: number): boolean {
     const result: boolean = now < this.animationLength + this.animationStart;
     this.animationStart = now - this.animationLength;
@@ -265,6 +272,12 @@ export class Sprite implements ISprite {
 
   public render(ctx: CanvasRenderingContext2D): void {
     ctx.drawImage(this.textures[this.texture], 0, 0);
+  }
+
+  public focus(target: ISprite) {
+    if (target === this) {
+      this.focused = true;
+    }
   }
 
   private async loadTexture(res: Promise<Response>, definition: ISpriteSheet): Promise<void> {

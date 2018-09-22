@@ -1,3 +1,16 @@
+import {
+  EventEmitter,
+  IMouseDownEvent,
+  IMouseMoveEvent,
+  IMouseUpEvent,
+  IPointDownEvent,
+  IPointMoveEvent,
+  IPointUpEvent,
+  ITouchCancelEvent,
+  ITouchCreateEvent,
+  ITouchDestroyEvent,
+  ITouchMoveEvent,
+} from "../events";
 import { transformPoint } from "../matrix";
 import { IInteractionPoint, zSort } from "../util";
 import { Container, IContainer, IContainerProps } from "./Container";
@@ -7,10 +20,23 @@ interface IInteractionPointIndex {
   [id: number]: IInteractionPoint;
 }
 
+interface IKeyIndex {
+  [key: string]: boolean;
+}
+
 export interface IInteractionManager extends IContainer {
   canvas: HTMLCanvasElement;
   mousePoint: IInteractionPoint;
   touchPointIndex: IInteractionPointIndex;
+  keyIndex: IKeyIndex;
+
+  pointDownEvent: EventEmitter<IPointDownEvent>;
+  pointUpEvent: EventEmitter<IPointUpEvent>;
+  pointMoveEvent: EventEmitter<IPointMoveEvent>;
+
+  mouseDownEvent: EventEmitter<IMouseDownEvent>;
+  mouseUpEvent: EventEmitter<IMouseUpEvent>;
+  mouseMoveEvent: EventEmitter<IMouseMoveEvent>;
 
   hookEvents(): void;
   dispose(): void;
@@ -30,12 +56,22 @@ export interface IInteractionManager extends IContainer {
   touchEnd(event: TouchEvent): void;
   touchMove(event: TouchEvent): void;
   touchCancel(event: TouchEvent): void;
+
+  keyDown(event: KeyboardEvent): void;
+  keyUp(event: KeyboardEvent): void;
+
+  setFocus(target: ISprite): void;
 }
 
 interface IInteractionPointEvent {
   target: HTMLElement;
   event: string;
   listener: (e: MouseEvent | TouchEvent) => void;
+}
+interface IKeyboardEvent {
+  target: HTMLElement;
+  event: string;
+  listener: (e: KeyboardEvent) => void;
 }
 
 export interface IInteractionManagerProps extends IContainerProps {
@@ -48,6 +84,7 @@ export class InteractionManager extends Container implements IInteractionManager
   public canvas: HTMLCanvasElement = null;
   public ctx: CanvasRenderingContext2D = null;
   public touchPointIndex: IInteractionPointIndex = {};
+  public keyIndex: IKeyIndex = {};
   public mousePoint: IInteractionPoint = {
     active: null,
     captured: false,
@@ -62,6 +99,15 @@ export class InteractionManager extends Container implements IInteractionManager
     x: 0,
     y: 0,
   };
+
+  public pointDownEvent: EventEmitter<IPointDownEvent> = new EventEmitter<IPointDownEvent>();
+  public pointUpEvent: EventEmitter<IPointUpEvent> = new EventEmitter<IPointUpEvent>();
+  public pointMoveEvent: EventEmitter<IPointMoveEvent> = new EventEmitter<IPointMoveEvent>();
+
+  public mouseDownEvent: EventEmitter<IMouseDownEvent> = new EventEmitter<IMouseDownEvent>();
+  public mouseUpEvent: EventEmitter<IMouseUpEvent> = new EventEmitter<IMouseUpEvent>();
+  public mouseMoveEvent: EventEmitter<IMouseMoveEvent> = new EventEmitter<IMouseMoveEvent>();
+
   private events: IInteractionPointEvent[] = [
     { target: null, event: "mousedown", listener: e => this.mouseDown(e as MouseEvent) },
     { target: document.body, event: "mouseup", listener: e => this.mouseUp(e as MouseEvent) },
@@ -70,6 +116,10 @@ export class InteractionManager extends Container implements IInteractionManager
     { target: document.body, event: "touchend", listener: e => this.touchEnd(e as TouchEvent) },
     { target: null, event: "touchmove", listener: e => this.touchMove(e as TouchEvent) },
     { target: document.body, event: "touchcancel", listener: e => this.touchCancel(e as TouchEvent) },
+  ];
+  private keyboardEvents: IKeyboardEvent[] = [
+    { target: document.body, event: "keydown", listener: e => this.keyDown(e as KeyboardEvent) },
+    { target: document.body, event: "keyup", listener: e => this.keyUp(e as KeyboardEvent) },
   ];
 
   constructor(props: IInteractionManagerProps) {
@@ -91,6 +141,10 @@ export class InteractionManager extends Container implements IInteractionManager
       event => (event.target || this.canvas)
         .addEventListener(event.event, event.listener),
     );
+    this.keyboardEvents.forEach(
+      event => (event.target || this.canvas)
+        .addEventListener(event.event, event.listener),
+    );
   }
 
   public dispose(): void {
@@ -101,6 +155,9 @@ export class InteractionManager extends Container implements IInteractionManager
   }
 
   public mouseDown(event: MouseEvent): void {
+    this.mouseDownEvent.emit({
+
+    } as IMouseDownEvent);
     return this.pointDown(this.mousePoint, event);
   }
 
@@ -156,6 +213,7 @@ export class InteractionManager extends Container implements IInteractionManager
     // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < event.changedTouches.length; i++) {
       touch = event.changedTouches[i];
+      // TODO: Add Touch Move Event
       point = this.touchPointIndex[touch.identifier];
       this.pointMove(point, touch);
     }
@@ -163,9 +221,11 @@ export class InteractionManager extends Container implements IInteractionManager
   public pointDown(point: IInteractionPoint, position: Touch | MouseEvent): void {
     const alreadyDown = point.down;
     if (!alreadyDown) {
-       point.down = true;
-       point.firstDown = true;
+      point.down = true;
+      point.firstDown = true;
     }
+    const previousX = point.x;
+    const previousY = point.y;
     this.pointMove(point, position);
     if (alreadyDown) {
       return;
@@ -174,13 +234,37 @@ export class InteractionManager extends Container implements IInteractionManager
       point.active = point.hover;
       point.active.down = true;
       point.active.active = true;
-      // point.active.emit("down", point); // TODO
+      this.setFocus(point.hover);
+      point.active.pointDownEvent.emit({
+        down: true,
+        eventType: "PointDown",
+        point,
+        previousX,
+        previousY,
+        source: point.active,
+        stage: this,
+        x: point.x,
+        y: point.y,
+      });
     }
-    // this.emit("point-down", point); // TODO
+    this.pointDownEvent.emit({
+      down: true,
+      eventType: "PointDown",
+      point,
+      previousX,
+      previousY,
+      source: point.active,
+      stage: this,
+      x: point.x,
+      y: point.y,
+    });
     point.firstDown = false; // after this point, the point will not be considered "just recently pressed"
   }
 
   public pointUp(point: IInteractionPoint, position: Touch | MouseEvent): void {
+    const previousX = point.x;
+    const previousY = point.y;
+
     this.pointMove(point, position);
     if (!point.down) {
       return;
@@ -189,19 +273,52 @@ export class InteractionManager extends Container implements IInteractionManager
     if (point.active) {
       point.active.down = false;
       point.active.active = false;
-      // point.active.emit("up", point); // TODO
+      point.active.pointUpEvent.emit({
+        down: false,
+        eventType: "PointUp",
+        point,
+        previousX,
+        previousY,
+        source: point.active,
+        stage: this,
+        x: point.x,
+        y: point.x,
+      });
+
       if (point.hover === point.active) {
-        // point.active.emit("click", point); // TODO
+        point.active.pointClickEvent.emit({
+          down: false,
+          eventType: "PointClick",
+          point,
+          previousX,
+          previousY,
+          source: point.active,
+          stage: this,
+          x: point.x,
+          y: point.x,
+        });
       }
       point.active = null;
     }
-    // super.emit("point-up", point); // TODO
-    // super.emit("click", point); // TODO
-  }
+
+    this.pointUpEvent.emit({
+      down: false,
+      eventType: "PointUp",
+      point,
+      previousX,
+      previousY,
+      source: point.active,
+      stage: this,
+      x: point.x,
+      y: point.x,
+    });
+}
 
   public pointMove(point: IInteractionPoint, position: Touch | MouseEvent): void {
     const now = Date.now();
     const rect = this.canvas.getBoundingClientRect();
+    const previousX = point.x;
+    const previousY = point.y;
     point.x = position.clientX - rect.left;
     point.y = position.clientY - rect.top;
 
@@ -226,12 +343,31 @@ export class InteractionManager extends Container implements IInteractionManager
         hoveringSprite.hover = true;
         point.hover = hoveringSprite; // this can later be used by pointDown and pointUp
         hoveringSprite.pointCollision(point);
-        // hoveringSprite.emit("point-move", point); // TODO
+        hoveringSprite.pointMoveEvent.emit({
+          down: point.down,
+          eventType: "PointMove",
+          point,
+          previousX,
+          previousY,
+          source: sprite,
+          stage: this,
+          x: point.x,
+          y: point.y,
+        });
         break; // we've found the highest z level sprite the point collides with
       }
     }
-
-    // super.emit("point-move", point); // TODO
+    this.pointMoveEvent.emit({
+      down: point.down,
+      eventType: "PointMove",
+      point,
+      previousX,
+      previousY,
+      source: sprite,
+      stage: this,
+      x: point.x,
+      y: point.y,
+    });
   }
 
   public pointCancel(point: IInteractionPoint, position: Touch | MouseEvent): void {
@@ -295,6 +431,31 @@ export class InteractionManager extends Container implements IInteractionManager
           break;
         }
       }
+    }
+  }
+
+  public keyUp(e: KeyboardEvent): void {
+    this.keyIndex[e.key] = false;
+  }
+
+  public keyDown(e: KeyboardEvent): void {
+    this.keyIndex[e.key] = true;
+    for (const sprite of this.sprites) {
+      if (sprite.focused) {
+        sprite.keyDownEvent.emit({
+          down: true,
+          eventType: "KeyDown",
+          key: e.key,
+          source: sprite,
+          stage: this,
+        });
+      }
+    }
+  }
+
+  public setFocus(target: ISprite): void {
+    for (const sprite of this.sprites) {
+      sprite.focus(target);
     }
   }
 }

@@ -1,3 +1,5 @@
 // events/index.ts
 export * from "./SenpaiEvent";
 export * from "./InteractionPointEvents";
+export * from "./KeyboardEvents";
+export * from "./StageEvents";

@@ -103,11 +103,6 @@ export interface IPlayableProps {
   texture: string; // this should be name of the texture in the spritesheet
 }
 
-export interface IKeyState {
-  key: string;
-  down: boolean;
-}
-
 export interface ISize {
   width: number;
   height: number;
