@@ -9,6 +9,7 @@ export interface IInteractionManager extends IContainer {
     touchPointIndex: IInteractionPointIndex;
     hookEvents(): void;
     dispose(): void;
+    createInteractionPoint(id: string, type: "Touch" | "Mouse"): IInteractionPoint;
     addTouchPoint(touch: Touch): IInteractionPoint;
     removeTouchPoint(touch: Touch): void;
     pointDown(point: IInteractionPoint, position: Touch | MouseEvent): void;
@@ -48,6 +49,7 @@ export declare class InteractionManager extends Container implements IInteractio
     pointUp(point: IInteractionPoint, position: Touch | MouseEvent): void;
     pointMove(point: IInteractionPoint, position: Touch | MouseEvent): void;
     pointCancel(point: IInteractionPoint, position: Touch | MouseEvent): void;
+    createInteractionPoint(id: string, type: "Touch" | "Mouse"): IInteractionPoint;
     addTouchPoint(touch: Touch): IInteractionPoint;
     removeTouchPoint(touch: Touch): void;
     hoverCheck(now: number): void;

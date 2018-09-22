@@ -20,27 +20,27 @@ export class Stage extends InteractionManager implements IStage {
     const now = Date.now();
     let sprite: ISprite;
 
-    super.emit("pre-interpolate");
+    // TODO: implement super.emit("pre-interpolate");
     for (sprite of this.sprites) {
       sprite.interpolate(now);
     }
-    super.emit("post-interpolate");
+    // TODO: implment super.emit("post-interpolate");
 
-    super.emit("pre-hover-check");
+    // TODO: implement super.emit("pre-hover-check");
     this.hoverCheck(now);
-    super.emit("post-hover-check");
+    // TODO: implement super.emit("post-hover-check");
 
-    super.emit("pre-update");
+    // TODO: implement super.emit("pre-update");
     for (sprite of this.sprites) {
       sprite.update();
     }
-    super.emit("post-update");
+    // TODO: implement super.emit("post-update");
 
     return this;
   }
 
   public render(): this {
-    super.emit("pre-render");
+    // TODO: implement super.emit("pre-render");
     let sprite: ISprite;
     let pointer: boolean = false;
     const ctx = this.ctx;
@@ -65,7 +65,7 @@ export class Stage extends InteractionManager implements IStage {
 
     this.canvas.style.cursor = pointer ? "pointer" : "default";
 
-    super.emit("post-render");
+    // TODO: implement super.emit("post-render");
     return this;
   }
 

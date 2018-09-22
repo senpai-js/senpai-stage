@@ -9,7 +9,7 @@
   "license": "MIT",
   "scripts": {
     "start": "run-s tslint microbundle",
-    "microbundle": "npx microbundle --external events",
+    "microbundle": "microbundle",
     "tslint": "tslint --fix --project ./",
     "test": "jest"
   },

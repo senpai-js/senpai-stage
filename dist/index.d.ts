@@ -15,3 +15,4 @@ export * from "./view/Slider";
 export * from "./view/Sprite";
 export * from "./view/Stage";
 export * from "./view/Textbox";
+export * from "./view/TextInput";

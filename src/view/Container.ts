@@ -1,4 +1,3 @@
-import { EventEmitter } from "events";
 import { IInteractionPoint, IPlayable } from "../util";
 import { ISprite } from "./Sprite";
 
@@ -16,18 +15,13 @@ export interface IContainer {
   removePlayable(sprite: IPlayable): this;
   addPoint(point: IInteractionPoint): this;
   removePoint(point: IInteractionPoint): this;
-
-  on(event: string, callback: ICallback): this;
-  once(event: string, callback: ICallback): this;
-  removeListener(event: string, callback: ICallback): this;
-  removeAllListeners(event: string): this;
 }
 
 export interface IContainerProps {
   audioContext: AudioContext;
 }
 
-export class Container extends EventEmitter implements IContainer {
+export class Container implements IContainer {
 
   public sprites: ISprite[] = [];
   public playables: IPlayable[] = [];
@@ -35,7 +29,6 @@ export class Container extends EventEmitter implements IContainer {
   public audioContext: AudioContext = null;
 
   constructor(props: IContainerProps) {
-    super();
     this.audioContext = props.audioContext || new AudioContext();
   }
 

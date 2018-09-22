@@ -1,3 +1,4 @@
+import { EventEmitter, IValueChangeEvent } from "../events";
 import { IInteractionPoint } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 export interface ISlider extends ISprite {
@@ -5,6 +6,7 @@ export interface ISlider extends ISprite {
     max: number;
     min: number;
     width: number;
+    valueChangeEvent: EventEmitter<IValueChangeEvent<number>>;
 }
 export interface ISliderProps extends ISpriteProps {
     value?: number;
@@ -17,6 +19,7 @@ export declare class Slider extends Sprite implements ISlider {
     max: number;
     min: number;
     width: number;
+    valueChangeEvent: EventEmitter<IValueChangeEvent<number>>;
     private sliderPattern;
     private pillTexture;
     constructor(props: ISliderProps);

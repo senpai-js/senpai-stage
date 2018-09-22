@@ -1,5 +1,3 @@
-/// <reference types="node" />
-import { EventEmitter } from "events";
 import { IInteractionPoint, IPlayable } from "../util";
 import { ISprite } from "./Sprite";
 export interface IContainer {
@@ -17,7 +15,7 @@ export interface IContainer {
 export interface IContainerProps {
     audioContext: AudioContext;
 }
-export declare class Container extends EventEmitter implements IContainer {
+export declare class Container implements IContainer {
     sprites: ISprite[];
     playables: IPlayable[];
     points: IInteractionPoint[];

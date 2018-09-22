@@ -103,6 +103,9 @@ export interface IPadding {
 }
 export declare function createTextureMap(definition: ISpriteSheet, img: Promise<ImageBitmap>): Promise<ITextureMap>;
 export declare function loadImage(src: string): Promise<ImageBitmap>;
+/**
+ * Sort by z level in ascending order.
+ */
 export declare function zSort(left: ISprite, right: ISprite): number;
 export declare enum TextAlign {
     "left" = "left",

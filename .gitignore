@@ -2,3 +2,4 @@ node_modules
 assets/sound
 .cache
 *.swp
+.rpt2_cache

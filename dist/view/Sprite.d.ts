@@ -1,5 +1,4 @@
-/// <reference types="node" />
-import { EventEmitter } from "events";
+import { EventEmitter, IPointEvent, IValueChangeEvent } from "../events";
 import { IInteractionPoint, IKeyState, ISize, ISpriteSheet, ITextureMap } from "../util";
 import { IStage } from "./Stage";
 export interface ISprite extends ISize {
@@ -22,7 +21,11 @@ export interface ISprite extends ISize {
     down: boolean;
     cursor: "pointer" | "default";
     loaded: Promise<void>;
-    texture: ImageBitmap | HTMLCanvasElement | HTMLImageElement;
+    texture: string;
+    clickEvent: EventEmitter<IPointEvent>;
+    upEvent: EventEmitter<IPointEvent>;
+    downEvent: EventEmitter<IPointEvent>;
+    textureChangeEvent: EventEmitter<IValueChangeEvent<string>>;
     ease(ratio: number): number;
     broadPhase(point: IInteractionPoint): boolean;
     narrowPhase(point: IInteractionPoint): ISprite;
@@ -38,13 +41,6 @@ export interface ISprite extends ISize {
     skipAnimation(now: number): boolean;
     update(): void;
     render(ctx: CanvasRenderingContext2D): void;
-    emit(event: string, ...args: any[]): boolean;
-    on(event: "point-move", callback: (sprite: ISprite, point: IInteractionPoint) => void): any;
-    on(event: string, callback: () => void): this;
-    on(event: "point-move", callback: (sprite: ISprite, point: IInteractionPoint) => void): any;
-    once(event: string, callback: () => void): this;
-    removeAllListeners(event: string | symbol): this;
-    eventNames(): Array<string | symbol>;
 }
 export interface ISpriteProps {
     id: string;
@@ -55,7 +51,7 @@ export interface ISpriteProps {
     source: Promise<Response>;
     definition: ISpriteSheet;
 }
-export declare class Sprite extends EventEmitter implements ISprite {
+export declare class Sprite implements ISprite {
     id: string;
     position: Float64Array;
     previousPosition: Float64Array;
@@ -76,10 +72,14 @@ export declare class Sprite extends EventEmitter implements ISprite {
     hover: boolean;
     down: boolean;
     textures: ITextureMap;
-    texture: ImageBitmap | HTMLCanvasElement | HTMLImageElement;
+    texture: string;
     loaded: Promise<void>;
     width: number;
     height: number;
+    clickEvent: EventEmitter<IPointEvent>;
+    downEvent: EventEmitter<IPointEvent>;
+    upEvent: EventEmitter<IPointEvent>;
+    textureChangeEvent: EventEmitter<IValueChangeEvent<string>>;
     constructor(props: ISpriteProps);
     broadPhase(point: IInteractionPoint): boolean;
     narrowPhase(point: IInteractionPoint): ISprite;
