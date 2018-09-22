@@ -11,6 +11,14 @@ export interface IPointEvent extends ISenpaiEvent {
   previousY: number;
 }
 
+export interface IPointDownEvent extends IPointEvent {
+  eventType: "PointDown";
+}
+
+export interface IPointUpEvent extends IPointEvent {
+  eventType: "PointUp";
+}
+
 export interface IPointMoveEvent extends IPointEvent {
   eventType: "PointMove";
 }
