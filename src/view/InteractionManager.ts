@@ -7,9 +7,9 @@ import {
   IPointMoveEvent,
   IPointUpEvent,
   ITouchCancelEvent,
-  ITouchCreateEvent,
-  ITouchDestroyEvent,
+  ITouchEndEvent,
   ITouchMoveEvent,
+  ITouchStartEvent,
 } from "../events";
 import { transformPoint } from "../matrix";
 import { IInteractionPoint, zSort } from "../util";
@@ -37,6 +37,11 @@ export interface IInteractionManager extends IContainer {
   mouseDownEvent: EventEmitter<IMouseDownEvent>;
   mouseUpEvent: EventEmitter<IMouseUpEvent>;
   mouseMoveEvent: EventEmitter<IMouseMoveEvent>;
+
+  touchCancelEvent: EventEmitter<ITouchCancelEvent>;
+  touchEndEvent: EventEmitter<ITouchEndEvent>;
+  touchMoveEvent: EventEmitter<ITouchMoveEvent>;
+  touchStartEvent: EventEmitter<ITouchStartEvent>;
 
   hookEvents(): void;
   dispose(): void;
@@ -108,6 +113,11 @@ export class InteractionManager extends Container implements IInteractionManager
   public mouseUpEvent: EventEmitter<IMouseUpEvent> = new EventEmitter<IMouseUpEvent>();
   public mouseMoveEvent: EventEmitter<IMouseMoveEvent> = new EventEmitter<IMouseMoveEvent>();
 
+  public touchCancelEvent: EventEmitter<ITouchCancelEvent> = new EventEmitter<ITouchCancelEvent>();
+  public touchEndEvent: EventEmitter<ITouchEndEvent> = new EventEmitter<ITouchEndEvent>();
+  public touchMoveEvent: EventEmitter<ITouchMoveEvent> = new EventEmitter<ITouchMoveEvent>();
+  public touchStartEvent: EventEmitter<ITouchStartEvent> = new EventEmitter<ITouchStartEvent>();
+
   private events: IInteractionPointEvent[] = [
     { target: null, event: "mousedown", listener: e => this.mouseDown(e as MouseEvent) },
     { target: document.body, event: "mouseup", listener: e => this.mouseUp(e as MouseEvent) },
@@ -156,8 +166,14 @@ export class InteractionManager extends Container implements IInteractionManager
 
   public mouseDown(event: MouseEvent): void {
     this.mouseDownEvent.emit({
-
-    } as IMouseDownEvent);
+      down: true,
+      eventType: "MouseDown",
+      rawEvent: event,
+      source: this,
+      stage: this,
+      x: event.clientX,
+      y: event.clientY,
+    });
     return this.pointDown(this.mousePoint, event);
   }
 
@@ -175,6 +191,16 @@ export class InteractionManager extends Container implements IInteractionManager
     // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < event.changedTouches.length; i++) {
       touch = event.changedTouches[i];
+      this.touchStartEvent.emit({
+        down: true,
+        eventType: "TouchStart",
+        rawEvent: event,
+        source: this,
+        stage: this,
+        touch,
+        x: touch.clientX,
+        y: touch.clientY,
+      });
       point = this.addTouchPoint(touch);
       this.pointDown(point, touch);
     }
@@ -187,6 +213,16 @@ export class InteractionManager extends Container implements IInteractionManager
     // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < event.changedTouches.length; i++) {
       touch = event.changedTouches[i];
+      this.touchEndEvent.emit({
+        down: false,
+        eventType: "TouchEnd",
+        rawEvent: event,
+        source: this,
+        stage: this,
+        touch,
+        x: touch.clientX,
+        y: touch.clientY,
+      });
       point = this.touchPointIndex[touch.identifier];
       this.pointUp(point, touch);
       this.removeTouchPoint(touch);
@@ -200,6 +236,16 @@ export class InteractionManager extends Container implements IInteractionManager
     // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < event.changedTouches.length; i++) {
       touch = event.changedTouches[i];
+      this.touchCancelEvent.emit({
+        down: false,
+        eventType: "TouchCancel",
+        rawEvent: event,
+        source: this,
+        stage: this,
+        touch,
+        x: null,
+        y: null,
+      });
       point = this.touchPointIndex[touch.identifier];
       this.pointCancel(point, touch);
       this.removeTouchPoint(touch);
@@ -213,7 +259,16 @@ export class InteractionManager extends Container implements IInteractionManager
     // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < event.changedTouches.length; i++) {
       touch = event.changedTouches[i];
-      // TODO: Add Touch Move Event
+      this.touchMoveEvent.emit({
+        down: true,
+        eventType: "TouchMove",
+        rawEvent: event,
+        source: this,
+        stage: this,
+        touch,
+        x: touch.clientX,
+        y: touch.clientY,
+      });
       point = this.touchPointIndex[touch.identifier];
       this.pointMove(point, touch);
     }
