@@ -1,4 +1,4 @@
-import { setup } from "./setupUtil";
+import { ITestSetupTemplate, setup } from "./setupUtil";
 
 describe("Close button tests", () => {
   // location of button
@@ -6,7 +6,7 @@ describe("Close button tests", () => {
   const y = 50;
 
   // setup template for state test cases
-  let stateTests;
+  let stateTests: ITestSetupTemplate;
 
   beforeEach(() => {
     stateTests = setup().template
@@ -17,12 +17,9 @@ describe("Close button tests", () => {
       .perform(t => t
         .updateStage());
   });
-  
-  afterEach(() => {
-  }); // why am I even creating this thing?
 
   test("If a close button is added to the stage after the point is moved, the collision is still registered", () => {
-    let { sprites: {button} } = setup()
+    const { sprites: { button } } = setup()
       .addInteractionPoint("ip")
       .movePoint("ip", x, y)
       .addCloseButton("button", x, y)
@@ -33,44 +30,43 @@ describe("Close button tests", () => {
   });
 
   test("State 'Active_Hover' is achievable", () => {
-    let { sprites: {button} } = stateTests
+    const { sprites: { button } } = stateTests
       .feed(t => t
-        .pointDown("ip", x, y) // activate button
+        .pointDown("ip", x, y), // activate button
       ).run().values;
 
     expect(button.active).toBe(true);
     expect(button.hover).toBe(true);
     expect(button.texture).toBe("Active_Hover");
   });
-  
+
   test("State 'Inactive_Hover' is achievable", () => {
-    let { sprites: {button} } = stateTests
+    const { sprites: { button } } = stateTests
       .feed(t => t
-        .movePoint("ip", x, y) // hover
+        .movePoint("ip", x, y), // hover
       ).run().values;
-    
+
     expect(button.active).toBe(false);
     expect(button.hover).toBe(true);
     expect(button.texture).toBe("Inactive_Hover");
   });
-  
+
   test("State 'Active_NoHover' is achievable", () => {
-    let { sprites: {button} } = stateTests
+    const { sprites: { button } } = stateTests
       .feed(t => t
         .pointDown("ip", x, y) // activate
-        .movePoint("ip", 0, 0) // unhover
+        .movePoint("ip", 0, 0), // unhover
       ).run().values;
 
     expect(button.active).toBe(true);
     expect(button.hover).toBe(false);
     expect(button.texture).toBe("Active_NoHover");
   });
-  
+
   test("State 'Inactive_NoHover' is achievable", () => {
-    let { sprites: {button} } = stateTests
-      .feed(t => t
+    const { sprites: { button } } = stateTests
+      .feed(t => t).run().values;
         // literally do nothing
-      ).run().values;
 
     expect(button.active).toBe(false);
     expect(button.hover).toBe(false);

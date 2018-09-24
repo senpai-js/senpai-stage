@@ -1,6 +1,6 @@
 import assert from "assert";
 import { EventEmitter, IValueChangeEvent } from "../events";
-import { createTextureMap, IInteractionPoint, ITextureMap, loadImage } from "../util";
+import { createTextureMap, Cursor, IInteractionPoint, ITextureMap, loadImage } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 export interface ISlider extends ISprite {
@@ -85,7 +85,14 @@ export class Slider extends Sprite implements ISlider {
 
       this.value = this.min + range * clampedTX / sliderDistance;
       if (this.value !== previousValue) {
-        // super.emit("value-change", this); // TODO
+        this.valueChangeEvent.emit({
+          eventType: "ValueChange",
+          previousValue,
+          property: "value",
+          source: this,
+          stage: null,
+          value: this.value,
+        });
       }
     }
 
@@ -93,7 +100,7 @@ export class Slider extends Sprite implements ISlider {
   }
 
   public update(): void {
-    this.cursor = this.hover ? "pointer" : "default";
+    this.cursor = this.hover ? Cursor.pointer : Cursor.auto;
     this.pillTexture = this.active
       ? this.textures.Pill_Active
       : (this.hover ? this.textures.Pill_Hover : this.textures.Pill);

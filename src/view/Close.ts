@@ -1,5 +1,5 @@
 import assert from "assert";
-import { createTextureMap, ITextureMap, loadImage } from "../util";
+import { createTextureMap, Cursor, ITextureMap, loadImage } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 export interface IClose extends ISprite {
@@ -19,7 +19,7 @@ export class Close extends Sprite implements IClose {
     const hover = this.hover ? "Hover" : "NoHover";
     this.setTexture(`${active}_${hover}`);
 
-    this.cursor = this.hover ? "pointer" : "default";
+    this.cursor = this.hover ? Cursor.pointer : Cursor.auto;
     super.update();
   }
 }

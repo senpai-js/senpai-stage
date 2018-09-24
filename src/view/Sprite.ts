@@ -11,7 +11,7 @@ import {
   IValueChangeEvent,
 } from "../events";
 import * as m from "../matrix";
-import { createTextureMap, IInteractionPoint, ISize, ISpriteSheet, ITextureMap, loadImage } from "../util";
+import { createTextureMap, Cursor, IInteractionPoint, ISize, ISpriteSheet, ITextureMap, loadImage } from "../util";
 import { IStage } from "./Stage";
 
 export interface ISprite extends ISize {
@@ -29,7 +29,7 @@ export interface ISprite extends ISize {
   z: number;
 
   // animation
-
+  textures: ITextureMap;
   lastInterpolated: number;
   interpolatedPosition: Float64Array;
   animationStart: number;
@@ -43,14 +43,12 @@ export interface ISprite extends ISize {
   focused: boolean;
   tabIndex: number;
 
-  cursor: "pointer" | "default";
+  cursor: Cursor;
   loaded: Promise<void>;
 
   texture: string;
 
   // events
-
-  clickEvent: EventEmitter<IPointClickEvent>;
   pointUpEvent: EventEmitter<IPointUpEvent>;
   pointDownEvent: EventEmitter<IPointEvent>;
   pointClickEvent: EventEmitter<IPointClickEvent>;
@@ -105,7 +103,7 @@ export class Sprite implements ISprite {
   public lastInterpolated: number = 0;
   public animationStart: number = 0;
   public ease = eases.easeLinear;
-  public cursor: ("pointer" | "default") = "default";
+  public cursor: Cursor = Cursor.auto;
   public animationLength: number = 0;
   public active: boolean = false;
   public hover: boolean = false;
@@ -119,7 +117,6 @@ export class Sprite implements ISprite {
   public width: number = 0;
   public height: number = 0;
 
-  public clickEvent: EventEmitter<IPointClickEvent> = new EventEmitter<IPointClickEvent>();
   public pointDownEvent: EventEmitter<IPointDownEvent> = new EventEmitter<IPointDownEvent>();
   public pointUpEvent: EventEmitter<IPointUpEvent> = new EventEmitter<IPointUpEvent>();
   public pointMoveEvent: EventEmitter<IPointMoveEvent> = new EventEmitter<IPointMoveEvent>();

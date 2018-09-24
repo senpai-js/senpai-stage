@@ -1,4 +1,5 @@
 import { AudioContext } from "web-audio-test-api";
+import { IPointClickEvent, IPointDownEvent, IPointUpEvent } from "../src/events";
 import * as m from "../src/matrix";
 import { IInteractionPoint } from "../src/util";
 import { Button, IButton } from "../src/view/Button";
@@ -98,7 +99,7 @@ describe("InteractionManager tests", () => {
   test("When calling InteractionManager.pointMove(), the hover flag for the moved interaction point is set", () => {
     const ip = addPointToInteractionManager(im);
 
-    im.pointMove(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
+    im.pointMove(ip, { clientX: x, clientY: y } as MouseEvent | Touch);
 
     expect(ip.hover.hover).toBe(true);
   });
@@ -106,7 +107,7 @@ describe("InteractionManager tests", () => {
   test("When calling InteractionManager.pointDown(), the button's 'active' flag is true", () => {
     const ip = addPointToInteractionManager(im);
 
-    im.pointDown(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
+    im.pointDown(ip, { clientX: x, clientY: y } as MouseEvent | Touch);
 
     expect(button.active).toBe(true);
   });
@@ -158,75 +159,128 @@ describe("InteractionManager tests", () => {
     const ip = addPointToInteractionManager(im);
     const callback = jest.fn();
 
-    button.once("down",  callback); // emitted first on pointDown
+    button.pointDownEvent.once(callback); // emitted first on pointDown
 
-    im.pointDown(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
+    im.pointDown(ip, { clientX: x, clientY: y } as MouseEvent | Touch);
 
     expect(callback).toHaveBeenCalledTimes(1);
-    expect(callback).toHaveBeenCalledWith(ip);
+    const expected: IPointDownEvent = {
+      down: true,
+      eventType: "PointDown",
+      point: ip,
+      previousX: 0,
+      previousY: 0,
+      source: button,
+      stage: im,
+      x,
+      y,
+    };
+    expect(callback.mock.calls[0][0]).toStrictEqual(expected);
   });
 
   test("When repeatedly calling pointDown(), down button event is fired only once", () => {
     const ip = addPointToInteractionManager(im);
     const callback = jest.fn();
 
-    button.on("down",  callback); // emitted first on pointDown
+    button.pointDownEvent.listen(callback); // emitted first on pointDown
 
-    im.pointDown(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
-    im.pointDown(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
+    im.pointDown(ip, { clientX: x, clientY: y } as MouseEvent | Touch);
+    im.pointDown(ip, { clientX: x, clientY: y } as MouseEvent | Touch);
     expect(callback).toHaveBeenCalledTimes(1);
-    expect(callback).toHaveBeenCalledWith(ip);
   });
 
   test("When calling pointDown() and pointUp(), up button event is fired", () => {
     const ip = addPointToInteractionManager(im);
     const callback = jest.fn();
 
-    button.once("up",  callback); // emitted first on pointDown
+    button.pointUpEvent.listen(callback); // emitted first on pointDown
 
     im.pointDown(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
     im.pointUp(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
 
     expect(callback).toHaveBeenCalledTimes(1);
-    expect(callback).toHaveBeenCalledWith(ip);
+
+    const expected: IPointUpEvent = {
+      down: false,
+      eventType: "PointUp",
+      point: ip,
+      previousX: x,
+      previousY: y,
+      source: button,
+      stage: im,
+      x,
+      y,
+    };
+    expect(callback.mock.calls[0][0]).toStrictEqual(expected);
   });
 
   test("When calling pointDown() and pointUp(), click button event is fired", () => {
     const ip = addPointToInteractionManager(im);
     const callback = jest.fn();
 
-    button.once("click",  callback); // emitted first on pointDown
+    button.pointClickEvent.listen(callback); // emitted first on pointDown
 
-    im.pointDown(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
-    im.pointUp(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
+    im.pointDown(ip, { clientX: x, clientY: y } as MouseEvent | Touch);
+    im.pointUp(ip, { clientX: x, clientY: y } as MouseEvent | Touch);
 
     expect(callback).toHaveBeenCalledTimes(1);
-    expect(callback).toHaveBeenCalledWith(ip);
+    const expected: IPointClickEvent = {
+      down: false,
+      eventType: "PointClick",
+      point: ip,
+      previousX: x,
+      previousY: y,
+      source: button,
+      stage: im,
+      x,
+      y,
+    };
+
+    expect(callback.mock.calls[0][0]).toStrictEqual(expected);
   });
 
   test("When calling pointDown(), firstdown interaction manager event is fired", () => {
     const ip = addPointToInteractionManager(im);
     const callback = jest.fn();
 
-    im.once("point-down",  callback); // emitted first on pointDown
+    im.pointDownEvent.listen(callback); // emitted first on pointDown
 
-    im.pointDown(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
-
+    im.pointDown(ip, { clientX: x, clientY: y } as MouseEvent | Touch);
+    const expected: IPointDownEvent = {
+      down: true,
+      eventType: "PointDown",
+      point: ip,
+      previousX: 0,
+      previousY: 0,
+      source: button,
+      stage: im,
+      x,
+      y,
+    };
     expect(callback).toHaveBeenCalledTimes(1);
-    expect(callback).toHaveBeenCalledWith(ip);
+    expect(callback.mock.calls[0][0]).toStrictEqual(expected);
   });
 
   test("When calling pointDown() and pointUp(), click interaction manager event is fired", () => {
     const ip = addPointToInteractionManager(im);
     const callback = jest.fn();
 
-    im.once("click", callback); // emitted the moment the point goes up
-    im.once("point-up", callback); // emmitted the moment the point goes up
-    im.pointDown(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
-    im.pointUp(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
-
-    expect(callback).toHaveBeenCalledTimes(2);
-    expect(callback).toHaveBeenCalledWith(ip);
+    im.pointUpEvent.once(callback); // emmitted the moment the point goes up
+    im.pointDown(ip, { clientX: 0, clientY: 0 } as MouseEvent | Touch);
+    im.pointUp(ip, { clientX: 0, clientY: 0 } as MouseEvent | Touch);
+    const expected: IPointUpEvent = {
+      down: false,
+      eventType: "PointUp",
+      point: ip,
+      previousX: x,
+      previousY: y,
+      source: im,
+      stage: im,
+      x,
+      y,
+    };
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback.mock.calls[0][0]).toStrictEqual(expected);
   });
 
   test("When buttons overlap, the 'down' event is captured by the button with the highest z level", () => {
@@ -243,10 +297,10 @@ describe("InteractionManager tests", () => {
     button.setZ(0);
     button2.setZ(1);
 
-    button.once("down",   callback1);
-    button2.once("down",  callback2);
+    button.pointDownEvent.once(callback1);
+    button2.pointDownEvent.once(callback2);
 
-    im.pointDown(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
+    im.pointDown(ip, { clientX: x, clientY: y } as MouseEvent | Touch);
 
     expect(callback1).toHaveBeenCalledTimes(0);
     expect(callback2).toHaveBeenCalledTimes(1);
@@ -266,8 +320,8 @@ describe("InteractionManager tests", () => {
     button.setZ(0);
     button2.setZ(1);
 
-    button.once("up",   callback1);
-    button2.once("up",  callback2);
+    button.pointUpEvent.once(callback1);
+    button2.pointUpEvent.once(callback2);
 
     im.pointDown(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
     im.pointUp(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
@@ -290,11 +344,11 @@ describe("InteractionManager tests", () => {
     button.setZ(0);
     button2.setZ(1);
 
-    button.once("click",   callback1);
-    button2.once("click",  callback2);
+    button.pointClickEvent.once(callback1);
+    button2.pointClickEvent.once(callback2);
 
-    im.pointDown(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
-    im.pointUp(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
+    im.pointDown(ip, { clientX: x, clientY: y } as MouseEvent | Touch);
+    im.pointUp(ip, { clientX: x, clientY: y } as MouseEvent | Touch);
 
     expect(callback1).toHaveBeenCalledTimes(0);
     expect(callback2).toHaveBeenCalledTimes(1);

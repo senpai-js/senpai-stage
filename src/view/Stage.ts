@@ -9,15 +9,15 @@ import {
   IPreRenderEvent,
   IPreUpdateEvent,
 } from "../events";
-import { IContainer } from "./Container";
-import { IInteractionManagerProps, InteractionManager } from "./InteractionManager";
+import { Cursor } from "../util";
+import { IInteractionManager, IInteractionManagerProps, InteractionManager } from "./InteractionManager";
 import { ISprite } from "./Sprite";
 
 export interface IStageProps extends IInteractionManagerProps {
 
 }
 
-export interface IStage extends IContainer {
+export interface IStage extends IInteractionManager {
   postInterpolateEvent: EventEmitter<IPostInterpolateEvent>;
   preInterpolateEvent: EventEmitter<IPreInterpolateEvent>;
   preUpdateEvent: EventEmitter<IPreUpdateEvent>;
@@ -99,7 +99,7 @@ export class Stage extends InteractionManager implements IStage {
     });
 
     let sprite: ISprite;
-    let pointer: boolean = false;
+    let pointer: Cursor = Cursor.auto;
     const ctx = this.ctx;
 
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -117,10 +117,10 @@ export class Stage extends InteractionManager implements IStage {
       ctx.globalAlpha = sprite.interpolatedPosition[6];
       sprite.render(ctx);
       ctx.restore();
-      pointer = pointer || (sprite.hover && sprite.cursor === "pointer");
+      pointer = pointer || (sprite.hover && sprite.cursor);
     }
 
-    this.canvas.style.cursor = pointer ? "pointer" : "default";
+    this.canvas.style.cursor = pointer;
 
     this.postRenderEvent.emit({
       eventType: "PostRender",

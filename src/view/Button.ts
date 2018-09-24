@@ -1,4 +1,4 @@
-import { createTextureMap,  ITextureMap, loadImage, TextAlign, TextBaseline } from "../util";
+import { createTextureMap,  Cursor, ITextureMap, loadImage, TextAlign, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 import assert from "assert";
@@ -50,7 +50,7 @@ export class Button extends Sprite implements IButton {
     const selected = this.selected ? "Selected" : "Unselected";
     this.setTexture(`${active}_${hover}_${selected}`);
 
-    this.cursor = this.hover ? "pointer" : "default";
+    this.cursor = this.hover ? Cursor.pointer : Cursor.auto;
     super.update();
   }
 

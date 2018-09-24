@@ -1,14 +1,14 @@
+/* tslint:disable:max-classes-per-file */
 import { AudioContext } from "web-audio-test-api";
-
 import * as m from "../src/matrix";
-import { Stage, IStage } from "../src/view/Stage";
-import { ISprite } from "../src/view/Sprite";
-import { Button } from "../src/view/Button";
-import { Slider } from "../src/view/Slider";
+import { IInteractionPoint, ITextureMap, TextAlign, TextBaseline } from "../src/util";
+import { Button, IButton } from "../src/view/Button";
+import { Checkbox, ICheckbox } from "../src/view/Checkbox";
 import { Close } from "../src/view/Close";
-import { Label } from "../src/view/Label";
-import { Checkbox } from "../src/view/Checkbox";
-import { ITextureMap, IInteractionPoint } from "../src/util";
+import { ILabel, Label } from "../src/view/Label";
+import { Slider } from "../src/view/Slider";
+import { ISprite } from "../src/view/Sprite";
+import { IStage, Stage } from "../src/view/Stage";
 
 /**
  * Create setup utility object.
@@ -36,12 +36,21 @@ export interface ITestSetup {
    * Modified by the setup methods.
    */
   values: ITestSetupValues;
-  
+
+  /**
+   * Setup configuration template.
+   *
+   * A template has one or more placeholder instances into which the user can
+   * feed a sequence of actions to be performed in that point of the setup. When
+   * all placeholders have been filled, the setup can be completed.
+   */
+  template: ITestSetupTemplate;
+
   /**
    * Create an InteractionPoint with the given id and add it to the stage.
    */
   addInteractionPoint(id: string): this;
-  
+
   /**
    * Create a Button with the given id at the given (x, y) coordinate and add it
    * to the stage.
@@ -68,7 +77,13 @@ export interface ITestSetup {
    * to the stage.
    */
   addLabel(id: string, x: number, y: number): this;
-  
+
+  /**
+   * Create a slider with the given id at the given (x, y) coordinate and add it
+   * to the stage.
+   */
+  addSlider(id: string, x: number, y: number): this;
+
   /**
    * Move the given point to the given (x, y) coordinate.
    */
@@ -91,7 +106,7 @@ export interface ITestSetup {
    * should have their value changed. Else, it only changes the ones specified
    * in textureNames.
    */
-  setTextures(id: string, val: ImageBitmap, ...textureNames: string[]): this;
+  setTextures(id: string, val: ImageBitmap | HTMLImageElement, ...textureNames: string[]): this;
 
   /**
    * Call the stage update() method.
@@ -99,13 +114,11 @@ export interface ITestSetup {
   updateStage(): this;
 
   /**
-   * Setup configuration template.
-   *
-   * A template has one or more placeholder instances into which the user can
-   * feed a sequence of actions to be performed in that point of the setup. When
-   * all placeholders have been filled, the setup can be completed.
+   * Point down method, used to put the point down
    */
-  template: ITestSetupTemplate;
+  pointDown(id: string, x: number, y: number): this;
+
+  setChecked(id: string, val: boolean): this;
 }
 
 export interface ITestSetupTemplate {
@@ -137,13 +150,14 @@ export interface ITestSetupTemplate {
    * Throws an error if not all placeholders have been consumed.
    */
   run(): ITestSetup;
+
 }
 
 export class TestSetupValues implements ITestSetupValues {
-  public sprites : { [id: string]: ISprite } = {};
-  public points : { [id: string]: IInteractionPoint } = {};
-  public stage : IStage = null;
-  
+  public sprites: { [id: string]: ISprite } = {};
+  public points: { [id: string]: IInteractionPoint } = {};
+  public stage: IStage = null;
+
   constructor() {
     const audioContext = new AudioContext();
     const canvas = document.createElement("canvas");
@@ -151,37 +165,39 @@ export class TestSetupValues implements ITestSetupValues {
       audioContext,
       canvas,
       height: 600,
-      width: 800
+      width: 800,
     });
   }
 }
 
 export class TestSetup implements ITestSetup {
   public values: ITestSetupValues = null;
-  
   public template: ITestSetupTemplate = null;
-  
+
   constructor() {
     this.values = new TestSetupValues();
     this.template = new TestSetupTemplate();
   }
-  
-  public addInteractionPoint(id: string) : this {
+
+  public addInteractionPoint(id: string): this {
     if (this.idIsTaken(id)) {
       throw new Error(`Cannot add InteractionPoint with id ${id}: element with id already exists.`);
     }
-    
+
     this.values.points[id] = this.values.stage.createInteractionPoint(id, "Touch");
     this.values.stage.addPoint(this.values.points[id]);
     return this;
   }
-  
-  public movePoint(id: string, x : number, y: number): this {
+
+  public movePoint(id: string, x: number, y: number): this {
     if (!this.existsPoint(id)) {
       throw new Error(`Cannot move InteractionPoint with id ${id}: point does not exist.`);
     }
-    
-    this.values.stage.pointMove(this.values.points[id], {clientX: x, clientY: y});
+
+    this.values.stage.pointMove(
+      this.values.points[id],
+      { clientX: x, clientY: y } as MouseEvent | Touch,
+    );
     return this;
   }
 
@@ -196,7 +212,7 @@ export class TestSetup implements ITestSetup {
       .attr("Hover", "NoHover")
       .attr("Selected", "Unselected")
       .build();
-    
+
     this.values.sprites[id] = new Button({
       definition: null,
       id,
@@ -212,13 +228,13 @@ export class TestSetup implements ITestSetup {
     if (this.idIsTaken(id)) {
       throw new Error(`Cannot add Close button with id ${id}: element with id already exists.`);
     }
-    
+
     const buttonPos = m.chain([1, 0, 0, 1, 0, 0]).translate(x, y).value;
     const textures = new TextureBuilder()
       .attr("Active", "Inactive")
       .attr("Hover", "NoHover")
       .build();
-    
+
     this.values.sprites[id] = new Close({
       definition: null,
       id,
@@ -247,25 +263,35 @@ export class TestSetup implements ITestSetup {
       position: checkboxPos,
       source: null,
       textures,
-    })
+    });
     this.values.stage.addSprite(this.values.sprites[id]);
     return this;
   }
-  
+
   public addLabel(id: string, x: number, y: number): this {
     if (this.idIsTaken(id)) {
       throw new Error(`Cannot add Label with id ${id}: element with id already exists.`);
     }
     const labelPos = m.chain([1, 0, 0, 1, 0, 0]).translate(x, y).value;
-    const textures = new TextureBuilder().attr("texture").build();
+    const textures = new TextureBuilder()
+      .attr("texture")
+      .build();
 
     this.values.sprites[id] = new Label({
+      alpha: 1,
       definition: null,
+      font: "monospace",
+      fontColor: "black",
+      fontSize: 12,
       id,
       position: labelPos,
       source: null,
+      text: "",
+      textAlign: TextAlign.left,
+      textBaseline: TextBaseline.top,
       textures,
-    })
+      z: 0,
+    });
     this.values.stage.addSprite(this.values.sprites[id]);
     return this;
   }
@@ -293,7 +319,7 @@ export class TestSetup implements ITestSetup {
       source: null,
       textures,
       width: 100,
-    })
+    });
     this.values.stage.addSprite(this.values.sprites[id]);
     return this;
   }
@@ -302,8 +328,9 @@ export class TestSetup implements ITestSetup {
     if (!this.existsSprite(id)) {
       throw new Error(`Cannot set the 'selected' property of Button with id ${id}: button does not exist.`);
     }
+    const button = this.values.sprites[id] as IButton;
+    button.selected = val;
 
-    this.values.sprites[id].selected = val;
     return this;
   }
 
@@ -311,23 +338,23 @@ export class TestSetup implements ITestSetup {
     if (!this.existsSprite(id)) {
       throw new Error(`Cannot set the 'text' property of Label with id ${id}: label does not exist.`);
     }
-    
-    this.values.sprites[id].setText(val);
+    const label = this.values.sprites[id] as ILabel;
+    label.setText(val);
     return this;
   }
-  
+
   public setChecked(id: string, val: boolean): this {
     if (!this.existsSprite(id)) {
       throw new Error(`Cannot set the 'checked' property of Checkbox with id ${id}: checkbox does not exist.`);
     }
-
-    this.values.sprites[id].checked = val;
+    const checkbox = this.values.sprites[id] as ICheckbox;
+    checkbox.checked = val;
     return this;
   }
-  
+
   public setTextures(id: string, val: ImageBitmap, ...textureNames: string[]): this {
-    let textures : string[] = textureNames.length ? textureNames : Object.keys(this.values.sprites[id].textures);
-    for (let texture of textures) {
+    const textures: string[] = textureNames.length ? textureNames : Object.keys(this.values.sprites[id].textures);
+    for (const texture of textures) {
       this.values.sprites[id].textures[texture] = val;
     }
     return this;
@@ -337,7 +364,10 @@ export class TestSetup implements ITestSetup {
     if (!this.existsPoint(id)) {
       throw new Error(`Cannot execute pointDown on point with id ${id}: point dows not exist.`);
     }
-    this.values.stage.pointDown(this.values.points[id], {clientX: x, clientY: y});
+    this.values.stage.pointDown(
+      this.values.points[id],
+      {clientX: x, clientY: y} as MouseEvent | Touch,
+    );
     return this;
   }
 
@@ -345,7 +375,6 @@ export class TestSetup implements ITestSetup {
     this.values.stage.update();
     return this;
   }
-
 
   /* Convenience methods to ease readability */
 
@@ -364,9 +393,7 @@ export class TestSetup implements ITestSetup {
 
 export class TestSetupTemplate implements ITestSetupTemplate {
   private actions: TestSetupTemplateCallback[] = [];
-  
-  constructor() { }
-  
+
   public feed(actions: TestSetupTemplateCallback): this {
     for (let i = 0; i < this.actions.length; i++) {
       if (this.actions[i] === null) {
@@ -392,15 +419,19 @@ export class TestSetupTemplate implements ITestSetupTemplate {
   }
 }
 
-
 // helper class: ITextureBuilder
 
 interface ITextureBuilder {
+
+  /**
+   * Expose the attributes property on ITexture builder because it's used externally.
+   */
+  attributes: string[][];
   /**
    * Ability to customize separator.
    */
   separator(sep: string): this;
-  
+
   /**
    * Add a variable attribute to the texture builder.
    *
@@ -436,7 +467,7 @@ interface ITextureChainBuilder extends ITextureBuilder {
    * Delegate to current texture builder.
    */
   attr(...variations: string[]): this;
-  
+
   /**
    * Delegate to current texture builder.
    */
@@ -449,53 +480,57 @@ interface ITextureChainBuilder extends ITextureBuilder {
 }
 
 class TextureBuilder implements ITextureBuilder {
+  public attributes: string[][] = [];
   private sep: string = "_";
-  private attributes: string[][] = [];
 
-  constructor(attr:? string[][]) {
-    if (attr)
+  constructor(attr?: string[][]) {
+    if (attr) {
       this.attributes = attr.slice();
+    }
   }
-  
+
   public separator(sep: string): this {
     this.sep = sep;
     return this;
   }
-  
+
   public attr(...variations: string[]): this {
-    if (variations.length == 0)
+    if (variations.length === 0) {
       throw new Error("Cannot add empty list of attribute variations.");
-    
+    }
+
     this.attributes.push(variations.slice());
     return this;
   }
-  
+
   public build(): ITextureMap {
-    if (this.attributes.length == 0)
-      return {}; // empty texture map
-    
+    if (this.attributes.length === 0) {
+      return {};
+    } // empty texture map
+
     // theme for this section: idk if we have to make a copy, but I'm doing it
     // to be safe
     let textures = this.attributes[0].slice();
     this.attributes.slice(1).forEach(attribute => {
       const temp = [];
-      textures.forEach(texture => attribute.forEach(variation => temp.push(texture+this.sep+variation)));
+      textures.forEach(texture => attribute.forEach(variation => temp.push(texture + this.sep + variation)));
       textures = temp.slice();
     });
-    return textures.reduce((acc, x) => {acc[x] = new Image(); return acc}, {});
+    return textures.reduce((acc, x) => {acc[x] = new Image(); return acc; }, {});
   }
 }
 
 class TextureChainBuilder implements ITextureChainBuilder {
+  public attributes: string[][] = [];
   private builders: ITextureBuilder[] = [new TextureBuilder()];
-  
+
   public and(): this {
     this.builders.push(new TextureBuilder());
     return this;
   }
 
   public sometimes(): this {
-    this.builders.push(new TextureBuilder(this.currentBuilder().attributes))
+    this.builders.push(new TextureBuilder(this.currentBuilder().attributes));
     return this;
   }
 
@@ -513,7 +548,7 @@ class TextureChainBuilder implements ITextureChainBuilder {
     const tm: ITextureMap = {};
     this.builders.forEach(b => {
       const tmp = b.build();
-      for (let texture in tmp) {
+      for (const texture of Object.keys(tmp)) {
         tm[texture] = tmp[texture];
       }
     });
@@ -521,9 +556,9 @@ class TextureChainBuilder implements ITextureChainBuilder {
   }
 
   private currentBuilder(): ITextureBuilder {
-    return this.builders[this.builders.length-1];
+    return this.builders[this.builders.length - 1];
   }
 }
 
 // custom type: TestSetupTemplateCallback
-type TestSetupTemplateCallback = (template: ITestSetup) => ITestSetup
+type TestSetupTemplateCallback = (template: ITestSetup) => ITestSetup;

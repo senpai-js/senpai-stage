@@ -1,6 +1,8 @@
-import { Slider } from "../src/view/Slider";
-
-import { setup } from "./setupUtil";
+import { IValueChangeEvent } from "../src/events";
+import { IInteractionPoint } from "../src/util";
+import { IInteractionManager, InteractionManager } from "../src/view/InteractionManager";
+import { ISlider, Slider } from "../src/view/Slider";
+import { ITestSetupTemplate, setup } from "./setupUtil";
 
 // TEST IDEA: Activate the slider, move the mouse point to N different points on
 // the screen, and assert that at all times the value is between the extremes
@@ -30,6 +32,7 @@ import { setup } from "./setupUtil";
 // ANSWER: We can change this later
 
 // TODO: Read up on slider implementation
+
 describe("Slider tests", () => {
   const x = 50;
   const y = 50;
@@ -43,7 +46,7 @@ describe("Slider tests", () => {
     .placeholder()
     .perform(t => t.updateStage());
   */
-  let template;
+  let template: ITestSetupTemplate;
   beforeEach(() => {
     template = setup().template
       .perform(t => t
@@ -52,112 +55,134 @@ describe("Slider tests", () => {
         .addInteractionPoint("ip"))
       .placeholder()
       .perform(t => t.updateStage());
-  })
-  
+  });
+
   test("Hover over Slider body makes broadPhase() return true",  () => {
-    let { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.movePoint("ip", x+50, y)) // to the right of the pill by 30px
-      .run()
-      .values;
-    
+    const { values } = template
+      .feed(t => t.movePoint("ip", x + 50, y)) // to the right of the pill by 30px
+      .run();
+    const ip = values.points.ip;
+    const slider = values.sprites.slider as ISlider;
+
     expect(slider.broadPhase(ip)).toBe(true);
   });
-  
+
   test("Hover over pill makes broadPhase() return true",  () => {
-    let { points: {ip}, sprites: {slider} } = template
+    const { values } = template
       .feed(t => t.movePoint("ip", x, y))
-      .run()
-      .values;
-    
+      .run();
+    const ip = values.points.ip;
+    const slider = values.sprites.slider as ISlider;
+
     expect(slider.broadPhase(ip)).toBe(true);
   });
-  
+
   test("Hover over Slider body makes narrowPhase() return undefined",  () => {
-    let { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.movePoint("ip", x+50, y)) // to the right of the pill by 30px
-      .run()
-      .values;
+    const { values } = template
+      .feed(t => t.movePoint("ip", x + 50, y)) // to the right of the pill by 30px
+      .run();
+    const ip = values.points.ip;
+    const slider = values.sprites.slider as ISlider;
 
     expect(slider.narrowPhase(ip)).toBe(undefined);
   });
-  
+
   test("Hover over pill makes narrowPhase() return slider",  () => {
-    let { points: {ip}, sprites: {slider} } = template
+    const { values } = template
       .feed(t => t.movePoint("ip", x, y))
-      .run()
-      .values;
-    
+      .run();
+    const ip = values.points.ip;
+    const slider = values.sprites.slider as ISlider;
+
     expect(slider.narrowPhase(ip)).toBe(slider);
   });
 
   test("Hover over Slider body does not change 'cursor' property to 'pointer'", () => {
-    let { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.movePoint("ip", x+50, y)) // to the right of the pill by 30px
-      .run()
-      .values;
-
-    expect(slider.cursor).toBe("default");
+    const { values } = template
+      .feed(t => t.movePoint("ip", x + 50, y)) // to the right of the pill by 30px
+      .run();
+    const ip = values.points.ip;
+    const slider = values.sprites.slider as ISlider;
+    expect(slider.cursor).toBe("auto");
   });
-  
-  test("Hover over pill changes 'cursor' property to 'pointer'", () => {
-    let { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.movePoint("ip", x, y))
-      .run()
-      .values;
 
+  test("Hover over pill changes 'cursor' property to 'pointer'", () => {
+    const { values } = template
+      .feed(t => t.movePoint("ip", x, y))
+      .run();
+    const ip = values.points.ip;
+    const slider = values.sprites.slider as ISlider;
     expect(slider.cursor).toBe("pointer");
   });
 
   test("Hover over Slider body does not change Slider value", () => {
-    let { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.movePoint("ip", x+50, y))
-      .run()
-      .values;
+    const { values } = template
+      .feed(t => t.movePoint("ip", x + 50, y))
+      .run();
+    const ip = values.points.ip;
+    const slider = values.sprites.slider as ISlider;
 
     expect(slider.value).toBe(0);
   });
-  
-  /*
-   * Reason for removal: Not prioritized
 
-  test("Clicking outside Slider body does not change Slider value", () => {
-    throw new Error("Not implemented");
-  });
+  /**
+   * Reason for removal: Not prioritized
+   *
+   * test("Clicking outside Slider body does not change Slider value", () => {
+   *  throw new Error("Not implemented");
+   * });
    */
 
   test("Clicking on Slider body changes Slider value", () => {
-    let { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.pointDown("ip", x+50, y))
-      .run()
-      .values;
-
+    const { values } = template
+      .feed(t => t.pointDown("ip", x + 50, y))
+      .run();
+    const ip = values.points.ip;
+    const slider = values.sprites.slider as ISlider;
     expect(slider.value).not.toBe(0);
   });
 
   test("Clicking on Slider body fires value change event", () => {
-    throw new Error("Not implemented");
+    const { values } = template
+      .run();
+    const im = values.stage;
+    const ip = values.points.ip;
+    const slider = values.sprites.slider as ISlider;
+    const callback = jest.fn();
+    slider.valueChangeEvent.once(callback);
+    im.pointDown(ip, { clientX: x + 50, clientY: y } as MouseEvent | Touch);
+    expect(callback).toBeCalledTimes(1);
+    const expected: IValueChangeEvent<number> = {
+      eventType: "ValueChange",
+      previousValue: 0,
+      property: "value",
+      source: slider,
+      stage: im,
+      value: 0.5,
+    };
+    expect(callback.mock.calls[0][0]).toStrictEqual(expected);
   });
-  
-  test("Point down on pill makes narrowPhase return Slider", () =>  {
-    let { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.pointDown("ip", x, y))
-      .run()
-      .values;
 
+  test("Point down on pill makes narrowPhase return Slider", () =>  {
+    const { values } = template
+      .feed(t => t.pointDown("ip", x + 50, y))
+      .run();
+    const ip = values.points.ip;
+    const slider = values.sprites.slider as ISlider;
     expect(slider.narrowPhase(ip)).toBe(slider);
   });
-  
+
   test("When point was just pressed down on body, narrowPhase returns Slider", () =>  {
     // setup without any action in the placeholder spot
-    let { points: {ip}, sprites: {slider} } = template.feed(t => t).run().values;
+    const { points: {ip}, sprites: {slider} } = template.feed(t => t).run().values;
     ip.firstDown = true; // this indicates that the point was just pressed down
 
     expect(slider.narrowPhase(ip)).toBe(slider);
   });
 
   test("Hover outside of body makes broadPhase return false", () => {
-    let { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.movePoint("ip", x+200, y+100))
+    const { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.movePoint("ip", x + 200, y + 100))
       .run()
       .values;
 
@@ -165,17 +190,17 @@ describe("Slider tests", () => {
   });
 
   test("Hover outside of body makes narrowPhase return undefined", () => {
-    let { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.movePoint("ip", x+200, y+100))
+    const { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.movePoint("ip", x + 200, y + 100))
       .run()
       .values;
 
     expect(slider.narrowPhase(ip)).toBe(undefined);
   });
-  
+
   test("After point down and move narrowPhase still returns Slider", () => {
-    let { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x+200, y+100))
+    const { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x + 200, y + 100))
       .run()
       .values;
 
@@ -183,65 +208,62 @@ describe("Slider tests", () => {
   });
 
   test("After point down and move broadPhase still returns true", () => {
-    let { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x+200, y+100))
+    const { points: {ip}, sprites: {slider} } = template
+      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x + 200, y + 100))
       .run()
       .values;
 
     expect(slider.broadPhase(ip)).toBe(true);
   });
-  
-  test("Activating the Slider and moving the point beyond the start stops the value at min", () => {
-    let { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.pointDown("ip", x, y).movePoint("ip", 0, y))
-      .run()
-      .values;
 
+  test("Activating the Slider and moving the point beyond the start stops the value at min", () => {
+    const { values } = template
+      .feed(t => t.pointDown("ip", x, y).movePoint("ip", 0, y))
+      .run();
+    const slider =  values.sprites.slider as ISlider;
     expect(slider.value).toBe(slider.min);
   });
-  
-  test("Activating the Slider and moving the point beyond the end stops the value at max", () => {
-    let { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x+200, y))
-      .run()
-      .values;
 
+  test("Activating the Slider and moving the point beyond the end stops the value at max", () => {
+    const { values } = template
+      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x + 200, y))
+      .run();
+
+    const ip = values.points.ip;
+    const slider = values.sprites.slider as ISlider;
     expect(slider.value).toBe(slider.max);
   });
 
   test("Moving point off slider while slider is active projects value onto slider", () => {
-    let { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x+50, y+100))
-      .run()
-      .values;
+    const { values } = template
+      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x + 50, y + 100))
+      .run();
+    const ip = values.points.ip;
+    const slider = values.sprites.slider as ISlider;
 
-    throw new Error("Not implemented"); // TODO: compute expected value
+    expect(slider.value).toBeGreaterThan(0);
   });
-  
-  test("Moving point off slider while slider is active keeps 'cursor' property as 'pointer'", () => {
-    let { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x+50, y+100))
-      .run()
-      .values;
 
+  test("Moving point off slider while slider is active keeps 'cursor' property as 'pointer'", () => {
+    const { values } = template
+      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x + 50, y + 100))
+      .run();
+    const slider = values.sprites.slider;
     expect(slider.cursor).toBe("pointer");
   });
 
-  test("When pointMove is called, value event fires even if the point location doesn't change", () => {
-    let { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x, y))
-      .run()
-      .values;
-
-    throw new Error("Not implemented"); // TODO: check if event fires
-  });
-  
   test("When pointMove is called, value event fires even if the point location changes", () => {
-    let { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x+50, y))
-      .run()
-      .values;
-
-    throw new Error("Not implemented"); // TODO: check if event fires
+    const { values } = template
+      .run();
+    const im = values.stage;
+    const ip = values.points.ip;
+    const slider = values.sprites.slider as ISlider;
+    const callback = jest.fn();
+    slider.valueChangeEvent.listen(callback);
+    im.pointDown(ip, { clientX: x, clientY: y } as MouseEvent | Touch);
+    im.pointMove(ip, { clientX: x + 50, clientY: y } as MouseEvent | Touch);
+    expect(callback).toBeCalledTimes(2);
+    expect(callback.mock.calls[0][0].value)
+      .not.toEqual(callback.mock.calls[1][0].value);
   });
 });

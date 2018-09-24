@@ -319,7 +319,7 @@ export class InteractionManager extends Container implements IInteractionManager
   public pointUp(point: IInteractionPoint, position: Touch | MouseEvent): void {
     const previousX = point.x;
     const previousY = point.y;
-
+    let source: ISprite = null;
     this.pointMove(point, position);
     if (!point.down) {
       return;
@@ -353,6 +353,7 @@ export class InteractionManager extends Container implements IInteractionManager
           y: point.x,
         });
       }
+      source = point.active;
       point.active = null;
     }
 
@@ -362,7 +363,7 @@ export class InteractionManager extends Container implements IInteractionManager
       point,
       previousX,
       previousY,
-      source: point.active,
+      source: source || this,
       stage: this,
       x: point.x,
       y: point.x,

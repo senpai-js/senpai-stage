@@ -2,6 +2,7 @@ import assert from "assert";
 import { EventEmitter, IValueChangeEvent } from "../events";
 import {
   createTextureMap,
+  Cursor,
   IInteractionPoint,
   ITextureMap,
   loadImage,
@@ -84,7 +85,7 @@ export class Checkbox extends Sprite implements ICheckbox {
     const checked = this.checked ? "Checked" : "Unchecked";
     this.setTexture(`${active}_${hover}_${checked}`);
 
-    this.cursor = this.hover ? "pointer" : "default";
+    this.cursor = this.hover ? Cursor.pointer : Cursor.auto;
     super.update();
   }
 
