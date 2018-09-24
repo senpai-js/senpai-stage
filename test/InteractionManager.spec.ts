@@ -272,12 +272,12 @@ describe("InteractionManager tests", () => {
       down: false,
       eventType: "PointUp",
       point: ip,
-      previousX: x,
-      previousY: y,
+      previousX: 0,
+      previousY: 0,
       source: im,
       stage: im,
-      x,
-      y,
+      x: 0,
+      y: 0,
     };
     expect(callback).toHaveBeenCalledTimes(1);
     expect(callback.mock.calls[0][0]).toStrictEqual(expected);

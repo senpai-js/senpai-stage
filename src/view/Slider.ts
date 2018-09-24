@@ -90,7 +90,7 @@ export class Slider extends Sprite implements ISlider {
           previousValue,
           property: "value",
           source: this,
-          stage: null,
+          stage: this.container,
           value: this.value,
         });
       }

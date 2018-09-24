@@ -144,13 +144,14 @@ describe("Slider tests", () => {
 
   test("Clicking on Slider body fires value change event", () => {
     const { values } = template
+      .feed(t => t.pointDown("ip", x, y))
       .run();
     const im = values.stage;
     const ip = values.points.ip;
     const slider = values.sprites.slider as ISlider;
     const callback = jest.fn();
     slider.valueChangeEvent.once(callback);
-    im.pointDown(ip, { clientX: x + 50, clientY: y } as MouseEvent | Touch);
+    im.pointMove(ip, { clientX: x + 50, clientY: y } as MouseEvent | Touch);
     expect(callback).toBeCalledTimes(1);
     const expected: IValueChangeEvent<number> = {
       eventType: "ValueChange",
@@ -252,18 +253,21 @@ describe("Slider tests", () => {
     expect(slider.cursor).toBe("pointer");
   });
 
-  test("When pointMove is called, value event fires even if the point location changes", () => {
+  test("When pointMove is called, value event fires if the point location changes", () => {
     const { values } = template
+      .feed(t => t.addButton("throwaway", 1000, 1000))
       .run();
     const im = values.stage;
     const ip = values.points.ip;
     const slider = values.sprites.slider as ISlider;
     const callback = jest.fn();
     slider.valueChangeEvent.listen(callback);
+    const prevValue = slider.value;
     im.pointDown(ip, { clientX: x, clientY: y } as MouseEvent | Touch);
     im.pointMove(ip, { clientX: x + 50, clientY: y } as MouseEvent | Touch);
-    expect(callback).toBeCalledTimes(2);
-    expect(callback.mock.calls[0][0].value)
-      .not.toEqual(callback.mock.calls[1][0].value);
+    im.pointMove(ip, { clientX: x + 50, clientY: y } as MouseEvent | Touch);
+    expect(callback).toBeCalledTimes(1);
+    expect(prevValue)
+      .toBeLessThan(callback.mock.calls[0][0].value);
   });
 });

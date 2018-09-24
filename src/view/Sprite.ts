@@ -12,12 +12,13 @@ import {
 } from "../events";
 import * as m from "../matrix";
 import { createTextureMap, Cursor, IInteractionPoint, ISize, ISpriteSheet, ITextureMap, loadImage } from "../util";
-import { IStage } from "./Stage";
+import { IContainer } from "./Container";
+// import { IStage } from "./Stage";
 
 export interface ISprite extends ISize {
   id: string;
-  parent: IStage | ISprite;
-
+  parent: ISprite;
+  container: IContainer;
   // position
 
   previousPosition: Float64Array;
@@ -98,6 +99,7 @@ export class Sprite implements ISprite {
   public previousAlpha: number = 1;
   public z: number = 0;
   public parent: ISprite = null;
+  public container: IContainer = null;
   public wait: number = 0;
 
   public lastInterpolated: number = 0;

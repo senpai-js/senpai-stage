@@ -1,8 +1,6 @@
 import { IInteractionPoint, IPlayable } from "../util";
 import { ISprite } from "./Sprite";
 
-type ICallback = (...args: any[]) => any;
-
 export interface IContainer {
   sprites: ISprite[];
   playables: IPlayable[];
@@ -35,6 +33,7 @@ export class Container implements IContainer {
   public addSprite(sprite: ISprite): this {
     if (!this.sprites.includes(sprite)) {
       this.sprites.push(sprite);
+      sprite.container = this;
     }
     return this;
   }
@@ -42,6 +41,7 @@ export class Container implements IContainer {
   public removeSprite(sprite: ISprite): this {
     if (this.sprites.includes(sprite)) {
       this.sprites.splice(this.sprites.indexOf(sprite), 1);
+      sprite.container = null;
     }
     return this;
   }

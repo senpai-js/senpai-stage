@@ -1,3 +1,4 @@
+import { IContainer } from "../view/Container";
 import { IInteractionManager } from "../view/InteractionManager";
 import { ISprite } from "../view/Sprite";
 
@@ -5,7 +6,7 @@ export type EventCallback<T> = (events: T) => void;
 
 export interface ISenpaiEvent {
   eventType: string;
-  stage: IInteractionManager;
+  stage: IContainer;
   source: ISprite | IInteractionManager;
 }
 
