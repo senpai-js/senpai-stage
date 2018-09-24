@@ -23,6 +23,7 @@ export function setup() {
 export interface ITestSetupValues {
   sprites: { [id: string]: ISprite; };
   points: { [id: string]: IInteractionPoint; };
+  callbacks: { [id: string]: jest.Mock; };
   stage: IStage;
 }
 
@@ -58,12 +59,22 @@ export interface ITestSetup {
   addButton(id: string, x: number, y: number): this;
 
   /**
+   * Create a jest callback attached to a sprite specified by it's id.
+   */
+  addEventCallback(id: string, eventProperty: string, sprite: string): this;
+
+  /**
+   * Create a jest callback attached to the stage
+   */
+  addStageEventCallback(id: string, eventProperty: string): this;
+  /**
    * Create a Close button with the given id at the given (x, y) coordinate and
    * add it to the stage.
    *
    * NOTE: The Close button has the same states as the regular Button sans the
    * "Selected" part.
    */
+
   addCloseButton(id: string, x: number, y: number): this;
 
   /**
@@ -156,6 +167,7 @@ export interface ITestSetupTemplate {
 export class TestSetupValues implements ITestSetupValues {
   public sprites: { [id: string]: ISprite } = {};
   public points: { [id: string]: IInteractionPoint } = {};
+  public callbacks: { [id: string]: jest.Mock; } = {};
   public stage: IStage = null;
 
   constructor() {
@@ -189,6 +201,29 @@ export class TestSetup implements ITestSetup {
     return this;
   }
 
+  public addEventCallback(id: string, eventProperty: string, sprite: string): this {
+    const target: any = this.values.sprites[sprite];
+    if (!target) {
+      throw new Error(`Cannot attach callback ${id} => ${eventProperty} to falsy sprite.`);
+    }
+    if (this.values.callbacks[id]) {
+      throw new Error(`Cannot create callback ${id} => ${eventProperty} because id is already taken.`);
+    }
+    const mock = jest.fn();
+    target.callbacks[id] = mock;
+    target[eventProperty].listen(mock);
+    return this;
+  }
+
+  public addStageEventCallback(id: string, eventProperty: string): this {
+    const target: any = this.values.stage;
+    const mock = jest.fn();
+    if (this.values.callbacks[id]) {
+      throw new Error(`Cannot create callback ${id} => ${eventProperty} because id is already taken.`);
+    }
+    target.callbacks[id] = mock;
+    return this;
+  }
   public movePoint(id: string, x: number, y: number): this {
     if (!this.existsPoint(id)) {
       throw new Error(`Cannot move InteractionPoint with id ${id}: point does not exist.`);
