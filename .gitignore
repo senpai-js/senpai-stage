@@ -3,3 +3,5 @@ assets/sound
 .cache
 *.swp
 .rpt2_cache
+parcel
+parcel_build
