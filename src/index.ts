@@ -1,7 +1,8 @@
 import * as Ease from "./ease";
 import * as Matrix from "./matrix";
+import * as Spritesheet from "./spritesheet";
 import * as Util from "./util";
-export { Matrix, Ease, Util };
+export { Matrix, Ease, Util, Spritesheet };
 
 export * from "./view/Button";
 export * from "./view/Character";

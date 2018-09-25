@@ -1,9 +1,5 @@
-import { AudioContext } from "web-audio-test-api";
-import * as m from "../src/matrix";
-import { Button, IButton } from "../src/view/Button";
-import { Stage } from "../src/view/Stage";
-
 import { Cursor } from "../src/util";
+import { IButton } from "../src/view/Button";
 import { ITestSetupTemplate, setup } from "./setupUtil";
 
 describe("Button tests", () => {

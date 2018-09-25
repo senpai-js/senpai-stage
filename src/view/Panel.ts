@@ -1,6 +1,5 @@
-import assert from "assert";
 import { transformPoint } from "../matrix";
-import { createTextureMap, IInteractionPoint, ITextureMap, loadImage } from "../util";
+import {  IInteractionPoint } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 const sortZ = (a: ISprite, b: ISprite): number => a.z - b.z;

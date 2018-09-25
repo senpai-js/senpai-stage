@@ -1,5 +1,5 @@
-import assert from "assert";
-import { createTextureMap, IPadding, ITextureMap, loadImage, TextAlign, TextBaseline } from "../util";
+
+import { IPadding, TextAlign, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 const tempctx = document.createElement("canvas").getContext("2d");

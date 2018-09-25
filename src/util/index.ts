@@ -5,11 +5,6 @@ export interface IPoint {
   y: number;
 }
 
-export interface ISpriteSheet {
-  frames: ISpriteSheetFrameMap;
-  meta: ISpriteSheetMeta;
-}
-
 export interface ISpriteSheetFrameMap {
   [frame: string]: ISpriteSheetFrame;
 }
@@ -38,10 +33,6 @@ export interface ISpriteSheetSize {
 export interface ISpriteSheetPoint {
   x: number;
   y: number;
-}
-
-export interface ITextureMap {
-  [texture: string]: ImageBitmap;
 }
 
 export interface IInteractionPoint extends IPoint {
@@ -113,29 +104,6 @@ export interface IPadding {
   right: number;
   top: number;
   bottom: number;
-}
-
-export async function createTextureMap(definition: ISpriteSheet, img: Promise<ImageBitmap>) {
-  const textures: ITextureMap = {};
-  await Promise.all(
-    Object.entries(definition.frames).map(async ([desc, frame], i) => {
-      textures[desc] = await createImageBitmap(
-        await img,
-        frame.frame.x,
-        frame.frame.y,
-        frame.frame.w,
-        frame.frame.h,
-      );
-    }),
-  );
-  return textures;
-}
-
-export async function loadImage(src: string): Promise<ImageBitmap> {
-  const res = await fetch(src);
-  const blob = await res.blob();
-  const bmp = await createImageBitmap(blob);
-  return bmp;
 }
 
 /**

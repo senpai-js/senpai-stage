@@ -1,4 +1,4 @@
-import { TextAlign, TextBaseline } from "../util";
+import { TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 export interface ITextInput extends ISprite {

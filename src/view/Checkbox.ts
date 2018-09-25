@@ -1,11 +1,9 @@
-import assert from "assert";
+
 import { EventEmitter, IValueChangeEvent } from "../events";
 import {
-  createTextureMap,
+
   Cursor,
   IInteractionPoint,
-  ITextureMap,
-  loadImage,
   TextAlign,
   TextBaseline,
 } from "../util";

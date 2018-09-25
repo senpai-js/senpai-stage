@@ -10,8 +10,10 @@ import {
   IPointUpEvent,
   IValueChangeEvent,
 } from "../events";
+import { ISpriteLoadedEvent } from "../events/SpriteEvents";
 import * as m from "../matrix";
-import { createTextureMap, Cursor, IInteractionPoint, ISize, ISpriteSheet, ITextureMap, loadImage } from "../util";
+import { createTextureMap, ISpriteSheet, ITextureMap, loadImage, loadSpriteSheet } from "../spritesheet";
+import { Cursor, IInteractionPoint, ISize } from "../util";
 import { IContainer } from "./Container";
 // import { IStage } from "./Stage";
 
@@ -56,6 +58,7 @@ export interface ISprite extends ISize {
   pointMoveEvent: EventEmitter<IPointMoveEvent>;
   keyDownEvent: EventEmitter<IKeyDownEvent>;
   keyUpEvent: EventEmitter<IKeyUpEvent>;
+  loadedEvent: EventEmitter<ISpriteLoadedEvent>;
 
   textureChangeEvent: EventEmitter<IValueChangeEvent<string>>;
 
@@ -84,8 +87,8 @@ export interface ISpriteProps {
   textures?: ITextureMap;
   alpha?: number;
   z?: number;
-  source: Promise<Response>;
-  definition: ISpriteSheet;
+  source: Promise<ImageBitmap>;
+  definition: Promise<ISpriteSheet>;
 }
 
 export class Sprite implements ISprite {
@@ -125,6 +128,7 @@ export class Sprite implements ISprite {
   public pointClickEvent: EventEmitter<IPointClickEvent> = new EventEmitter<IPointClickEvent>();
   public keyDownEvent: EventEmitter<IKeyDownEvent> = new EventEmitter<IKeyDownEvent>();
   public keyUpEvent: EventEmitter<IKeyUpEvent> = new EventEmitter<IKeyUpEvent>();
+  public loadedEvent: EventEmitter<ISpriteLoadedEvent> = new EventEmitter<ISpriteLoadedEvent>();
 
   public textureChangeEvent: EventEmitter<IValueChangeEvent<string>> = new EventEmitter<IValueChangeEvent<string>>();
 
@@ -142,7 +146,12 @@ export class Sprite implements ISprite {
     if (props.hasOwnProperty("z")) {
       this.z = props.z;
     }
-    this.loaded = props.source ? this.loadTexture(props.source, props.definition) : Promise.resolve();
+    if (props.source && props.definition) {
+      this.loadTexture(
+        props.definition,
+        props.source,
+      );
+    }
   }
 
   public broadPhase(point: IInteractionPoint): boolean {
@@ -279,10 +288,15 @@ export class Sprite implements ISprite {
     }
   }
 
-  private async loadTexture(res: Promise<Response>, definition: ISpriteSheet): Promise<void> {
-    const resp = await res;
-    const blob = await resp.blob();
-    this.textures = await createTextureMap(definition, createImageBitmap(blob));
+  private async loadTexture(defintion: Promise<ISpriteSheet>, source: Promise<ImageBitmap>): Promise<void> {
+    this.textures = await createTextureMap(defintion, source);
+    this.loadedEvent.emit({
+      definition: await defintion,
+      eventType: "SpriteLoaded",
+      source: this,
+      spriteSource: await source,
+      stage: this.container,
+    });
   }
 }
 

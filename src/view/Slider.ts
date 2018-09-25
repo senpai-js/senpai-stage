@@ -1,6 +1,5 @@
-import assert from "assert";
 import { EventEmitter, IValueChangeEvent } from "../events";
-import { createTextureMap, Cursor, IInteractionPoint, ITextureMap, loadImage } from "../util";
+import { Cursor, IInteractionPoint } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 export interface ISlider extends ISprite {

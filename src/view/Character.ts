@@ -1,5 +1,3 @@
-import assert from "assert";
-import { createTextureMap, loadImage } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 export interface ICharacterProps extends ISpriteProps {

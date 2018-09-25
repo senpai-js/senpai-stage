@@ -1,4 +1,4 @@
-import { createTextureMap,  Cursor, ITextureMap, loadImage, TextAlign, TextBaseline } from "../util";
+import { Cursor, TextAlign, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 import assert from "assert";

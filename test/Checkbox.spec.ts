@@ -1,8 +1,4 @@
-import { AudioContext } from "web-audio-test-api";
-import * as m from "../src/matrix";
-import { Checkbox, ICheckbox } from "../src/view/Checkbox";
-import { Stage } from "../src/view/Stage";
-
+import { ICheckbox } from "../src/view/Checkbox";
 import { ITestSetupTemplate, setup } from "./setupUtil";
 
 describe("Checkbox tests", () => {

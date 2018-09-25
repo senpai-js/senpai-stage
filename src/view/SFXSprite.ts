@@ -1,4 +1,4 @@
-import {IAudio, IAudioProps, ISoundSpriteSheet, PlayState } from "../util";
+import { IAudio, IAudioProps, ISoundSpriteSheet, PlayState } from "../util";
 
 export interface ISFX extends IAudio {
   loop: false; // it will always be false

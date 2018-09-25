@@ -1,5 +1,4 @@
-import assert from "assert";
-import { createTextureMap, Cursor, ITextureMap, loadImage } from "../util";
+import { Cursor } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 export interface IClose extends ISprite {

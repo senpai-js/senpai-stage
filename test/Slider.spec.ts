@@ -1,7 +1,5 @@
 import { IValueChangeEvent } from "../src/events";
-import { IInteractionPoint } from "../src/util";
-import { IInteractionManager, InteractionManager } from "../src/view/InteractionManager";
-import { ISlider, Slider } from "../src/view/Slider";
+import { ISlider } from "../src/view/Slider";
 import { ITestSetupTemplate, setup } from "./setupUtil";
 
 // TEST IDEA: Activate the slider, move the mouse point to N different points on
@@ -146,7 +144,7 @@ describe("Slider tests", () => {
     const { values } = template
       .feed(t => t
           .addEventCallback("cb", "valueChangeEvent", "slider")
-          .pointDown("ip", x + 50, y)
+          .pointDown("ip", x + 50, y),
       )
       .run();
     const im = values.stage;

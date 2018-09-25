@@ -1,7 +1,8 @@
 /* tslint:disable:max-classes-per-file */
 import { AudioContext } from "web-audio-test-api";
 import * as m from "../src/matrix";
-import { IInteractionPoint, ITextureMap, TextAlign, TextBaseline } from "../src/util";
+import { ITextureMap } from "../src/spritesheet";
+import { IInteractionPoint, TextAlign, TextBaseline } from "../src/util";
 import { Button, IButton } from "../src/view/Button";
 import { Checkbox, ICheckbox } from "../src/view/Checkbox";
 import { Close } from "../src/view/Close";
