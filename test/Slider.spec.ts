@@ -144,15 +144,16 @@ describe("Slider tests", () => {
 
   test("Clicking on Slider body fires value change event", () => {
     const { values } = template
-      .feed(t => t.pointDown("ip", x, y))
+      .feed(t => t
+          .addEventCallback("cb", "valueChangeEvent", "slider")
+          .pointDown("ip", x + 50, y)
+      )
       .run();
     const im = values.stage;
     const ip = values.points.ip;
     const slider = values.sprites.slider as ISlider;
-    const callback = jest.fn();
-    slider.valueChangeEvent.once(callback);
-    im.pointMove(ip, { clientX: x + 50, clientY: y } as MouseEvent | Touch);
-    expect(callback).toBeCalledTimes(1);
+    const cb = values.callbacks.cb;
+    expect(cb).toBeCalledTimes(1);
     const expected: IValueChangeEvent<number> = {
       eventType: "ValueChange",
       previousValue: 0,
@@ -161,7 +162,7 @@ describe("Slider tests", () => {
       stage: im,
       value: 0.5,
     };
-    expect(callback.mock.calls[0][0]).toStrictEqual(expected);
+    expect(cb.mock.calls[0][0]).toStrictEqual(expected);
   });
 
   test("Point down on pill makes narrowPhase return Slider", () =>  {
@@ -242,7 +243,7 @@ describe("Slider tests", () => {
     const ip = values.points.ip;
     const slider = values.sprites.slider as ISlider;
 
-    expect(slider.value).toBeGreaterThan(0);
+    expect(slider.value).toEqual(0.5);
   });
 
   test("Moving point off slider while slider is active keeps 'cursor' property as 'pointer'", () => {

@@ -210,7 +210,7 @@ export class TestSetup implements ITestSetup {
       throw new Error(`Cannot create callback ${id} => ${eventProperty} because id is already taken.`);
     }
     const mock = jest.fn();
-    target.callbacks[id] = mock;
+    this.values.callbacks[id] = mock;
     target[eventProperty].listen(mock);
     return this;
   }
