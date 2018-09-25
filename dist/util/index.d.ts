@@ -3,10 +3,6 @@ export interface IPoint {
     x: number;
     y: number;
 }
-export interface ISpriteSheet {
-    frames: ISpriteSheetFrameMap;
-    meta: ISpriteSheetMeta;
-}
 export interface ISpriteSheetFrameMap {
     [frame: string]: ISpriteSheetFrame;
 }
@@ -31,9 +27,6 @@ export interface ISpriteSheetSize {
 export interface ISpriteSheetPoint {
     x: number;
     y: number;
-}
-export interface ITextureMap {
-    [texture: string]: ImageBitmap;
 }
 export interface IInteractionPoint extends IPoint {
     id: string;
@@ -87,10 +80,6 @@ export interface IPlayableProps {
     source: Promise<Response>;
     texture: string;
 }
-export interface IKeyState {
-    key: string;
-    down: boolean;
-}
 export interface ISize {
     width: number;
     height: number;
@@ -101,8 +90,6 @@ export interface IPadding {
     top: number;
     bottom: number;
 }
-export declare function createTextureMap(definition: ISpriteSheet, img: Promise<ImageBitmap>): Promise<ITextureMap>;
-export declare function loadImage(src: string): Promise<ImageBitmap>;
 /**
  * Sort by z level in ascending order.
  */
@@ -126,4 +113,42 @@ export declare enum PlayState {
     Playing = 0,
     Paused = 1,
     Stopped = 2
+}
+export declare enum Cursor {
+    "auto" = "auto",
+    "default" = "default",
+    "none" = "none",
+    "context-menu" = "context-menu",
+    "help" = "help",
+    "pointer" = "pointer",
+    "progress" = "progress",
+    "wait" = "wait",
+    "cell" = "cell",
+    "crosshair" = "crosshair",
+    "text" = "text",
+    "vertical-text" = "vertical-text",
+    "alias" = "alias",
+    "copy" = "copy",
+    "move" = "move",
+    "no-drop" = "no-drop",
+    "not-allowed" = "not-allowed",
+    "e-resize" = "e-resize",
+    "n-resize" = "n-resize",
+    "ne-resize" = "ne-resize",
+    "nw-resize" = "nw-resize",
+    "s-resize" = "s-resize",
+    "se-resize" = "se-resize",
+    "sw-resize" = "sw-resize",
+    "w-resize" = "w-resize",
+    "ew-resize" = "ew-resize",
+    "ns-resize" = "ns-resize",
+    "nesw-resize" = "nesw-resize",
+    "nwse-resize" = "nwse-resize",
+    "col-resize" = "col-resize",
+    "row-resize" = "row-resize",
+    "all-scroll" = "all-scroll",
+    "zoom-in" = "zoom-in",
+    "zoom-out" = "zoom-out",
+    "grab" = "grab",
+    "grabbing" = "grabbing"
 }

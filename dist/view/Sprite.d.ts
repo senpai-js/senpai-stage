@@ -1,9 +1,12 @@
-import { EventEmitter, IPointEvent, IValueChangeEvent } from "../events";
-import { IInteractionPoint, IKeyState, ISize, ISpriteSheet, ITextureMap } from "../util";
-import { IStage } from "./Stage";
+import { EventEmitter, IKeyDownEvent, IKeyUpEvent, IPointClickEvent, IPointDownEvent, IPointEvent, IPointMoveEvent, IPointUpEvent, IValueChangeEvent } from "../events";
+import { ISpriteLoadedEvent } from "../events/SpriteEvents";
+import { ISpriteSheet, ITextureMap } from "../spritesheet";
+import { Cursor, IInteractionPoint, ISize } from "../util";
+import { IContainer } from "./Container";
 export interface ISprite extends ISize {
     id: string;
-    parent: IStage | ISprite;
+    parent: ISprite;
+    container: IContainer;
     previousPosition: Float64Array;
     position: Float64Array;
     inverse: Float64Array;
@@ -11,6 +14,7 @@ export interface ISprite extends ISize {
     interpolatedAlpha: number;
     previousAlpha: number;
     z: number;
+    textures: ITextureMap;
     lastInterpolated: number;
     interpolatedPosition: Float64Array;
     animationStart: number;
@@ -19,19 +23,24 @@ export interface ISprite extends ISize {
     active: boolean;
     hover: boolean;
     down: boolean;
-    cursor: "pointer" | "default";
+    focused: boolean;
+    tabIndex: number;
+    cursor: Cursor;
     loaded: Promise<void>;
     texture: string;
-    clickEvent: EventEmitter<IPointEvent>;
-    upEvent: EventEmitter<IPointEvent>;
-    downEvent: EventEmitter<IPointEvent>;
+    pointUpEvent: EventEmitter<IPointUpEvent>;
+    pointDownEvent: EventEmitter<IPointEvent>;
+    pointClickEvent: EventEmitter<IPointClickEvent>;
+    pointMoveEvent: EventEmitter<IPointMoveEvent>;
+    keyDownEvent: EventEmitter<IKeyDownEvent>;
+    keyUpEvent: EventEmitter<IKeyUpEvent>;
+    loadedEvent: EventEmitter<ISpriteLoadedEvent>;
     textureChangeEvent: EventEmitter<IValueChangeEvent<string>>;
     ease(ratio: number): number;
     broadPhase(point: IInteractionPoint): boolean;
     narrowPhase(point: IInteractionPoint): ISprite;
     isHovering(point: IInteractionPoint, now: number): ISprite;
     pointCollision(point: IInteractionPoint): boolean;
-    keyStateChange(key: IKeyState): void;
     setTexture(texture: string): this;
     over(timespan: number, wait: number, ease: (ratio: number) => number): this;
     move(position: number[] | Float64Array): this;
@@ -41,6 +50,7 @@ export interface ISprite extends ISize {
     skipAnimation(now: number): boolean;
     update(): void;
     render(ctx: CanvasRenderingContext2D): void;
+    focus(sprite: ISprite): void;
 }
 export interface ISpriteProps {
     id: string;
@@ -48,8 +58,8 @@ export interface ISpriteProps {
     textures?: ITextureMap;
     alpha?: number;
     z?: number;
-    source: Promise<Response>;
-    definition: ISpriteSheet;
+    source: Promise<ImageBitmap>;
+    definition: Promise<ISpriteSheet>;
 }
 export declare class Sprite implements ISprite {
     id: string;
@@ -62,11 +72,12 @@ export declare class Sprite implements ISprite {
     previousAlpha: number;
     z: number;
     parent: ISprite;
+    container: IContainer;
     wait: number;
     lastInterpolated: number;
     animationStart: number;
     ease: (ratio: number) => number;
-    cursor: ("pointer" | "default");
+    cursor: Cursor;
     animationLength: number;
     active: boolean;
     hover: boolean;
@@ -74,11 +85,17 @@ export declare class Sprite implements ISprite {
     textures: ITextureMap;
     texture: string;
     loaded: Promise<void>;
+    focused: boolean;
+    tabIndex: number;
     width: number;
     height: number;
-    clickEvent: EventEmitter<IPointEvent>;
-    downEvent: EventEmitter<IPointEvent>;
-    upEvent: EventEmitter<IPointEvent>;
+    pointDownEvent: EventEmitter<IPointDownEvent>;
+    pointUpEvent: EventEmitter<IPointUpEvent>;
+    pointMoveEvent: EventEmitter<IPointMoveEvent>;
+    pointClickEvent: EventEmitter<IPointClickEvent>;
+    keyDownEvent: EventEmitter<IKeyDownEvent>;
+    keyUpEvent: EventEmitter<IKeyUpEvent>;
+    loadedEvent: EventEmitter<ISpriteLoadedEvent>;
     textureChangeEvent: EventEmitter<IValueChangeEvent<string>>;
     constructor(props: ISpriteProps);
     broadPhase(point: IInteractionPoint): boolean;
@@ -89,12 +106,12 @@ export declare class Sprite implements ISprite {
     setAlpha(alpha: number): this;
     setZ(z: number): this;
     over(timespan: number, wait?: number, ease?: (ratio: number) => number): this;
-    keyStateChange(key: IKeyState): void;
     skipAnimation(now: number): boolean;
     update(): void;
     interpolate(now: number): void;
     setTexture(texture: string): this;
     render(ctx: CanvasRenderingContext2D): void;
+    focus(target: ISprite): void;
     private loadTexture;
 }
 export interface ILoadSpriteProps extends ISpriteProps {

@@ -17,6 +17,7 @@ export declare class Panel extends Sprite implements IPanel {
     narrowPhase(point: IInteractionPoint): ISprite;
     update(): void;
     render(ctx: CanvasRenderingContext2D): void;
+    focus(target: ISprite): void;
     skipAnimation(now: number): boolean;
 }
 export interface ILoadPanelProps extends IPanelProps {
