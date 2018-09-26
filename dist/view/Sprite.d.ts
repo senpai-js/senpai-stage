@@ -1,3 +1,4 @@
+import * as eases from "../ease";
 import { EventEmitter, IKeyDownEvent, IKeyUpEvent, IPointClickEvent, IPointDownEvent, IPointEvent, IPointMoveEvent, IPointUpEvent, IValueChangeEvent } from "../events";
 import { ISpriteLoadedEvent } from "../events/SpriteEvents";
 import { ISpriteSheet, ITextureMap } from "../spritesheet";
@@ -76,7 +77,7 @@ export declare class Sprite implements ISprite {
     wait: number;
     lastInterpolated: number;
     animationStart: number;
-    ease: (ratio: number) => number;
+    ease: eases.EaseFunc;
     cursor: Cursor;
     animationLength: number;
     active: boolean;
