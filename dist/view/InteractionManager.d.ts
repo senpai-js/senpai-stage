@@ -1,4 +1,4 @@
-import { EventEmitter, IMouseDownEvent, IMouseMoveEvent, IMouseUpEvent, IPointDownEvent, IPointMoveEvent, IPointUpEvent, ITouchCancelEvent, ITouchEndEvent, ITouchMoveEvent, ITouchStartEvent } from "../events";
+import { EventEmitter, IMouseDownEvent, IMouseMoveEvent, IMouseUpEvent, IPointDownEvent, IPointMoveEvent, IPointUpEvent, ITouchCancelEvent, ITouchEndEvent, ITouchMoveEvent, ITouchStartEvent, IKeyDownEvent, IKeyUpEvent } from "../events";
 import { IInteractionPoint } from "../util";
 import { Container, IContainer, IContainerProps } from "./Container";
 import { ISprite } from "./Sprite";
@@ -23,6 +23,8 @@ export interface IInteractionManager extends IContainer {
     touchEndEvent: EventEmitter<ITouchEndEvent>;
     touchMoveEvent: EventEmitter<ITouchMoveEvent>;
     touchStartEvent: EventEmitter<ITouchStartEvent>;
+    keyDownEvent: EventEmitter<IKeyDownEvent>;
+    keyUpEvent: EventEmitter<IKeyUpEvent>;
     hookEvents(): void;
     dispose(): void;
     createInteractionPoint(id: string, type: "Touch" | "Mouse"): IInteractionPoint;
@@ -64,6 +66,8 @@ export declare class InteractionManager extends Container implements IInteractio
     touchEndEvent: EventEmitter<ITouchEndEvent>;
     touchMoveEvent: EventEmitter<ITouchMoveEvent>;
     touchStartEvent: EventEmitter<ITouchStartEvent>;
+    keyDownEvent: EventEmitter<IKeyDownEvent>;
+    keyUpEvent: EventEmitter<IKeyUpEvent>;
     private events;
     private keyboardEvents;
     constructor(props: IInteractionManagerProps);
