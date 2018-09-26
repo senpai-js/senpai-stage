@@ -4,6 +4,7 @@
   "description": "View layer for senpai-js",
   "main": "dist/senpai-stage.js",
   "source": "src/index.ts",
+  "types": "dist/index.d.ts",
   "repository": "https://github.com/senpai-js/senpai-stage",
   "author": "Joshua <tenner.joshua@gmail.com>",
   "license": "MIT",
