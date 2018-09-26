@@ -13,7 +13,7 @@ import {
 import { ISpriteLoadedEvent } from "../events/SpriteEvents";
 import * as m from "../matrix";
 import { createTextureMap, ISpriteSheet, ITextureMap, loadImage, loadSpriteSheet } from "../spritesheet";
-import { Cursor, IInteractionPoint, ISize } from "../util";
+import { Cursor, IInteractionPoint, ISize, ISpritePosition } from "../util";
 import { IContainer } from "./Container";
 // import { IStage } from "./Stage";
 
@@ -71,6 +71,7 @@ export interface ISprite extends ISize {
   pointCollision(point: IInteractionPoint): boolean;
   setTexture(texture: string): this;
   over(timespan: number, wait: number, ease: (ratio: number) => number): this;
+  movePosition(position: ISpritePosition): this;
   move(position: number[] | Float64Array): this;
   setZ(z: number): this;
   setAlpha(alpha: number): this;
@@ -172,6 +173,20 @@ export class Sprite implements ISprite {
     if (this.broadPhase(point)) {
       return this.narrowPhase(point);
     }
+  }
+
+  public movePosition(position: ISpritePosition): this {
+    const sx = position.sx || position.sx === 0 ? position.sx : position.s;
+    const sy = position.sy || position.sy === 0 ? position.sy : position.s;
+
+    return this.move(
+      m.chain([1, 0, 0, 1, 0, 0], false)
+        .translate(position.x || 0, position.y || 0)
+        .rotate(position.r || 0)
+        .scale(sx === 0 ? 0 : sx || 1, sy === 0 ? 0 : sy || 1)
+        .translate(position.cx ? -position.cx : 0, position.cy ? -position.cy : 0)
+        .value,
+    );
   }
 
   public move(position: number[] | Float64Array): this {
@@ -298,8 +313,4 @@ export class Sprite implements ISprite {
       stage: this.container,
     });
   }
-}
-
-export interface ILoadSpriteProps extends ISpriteProps {
-
 }

@@ -125,7 +125,3 @@ export class Panel extends Sprite implements IPanel {
     return result;
   }
 }
-
-export interface ILoadPanelProps extends IPanelProps {
-
-}

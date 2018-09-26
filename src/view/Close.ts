@@ -22,7 +22,3 @@ export class Close extends Sprite implements IClose {
     super.update();
   }
 }
-
-export interface ILoadCloseProps extends ICloseProps {
-
-}

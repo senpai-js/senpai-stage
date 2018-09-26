@@ -176,7 +176,3 @@ export class Textbox extends Sprite implements ITextbox {
     return result;
   }
 }
-
-export interface ILoadTextboxProps extends ITextboxProps {
-
-}

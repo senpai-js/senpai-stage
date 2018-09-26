@@ -126,7 +126,3 @@ export class Slider extends Sprite implements ISlider {
     ctx.drawImage(this.pillTexture, valueX, 0);
   }
 }
-
-export interface ILoadSliderProps extends ISliderProps {
-
-}

@@ -69,7 +69,3 @@ export class Button extends Sprite implements IButton {
     return this;
   }
 }
-
-export interface ILoadButtonProps extends IButtonProps {
-
-}

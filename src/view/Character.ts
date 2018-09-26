@@ -23,7 +23,3 @@ export class Character extends Sprite implements ICharacter {
     this.color = props.color;
   }
 }
-
-export interface ILoadCharacterProps extends ICharacterProps {
-
-}

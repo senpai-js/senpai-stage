@@ -92,7 +92,3 @@ export class Checkbox extends Sprite implements ICheckbox {
     return this;
   }
 }
-
-export interface ILoadCheckboxProps extends ICheckboxProps {
-
-}
