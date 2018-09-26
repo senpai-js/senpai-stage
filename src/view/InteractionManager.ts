@@ -10,8 +10,9 @@ import {
   ITouchEndEvent,
   ITouchMoveEvent,
   ITouchStartEvent,
+  IKeyDownEvent,
+  IKeyUpEvent,
 } from "../events";
-import { transformPoint } from "../matrix";
 import { IInteractionPoint, zSort } from "../util";
 import { Container, IContainer, IContainerProps } from "./Container";
 import { ISprite } from "./Sprite";
@@ -42,6 +43,9 @@ export interface IInteractionManager extends IContainer {
   touchEndEvent: EventEmitter<ITouchEndEvent>;
   touchMoveEvent: EventEmitter<ITouchMoveEvent>;
   touchStartEvent: EventEmitter<ITouchStartEvent>;
+
+  keyDownEvent: EventEmitter<IKeyDownEvent>;
+  keyUpEvent: EventEmitter<IKeyUpEvent>;
 
   hookEvents(): void;
   dispose(): void;
@@ -117,6 +121,9 @@ export class InteractionManager extends Container implements IInteractionManager
   public touchEndEvent: EventEmitter<ITouchEndEvent> = new EventEmitter<ITouchEndEvent>();
   public touchMoveEvent: EventEmitter<ITouchMoveEvent> = new EventEmitter<ITouchMoveEvent>();
   public touchStartEvent: EventEmitter<ITouchStartEvent> = new EventEmitter<ITouchStartEvent>();
+
+  public keyDownEvent: EventEmitter<IKeyDownEvent> = new EventEmitter<IKeyDownEvent>();
+  public keyUpEvent: EventEmitter<IKeyUpEvent> = new EventEmitter<IKeyUpEvent>();
 
   private events: IInteractionPointEvent[] = [
     { target: null, event: "mousedown", listener: e => this.mouseDown(e as MouseEvent) },
@@ -491,11 +498,25 @@ export class InteractionManager extends Container implements IInteractionManager
   }
 
   public keyUp(e: KeyboardEvent): void {
+    this.keyUpEvent.emit({
+      down: false,
+      eventType: "KeyUp",
+      key: e.key,
+      source: this,
+      stage: this,
+    });
     this.keyIndex[e.key] = false;
   }
 
   public keyDown(e: KeyboardEvent): void {
     this.keyIndex[e.key] = true;
+    this.keyDownEvent.emit({
+      down: true,
+      eventType: "KeyDown",
+      key: e.key,
+      source: this,
+      stage: this,
+    });
     for (const sprite of this.sprites) {
       if (sprite.focused) {
         sprite.keyDownEvent.emit({
