@@ -38,5 +38,3 @@ export declare class Checkbox extends Sprite implements ICheckbox {
     update(): void;
     setText(text: string): this;
 }
-export interface ILoadCheckboxProps extends ICheckboxProps {
-}

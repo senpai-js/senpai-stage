@@ -32,5 +32,3 @@ export declare class Button extends Sprite implements IButton {
     render(ctx: CanvasRenderingContext2D): void;
     setText(text: string): this;
 }
-export interface ILoadButtonProps extends IButtonProps {
-}

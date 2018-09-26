@@ -20,5 +20,3 @@ export declare class Panel extends Sprite implements IPanel {
     focus(target: ISprite): void;
     skipAnimation(now: number): boolean;
 }
-export interface ILoadPanelProps extends IPanelProps {
-}

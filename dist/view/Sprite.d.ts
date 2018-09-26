@@ -2,7 +2,7 @@ import * as eases from "../ease";
 import { EventEmitter, IKeyDownEvent, IKeyUpEvent, IPointClickEvent, IPointDownEvent, IPointEvent, IPointMoveEvent, IPointUpEvent, IValueChangeEvent } from "../events";
 import { ISpriteLoadedEvent } from "../events/SpriteEvents";
 import { ISpriteSheet, ITextureMap } from "../spritesheet";
-import { Cursor, IInteractionPoint, ISize } from "../util";
+import { Cursor, IInteractionPoint, ISize, ISpritePosition } from "../util";
 import { IContainer } from "./Container";
 export interface ISprite extends ISize {
     id: string;
@@ -44,6 +44,7 @@ export interface ISprite extends ISize {
     pointCollision(point: IInteractionPoint): boolean;
     setTexture(texture: string): this;
     over(timespan: number, wait: number, ease: (ratio: number) => number): this;
+    movePosition(position: ISpritePosition): this;
     move(position: number[] | Float64Array): this;
     setZ(z: number): this;
     setAlpha(alpha: number): this;
@@ -103,6 +104,7 @@ export declare class Sprite implements ISprite {
     narrowPhase(point: IInteractionPoint): ISprite;
     pointCollision(point: IInteractionPoint): boolean;
     isHovering(point: IInteractionPoint, now: number): ISprite;
+    movePosition(position: ISpritePosition): this;
     move(position: number[] | Float64Array): this;
     setAlpha(alpha: number): this;
     setZ(z: number): this;
@@ -114,6 +116,4 @@ export declare class Sprite implements ISprite {
     render(ctx: CanvasRenderingContext2D): void;
     focus(target: ISprite): void;
     private loadTexture;
-}
-export interface ILoadSpriteProps extends ISpriteProps {
 }

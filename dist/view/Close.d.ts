@@ -7,5 +7,3 @@ export declare class Close extends Sprite implements IClose {
     constructor(props: ICloseProps);
     update(): void;
 }
-export interface ILoadCloseProps extends ICloseProps {
-}

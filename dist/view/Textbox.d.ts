@@ -46,5 +46,3 @@ export declare class Textbox extends Sprite implements ITextbox {
     appendText(text: string): this;
     skipAnimation(now: number): boolean;
 }
-export interface ILoadTextboxProps extends ITextboxProps {
-}

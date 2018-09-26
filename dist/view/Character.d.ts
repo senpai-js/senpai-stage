@@ -15,5 +15,3 @@ export declare class Character extends Sprite implements ICharacter {
     color: string;
     constructor(props: ICharacterProps);
 }
-export interface ILoadCharacterProps extends ICharacterProps {
-}

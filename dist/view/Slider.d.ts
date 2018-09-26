@@ -29,5 +29,3 @@ export declare class Slider extends Sprite implements ISlider {
     update(): void;
     render(ctx: CanvasRenderingContext2D): void;
 }
-export interface ILoadSliderProps extends ISliderProps {
-}
