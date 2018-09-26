@@ -13,6 +13,9 @@ export interface IContainer {
   removePlayable(sprite: IPlayable): this;
   addPoint(point: IInteractionPoint): this;
   removePoint(point: IInteractionPoint): this;
+  getSpriteByID(id: string): ISprite | null;
+  getPlayableByID(id: string): IPlayable | null;
+  getPointByID(id: string): IInteractionPoint | null;
 }
 
 export interface IContainerProps {
@@ -76,5 +79,32 @@ export class Container implements IContainer {
       this.points.splice(this.points.indexOf(point), 1);
     }
     return this;
+  }
+
+  public getSpriteByID(id: string): ISprite {
+    for (const sprite of this.sprites) {
+      if (sprite.id === id) {
+        return sprite;
+      }
+    }
+    return null;
+  }
+
+  public getPointByID(id: string): IInteractionPoint {
+    for (const sprite of this.points) {
+      if (sprite.id === id) {
+        return sprite;
+      }
+    }
+    return null;
+  }
+
+  public getPlayableByID(id: string): IPlayable {
+    for (const sprite of this.playables) {
+      if (sprite.id === id) {
+        return sprite;
+      }
+    }
+    return null;
   }
 }

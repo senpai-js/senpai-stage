@@ -13,7 +13,7 @@ import {
 import { ISpriteLoadedEvent } from "../events/SpriteEvents";
 import * as m from "../matrix";
 import { createTextureMap, ISpriteSheet, ITextureMap, loadImage, loadSpriteSheet } from "../spritesheet";
-import { Cursor, IInteractionPoint, ISize, ISpritePosition } from "../util";
+import { Cursor, IInteractionPoint, ISize, ISpritePosition, SpriteType } from "../util";
 import { IContainer } from "./Container";
 // import { IStage } from "./Stage";
 
@@ -21,8 +21,9 @@ export interface ISprite extends ISize {
   id: string;
   parent: ISprite;
   container: IContainer;
-  // position
+  readonly type: SpriteType;
 
+  // position
   previousPosition: Float64Array;
   position: Float64Array;
   inverse: Float64Array;
@@ -79,7 +80,6 @@ export interface ISprite extends ISize {
   skipAnimation(now: number): boolean;
   update(): void;
   render(ctx: CanvasRenderingContext2D): void;
-  focus(sprite: ISprite): void;
 }
 
 export interface ISpriteProps {
@@ -94,6 +94,7 @@ export interface ISpriteProps {
 
 export class Sprite implements ISprite {
   public id: string = "";
+  public type: SpriteType = SpriteType.Sprite;
   public position: Float64Array = new Float64Array(6);
   public previousPosition: Float64Array = new Float64Array(6);
   public interpolatedPosition: Float64Array = new Float64Array(6);
@@ -295,12 +296,6 @@ export class Sprite implements ISprite {
 
   public render(ctx: CanvasRenderingContext2D): void {
     ctx.drawImage(this.textures[this.texture], 0, 0);
-  }
-
-  public focus(target: ISprite) {
-    if (target === this) {
-      this.focused = true;
-    }
   }
 
   private async loadTexture(defintion: Promise<ISpriteSheet>, source: Promise<ImageBitmap>): Promise<void> {

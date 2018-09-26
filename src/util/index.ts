@@ -49,6 +49,7 @@ export interface IInteractionPoint extends IPoint {
 }
 
 export interface IPlayable {
+  id: string;
   started: number; // timestamp when the media last began playing
   length: number; // media play length timespan
   start: number; // media start time
@@ -90,6 +91,7 @@ export interface IAudioProps extends IPlayableProps {
 }
 
 export interface IPlayableProps {
+  id: string;
   source: Promise<Response>;
   texture: string; // this should be name of the texture in the spritesheet
 }
@@ -184,4 +186,17 @@ export interface ISpritePosition {
   r?: number;
   cx?: number;
   cy?: number;
+}
+
+export enum SpriteType {
+  Button,
+  Character,
+  Checkbox,
+  Close,
+  Label,
+  Panel,
+  Slider,
+  Textbox,
+  TextInput,
+  Sprite,
 }

@@ -1,4 +1,4 @@
-import { TextAlign, TextBaseline } from "../util";
+import { SpriteType, TextAlign, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 export interface ILabel extends ISprite {
@@ -23,6 +23,7 @@ export interface ILabelProps extends ISpriteProps {
 const tempctx = document.createElement("canvas").getContext("2d");
 
 export class Label extends Sprite implements ILabel {
+  public readonly type: SpriteType = SpriteType.Label;
   public text: string = "";
   public font: string = "monospace";
   public fontSize: number = 12;

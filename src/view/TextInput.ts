@@ -1,4 +1,4 @@
-import { TextBaseline } from "../util";
+import { SpriteType, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 export interface ITextInput extends ISprite {
@@ -27,6 +27,7 @@ export interface ITextInputProps extends ISpriteProps {
 const tempctx = document.createElement("canvas").getContext("2d");
 
 export class TextInput extends Sprite implements ITextInput {
+  public readonly type: SpriteType = SpriteType.TextInput;
   public text: string = "";
   public font: string = "monospace";
   public fontSize: number = 12;

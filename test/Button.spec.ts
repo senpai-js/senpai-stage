@@ -1,4 +1,4 @@
-import { Cursor } from "../src/util";
+import { Cursor, SpriteType } from "../src/util";
 import { IButton } from "../src/view/Button";
 import { ITestSetupTemplate, setup } from "./setupUtil";
 
@@ -18,20 +18,25 @@ describe("Button tests", () => {
         .addInteractionPoint("ip"))
       .placeholder()
       .perform(t => t
-        .updateStage());
+        .updateStage()
+        .renderStage(),
+      );
   });
 
-  // TODO: check that a button has a width
+  test("Button Sprite Types should be SpriteType.Button", () => {
+    const { values } = stateTests.feed(t => t.movePoint("ip", x, y)).run();
+    expect(values.sprites.button.type).toStrictEqual(SpriteType.Button);
+  });
 
   test("If a button is added to the stage after the point is moved, the collision is still registered", () => {
-    const { sprites: {button} } = setup()
+    const { values } = setup()
       .addInteractionPoint("ip")
       .movePoint("ip", x, y)
       .addButton("button", x, y)
       .updateStage()
-      .values;
+      .renderStage();
 
-    expect(button.cursor).toBe("pointer");
+    expect(values.stage.canvas.style.cursor).toBe(Cursor.pointer);
   });
 
   // tests asserting that all states of the button are achievable
@@ -142,13 +147,4 @@ describe("Button tests", () => {
     expect(button.texture).toBe("Inactive_NoHover_Unselected");
   });
 
-  test("If a button is hovered during an update it should garuntee the cursor is changed.", () => {
-    const { values } = stateTests
-      .feed(t => t
-        .setSelected("button", true)
-        .movePoint("ip", x, y), // hover over button
-      ).run();
-    const button = values.sprites.button as IButton;
-    expect(button.cursor).toBe(Cursor.pointer);
-  });
 });

@@ -1,3 +1,4 @@
+import { Cursor, SpriteType } from "../src/util";
 import { ICheckbox } from "../src/view/Checkbox";
 import { ITestSetupTemplate, setup } from "./setupUtil";
 
@@ -15,11 +16,23 @@ describe("Checkbox tests", () => {
         .addInteractionPoint("ip"))
       .placeholder()
       .perform(t => t
-        .updateStage());
+        .updateStage()
+        .renderStage(),
+      );
   });
 
-  // TODO: check that a checkbox has a width
   // TODO: assert that update() guarantees the cursor to be changed
+  test("Button Sprite Types should be SpriteType.Checkbox", () => {
+    const { values } = stateTests.feed(t => t.movePoint("ip", x, y)).run();
+    expect(values.sprites.checkbox.type).toStrictEqual(SpriteType.Checkbox);
+  });
+
+  test("Cursor should change when checkbox is hovered", () => {
+    const { values } = stateTests.feed(
+      t => t.movePoint("ip", x, y),
+    ).run();
+    expect(values.stage.canvas.style.cursor).toStrictEqual(Cursor.pointer);
+  });
 
   test("If a checkbox is added to the stage after the point is moved, the collision is still registered", () => {
     const { sprites: {checkbox} } = setup()

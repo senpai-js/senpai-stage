@@ -1,4 +1,4 @@
-import { Cursor } from "../util";
+import { Cursor, SpriteType } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 export interface IClose extends ISprite {
@@ -10,6 +10,8 @@ export interface ICloseProps extends ISpriteProps {
 }
 
 export class Close extends Sprite implements IClose {
+  public readonly type: SpriteType = SpriteType.Close;
+
   constructor(props: ICloseProps) {
     super(props);
   }

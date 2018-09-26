@@ -4,6 +4,7 @@ import {
 
   Cursor,
   IInteractionPoint,
+  SpriteType,
   TextAlign,
   TextBaseline,
 } from "../util";
@@ -18,7 +19,7 @@ export interface ICheckbox extends ISprite {
   textAlign: TextAlign;
   textBaseline: TextBaseline;
 
-  toggleEvent: EventEmitter<IValueChangeEvent<boolean>>;
+  checkedChangeEvent: EventEmitter<IValueChangeEvent<boolean>>;
 
   setText(text: string): this;
   toggle(): this;
@@ -35,6 +36,7 @@ export interface ICheckboxProps extends ISpriteProps {
 }
 
 export class Checkbox extends Sprite implements ICheckbox {
+  public readonly type: SpriteType = SpriteType.Checkbox;
   public checked: boolean = false;
   public text: string = "";
   public font: string = "monospace";
@@ -42,7 +44,7 @@ export class Checkbox extends Sprite implements ICheckbox {
   public fontSize: number = 12;
   public textAlign: TextAlign = TextAlign.left;
   public textBaseline: TextBaseline = TextBaseline.middle;
-  public toggleEvent: EventEmitter<IValueChangeEvent<boolean>> = new EventEmitter<IValueChangeEvent<boolean>>();
+  public checkedChangeEvent: EventEmitter<IValueChangeEvent<boolean>> = new EventEmitter<IValueChangeEvent<boolean>>();
 
   constructor(props: ICheckboxProps) {
     super(props);
@@ -55,14 +57,22 @@ export class Checkbox extends Sprite implements ICheckbox {
   }
 
   public toggle(): this {
+    const previousValue = this.checked;
     this.checked = !this.checked;
+    this.checkedChangeEvent.emit({
+      eventType: "ValueChange",
+      previousValue,
+      property: "checked",
+      source: this,
+      stage: this.container,
+      value: this.checked,
+    });
     return this;
   }
 
   public pointCollision(point: IInteractionPoint): boolean {
     if (point.clicked && point.active === this) {
       this.toggle();
-      // this.emit("toggle", point); // TODO
     }
     return super.pointCollision(point);
   }

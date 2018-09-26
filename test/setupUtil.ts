@@ -2,11 +2,12 @@
 import { AudioContext } from "web-audio-test-api";
 import * as m from "../src/matrix";
 import { ITextureMap } from "../src/spritesheet";
-import { IInteractionPoint, TextAlign, TextBaseline } from "../src/util";
+import { IInteractionPoint, SpriteType, TextAlign, TextBaseline } from "../src/util";
 import { Button, IButton } from "../src/view/Button";
 import { Checkbox, ICheckbox } from "../src/view/Checkbox";
 import { Close } from "../src/view/Close";
 import { ILabel, Label } from "../src/view/Label";
+import { IPanel, Panel } from "../src/view/Panel";
 import { Slider } from "../src/view/Slider";
 import { ISprite } from "../src/view/Sprite";
 import { IStage, Stage } from "../src/view/Stage";
@@ -124,6 +125,7 @@ export interface ITestSetup {
    * Call the stage update() method.
    */
   updateStage(): this;
+  renderStage(): this;
 
   /**
    * Point down method, used to put the point down
@@ -258,6 +260,27 @@ export class TestSetup implements ITestSetup {
     });
     this.values.stage.addSprite(this.values.sprites[id]);
     return this;
+  }
+
+  public addPanel(id: string, x: number, y: number) {
+    if (this.idIsTaken(id)) {
+      throw new Error(`Cannot add Panel with id ${id}: element with id already exists.`);
+    }
+
+    const panelPos = m.chain([1, 0, 0, 1, x, y]).value;
+    const textures = new TextureBuilder()
+      .attr("texture")
+      .build();
+
+    this.values.sprites[id] = new Panel({
+      alpha: 1,
+      definition: null,
+      id,
+      position: panelPos,
+      source: null,
+      textures,
+      z: 1,
+    });
   }
 
   public addCloseButton(id: string, x: number, y: number): this {
@@ -409,6 +432,28 @@ export class TestSetup implements ITestSetup {
 
   public updateStage(): this {
     this.values.stage.update();
+    return this;
+  }
+
+  public addSpriteToPanel(sprite: string, panel: string): this {
+    if (!this.values.sprites[sprite]) {
+      throw new Error(`Sprite id: ${sprite} does not exist.`);
+    }
+    if (!this.values.sprites[panel]) {
+      throw new Error(`Sprite id: ${panel} does not exist.`);
+    }
+    if (this.values.sprites[panel].type !== SpriteType.Panel) {
+      throw new Error(`Sprite id: ${panel} is not a panel.`);
+    }
+
+    const targetSprite = this.values.sprites[sprite];
+    const targetPanel = this.values.sprites[panel] as IPanel;
+
+    targetPanel.addSprite(targetSprite);
+    return this;
+  }
+  public renderStage(): this {
+    this.values.stage.render();
     return this;
   }
 

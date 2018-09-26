@@ -1,5 +1,7 @@
 import {
   EventEmitter,
+  IKeyDownEvent,
+  IKeyUpEvent,
   IMouseDownEvent,
   IMouseMoveEvent,
   IMouseUpEvent,
@@ -10,11 +12,10 @@ import {
   ITouchEndEvent,
   ITouchMoveEvent,
   ITouchStartEvent,
-  IKeyDownEvent,
-  IKeyUpEvent,
 } from "../events";
-import { IInteractionPoint, zSort } from "../util";
+import { IInteractionPoint, SpriteType, zSort } from "../util";
 import { Container, IContainer, IContainerProps } from "./Container";
+import { IPanel } from "./Panel";
 import { ISprite } from "./Sprite";
 
 interface IInteractionPointIndex {
@@ -532,7 +533,11 @@ export class InteractionManager extends Container implements IInteractionManager
 
   public setFocus(target: ISprite): void {
     for (const sprite of this.sprites) {
-      sprite.focus(target);
+      sprite.focused = sprite === target;
+      if (sprite.type === SpriteType.Panel) {
+        const panel = sprite as IPanel;
+        panel.focus(target);
+      }
     }
   }
 }

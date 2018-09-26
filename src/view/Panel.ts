@@ -1,5 +1,5 @@
 import { transformPoint } from "../matrix";
-import {  IInteractionPoint } from "../util";
+import { IInteractionPoint, SpriteType } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 const sortZ = (a: ISprite, b: ISprite): number => a.z - b.z;
@@ -7,18 +7,17 @@ const sortZ = (a: ISprite, b: ISprite): number => a.z - b.z;
 export interface IPanel extends ISprite {
   addSprite(sprite: ISprite): this;
   removeSprite(sprite: ISprite): this;
+  focus(sprite: ISprite): void;
 }
 
-export interface IPanelProps extends ISpriteProps {
-  sprites?: ISprite[];
-}
+export interface IPanelProps extends ISpriteProps {}
 
 export class Panel extends Sprite implements IPanel {
+  public readonly type: SpriteType = SpriteType.Panel;
   private sprites: ISprite[] = [];
 
   constructor(props: IPanelProps) {
     super(props);
-    this.sprites = props.sprites || this.sprites;
   }
 
   public addSprite(sprite: ISprite): this {
@@ -55,6 +54,7 @@ export class Panel extends Sprite implements IPanel {
     }
     return super.broadPhase(point);
   }
+
   public narrowPhase(point: IInteractionPoint): ISprite {
     let sprite: ISprite = null;
     let collision: ISprite = null;
@@ -76,6 +76,7 @@ export class Panel extends Sprite implements IPanel {
     }
     return this;
   }
+
   public update(): void {
     this.hover = false;
     for (const sprite of this.sprites) {
@@ -113,9 +114,12 @@ export class Panel extends Sprite implements IPanel {
 
   public focus(target: ISprite) {
     for (const sprite of this.sprites) {
-      sprite.focus(target);
+      sprite.focused = sprite === target;
+      if (sprite.type === SpriteType.Panel) {
+        const panel = sprite as IPanel;
+        panel.focus(target);
+      }
     }
-    super.focus(target);
   }
   public skipAnimation(now: number): boolean {
     let result: boolean = super.skipAnimation(now);

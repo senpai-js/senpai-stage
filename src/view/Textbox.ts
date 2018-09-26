@@ -1,5 +1,5 @@
 
-import { IPadding, TextAlign, TextBaseline } from "../util";
+import { IPadding, SpriteType, TextAlign, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 const tempctx = document.createElement("canvas").getContext("2d");
@@ -35,6 +35,7 @@ export interface ITextboxProps extends ISpriteProps {
 
 export class Textbox extends Sprite implements ITextbox {
   private static regex: RegExp = /\r\n|\r|\n|[^\t ]*[\t ]?/g;
+  public readonly type: SpriteType = SpriteType.Textbox;
 
   public text: string = "";
   public textSpeed: number = 1;

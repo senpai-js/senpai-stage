@@ -1,3 +1,4 @@
+import { Cursor } from "../src/util";
 import { ITestSetupTemplate, setup } from "./setupUtil";
 
 describe("Close button tests", () => {
@@ -19,14 +20,14 @@ describe("Close button tests", () => {
   });
 
   test("If a close button is added to the stage after the point is moved, the collision is still registered", () => {
-    const { sprites: { button } } = setup()
+    const { values } = setup()
       .addInteractionPoint("ip")
       .movePoint("ip", x, y)
       .addCloseButton("button", x, y)
       .updateStage()
-      .values;
+      .renderStage();
 
-    expect(button.cursor).toBe("pointer");
+    expect(values.stage.canvas.style.cursor).toStrictEqual(Cursor.pointer);
   });
 
   test("State 'Active_Hover' is achievable", () => {

@@ -1,4 +1,4 @@
-import { Cursor, TextAlign, TextBaseline } from "../util";
+import { Cursor, SpriteType, TextAlign, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 import assert from "assert";
@@ -25,6 +25,7 @@ export interface IButtonProps extends ISpriteProps {
 }
 
 export class Button extends Sprite implements IButton {
+  public readonly type: SpriteType = SpriteType.Button;
   public selected: boolean = false;
   public font: string = "monospace";
   public fontColor: string = "black";

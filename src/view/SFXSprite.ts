@@ -13,7 +13,7 @@ export interface ILoadSFXProps {
 }
 
 export class SFXSprite implements ISFX {
-
+  public id: string = "";
   // fields from IPlayable
   public started: number = 0;
   public length: number = 0;
@@ -36,6 +36,7 @@ export class SFXSprite implements ISFX {
    * 4. set this.destination
    */
   constructor(props: ISFXProps) {
+    this.id = props.id;
     // TODO: 1
     this.context = props.context;
     this.definition = props.definition;
