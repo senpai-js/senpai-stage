@@ -41,6 +41,7 @@ export interface IInteractionPoint extends IPoint {
     ty: number;
 }
 export interface IPlayable {
+    id: string;
     started: number;
     length: number;
     start: number;
@@ -77,6 +78,7 @@ export interface IAudioProps extends IPlayableProps {
     name: string;
 }
 export interface IPlayableProps {
+    id: string;
     source: Promise<Response>;
     texture: string;
 }
@@ -161,4 +163,16 @@ export interface ISpritePosition {
     r?: number;
     cx?: number;
     cy?: number;
+}
+export declare enum SpriteType {
+    Button = 0,
+    Character = 1,
+    Checkbox = 2,
+    Close = 3,
+    Label = 4,
+    Panel = 5,
+    Slider = 6,
+    Textbox = 7,
+    TextInput = 8,
+    Sprite = 9
 }

@@ -1,4 +1,4 @@
-import { TextAlign, TextBaseline } from "../util";
+import { SpriteType, TextAlign, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 export interface IButton extends ISprite {
     selected: boolean;
@@ -20,6 +20,7 @@ export interface IButtonProps extends ISpriteProps {
     textBaseline?: TextBaseline;
 }
 export declare class Button extends Sprite implements IButton {
+    readonly type: SpriteType;
     selected: boolean;
     font: string;
     fontColor: string;

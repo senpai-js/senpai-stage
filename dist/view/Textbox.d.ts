@@ -1,4 +1,4 @@
-import { IPadding, TextAlign, TextBaseline } from "../util";
+import { IPadding, SpriteType, TextAlign, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 export interface ITextbox extends ISprite {
     text: string;
@@ -28,6 +28,7 @@ export interface ITextboxProps extends ISpriteProps {
 }
 export declare class Textbox extends Sprite implements ITextbox {
     private static regex;
+    readonly type: SpriteType;
     text: string;
     textSpeed: number;
     textIndex: number;

@@ -1,3 +1,4 @@
+import { SpriteType } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 export interface ITextInput extends ISprite {
     text: string;
@@ -21,6 +22,7 @@ export interface ITextInputProps extends ISpriteProps {
     height: number;
 }
 export declare class TextInput extends Sprite implements ITextInput {
+    readonly type: SpriteType;
     text: string;
     font: string;
     fontSize: number;

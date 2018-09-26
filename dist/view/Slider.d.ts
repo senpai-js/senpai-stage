@@ -1,5 +1,5 @@
 import { EventEmitter, IValueChangeEvent } from "../events";
-import { IInteractionPoint } from "../util";
+import { IInteractionPoint, SpriteType } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 export interface ISlider extends ISprite {
     value: number;
@@ -15,6 +15,7 @@ export interface ISliderProps extends ISpriteProps {
     width: number;
 }
 export declare class Slider extends Sprite implements ISlider {
+    readonly type: SpriteType;
     value: number;
     max: number;
     min: number;

@@ -1,4 +1,4 @@
-import { EventEmitter, IMouseDownEvent, IMouseMoveEvent, IMouseUpEvent, IPointDownEvent, IPointMoveEvent, IPointUpEvent, ITouchCancelEvent, ITouchEndEvent, ITouchMoveEvent, ITouchStartEvent, IKeyDownEvent, IKeyUpEvent } from "../events";
+import { EventEmitter, IKeyDownEvent, IKeyUpEvent, IMouseDownEvent, IMouseMoveEvent, IMouseUpEvent, IPointDownEvent, IPointMoveEvent, IPointUpEvent, ITouchCancelEvent, ITouchEndEvent, ITouchMoveEvent, ITouchStartEvent } from "../events";
 import { IInteractionPoint } from "../util";
 import { Container, IContainer, IContainerProps } from "./Container";
 import { ISprite } from "./Sprite";

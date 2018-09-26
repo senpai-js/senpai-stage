@@ -11,6 +11,9 @@ export interface IContainer {
     removePlayable(sprite: IPlayable): this;
     addPoint(point: IInteractionPoint): this;
     removePoint(point: IInteractionPoint): this;
+    getSpriteByID(id: string): ISprite | null;
+    getPlayableByID(id: string): IPlayable | null;
+    getPointByID(id: string): IInteractionPoint | null;
 }
 export interface IContainerProps {
     audioContext: AudioContext;
@@ -27,4 +30,7 @@ export declare class Container implements IContainer {
     removePlayable(sprite: IPlayable): this;
     addPoint(point: IInteractionPoint): this;
     removePoint(point: IInteractionPoint): this;
+    getSpriteByID(id: string): ISprite;
+    getPointByID(id: string): IInteractionPoint;
+    getPlayableByID(id: string): IPlayable;
 }

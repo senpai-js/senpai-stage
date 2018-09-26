@@ -2,12 +2,13 @@ import * as eases from "../ease";
 import { EventEmitter, IKeyDownEvent, IKeyUpEvent, IPointClickEvent, IPointDownEvent, IPointEvent, IPointMoveEvent, IPointUpEvent, IValueChangeEvent } from "../events";
 import { ISpriteLoadedEvent } from "../events/SpriteEvents";
 import { ISpriteSheet, ITextureMap } from "../spritesheet";
-import { Cursor, IInteractionPoint, ISize, ISpritePosition } from "../util";
+import { Cursor, IInteractionPoint, ISize, ISpritePosition, SpriteType } from "../util";
 import { IContainer } from "./Container";
 export interface ISprite extends ISize {
     id: string;
     parent: ISprite;
     container: IContainer;
+    readonly type: SpriteType;
     previousPosition: Float64Array;
     position: Float64Array;
     inverse: Float64Array;
@@ -52,7 +53,6 @@ export interface ISprite extends ISize {
     skipAnimation(now: number): boolean;
     update(): void;
     render(ctx: CanvasRenderingContext2D): void;
-    focus(sprite: ISprite): void;
 }
 export interface ISpriteProps {
     id: string;
@@ -65,6 +65,7 @@ export interface ISpriteProps {
 }
 export declare class Sprite implements ISprite {
     id: string;
+    type: SpriteType;
     position: Float64Array;
     previousPosition: Float64Array;
     interpolatedPosition: Float64Array;
@@ -114,6 +115,5 @@ export declare class Sprite implements ISprite {
     interpolate(now: number): void;
     setTexture(texture: string): this;
     render(ctx: CanvasRenderingContext2D): void;
-    focus(target: ISprite): void;
     private loadTexture;
 }

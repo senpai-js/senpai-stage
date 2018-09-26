@@ -9,6 +9,7 @@ export interface ILoadSFXProps {
     texture: string;
 }
 export declare class SFXSprite implements ISFX {
+    id: string;
     started: number;
     length: number;
     start: number;

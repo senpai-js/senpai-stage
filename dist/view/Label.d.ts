@@ -1,4 +1,4 @@
-import { TextAlign, TextBaseline } from "../util";
+import { SpriteType, TextAlign, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 export interface ILabel extends ISprite {
     text: string;
@@ -18,6 +18,7 @@ export interface ILabelProps extends ISpriteProps {
     textBaseline: TextBaseline;
 }
 export declare class Label extends Sprite implements ILabel {
+    readonly type: SpriteType;
     text: string;
     font: string;
     fontSize: number;

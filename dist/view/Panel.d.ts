@@ -1,13 +1,14 @@
-import { IInteractionPoint } from "../util";
+import { IInteractionPoint, SpriteType } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 export interface IPanel extends ISprite {
     addSprite(sprite: ISprite): this;
     removeSprite(sprite: ISprite): this;
+    focus(sprite: ISprite): void;
 }
 export interface IPanelProps extends ISpriteProps {
-    sprites?: ISprite[];
 }
 export declare class Panel extends Sprite implements IPanel {
+    readonly type: SpriteType;
     private sprites;
     constructor(props: IPanelProps);
     addSprite(sprite: ISprite): this;
