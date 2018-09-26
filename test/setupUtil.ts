@@ -61,6 +61,17 @@ export interface ITestSetup {
   addButton(id: string, x: number, y: number): this;
 
   /**
+   * Create a Panel with the given id at the given (x, y) coordinate and add it
+   * to the stage.
+   */
+  addPanel(id: string, x: number, y: number): this;
+
+  /**
+   * Add a sprite by id to a given panel by id.
+   */
+  addSpriteToPanel(sprite: string, panel: string): this;
+
+  /**
    * Create a jest callback attached to a sprite specified by it's id.
    */
   addEventCallback(id: string, eventProperty: string, sprite: string): this;
@@ -262,7 +273,7 @@ export class TestSetup implements ITestSetup {
     return this;
   }
 
-  public addPanel(id: string, x: number, y: number) {
+  public addPanel(id: string, x: number, y: number): this {
     if (this.idIsTaken(id)) {
       throw new Error(`Cannot add Panel with id ${id}: element with id already exists.`);
     }
@@ -272,7 +283,7 @@ export class TestSetup implements ITestSetup {
       .attr("texture")
       .build();
 
-    this.values.sprites[id] = new Panel({
+    const panel = this.values.sprites[id] = new Panel({
       alpha: 1,
       definition: null,
       id,
@@ -281,6 +292,9 @@ export class TestSetup implements ITestSetup {
       textures,
       z: 1,
     });
+    panel.width = 100;
+    panel.height = 100;
+    return this;
   }
 
   public addCloseButton(id: string, x: number, y: number): this {
