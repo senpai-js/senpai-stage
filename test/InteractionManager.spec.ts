@@ -1,15 +1,9 @@
 import { AudioContext } from "web-audio-test-api";
 import { IPointClickEvent, IPointDownEvent, IPointUpEvent } from "../src/events";
-import * as m from "../src/matrix";
+import { Identity, transformCopy2D } from "../src/matrix";
 import { IInteractionPoint } from "../src/util";
 import { Button, IButton } from "../src/view/Button";
 import { IInteractionManager, InteractionManager } from "../src/view/InteractionManager";
-
-// mock getContext function to quell an error caused by that not being there
-// or smth
-/*window.HTMLCanvasElement.prototype.getContext = () => {
-  return {};
-};*/
 
 /**
  * Helper function: create a new IInteractionManager with a fresh audio context.
@@ -29,7 +23,7 @@ const createInteractionManager = (): IInteractionManager => {
  * Helper function: create a button at 50,50.
  */
 const createButton = (id: string, x: number, y: number): Button => {
-  const buttonPos = m.chain([1, 0, 0, 1, 0, 0]).translate(x, y).value;
+  const buttonPos = transformCopy2D(Identity).translate(x, y).value;
 
   // create button
   const button = new Button({
@@ -85,7 +79,6 @@ describe("InteractionManager tests", () => {
   });
 
   /**
-   *
    * Simple test that the interaction manager manages to create an interaction
    * point with Touch type.
    */

@@ -11,10 +11,11 @@ import {
   IValueChangeEvent,
 } from "../events";
 import { ISpriteLoadedEvent } from "../events/SpriteEvents";
-import * as m from "../matrix";
+import { CanvasMatrix2D, Identity, transform2D, transformCopy2D, transformPoint } from "../matrix";
 import { createTextureMap, ISpriteSheet, ITextureMap, loadImage, loadSpriteSheet } from "../spritesheet";
 import { Cursor, IInteractionPoint, ISize, ISpritePosition, SpriteType } from "../util";
 import { IContainer } from "./Container";
+
 // import { IStage } from "./Stage";
 
 export interface ISprite extends ISize {
@@ -24,9 +25,9 @@ export interface ISprite extends ISize {
   readonly type: SpriteType;
 
   // position
-  previousPosition: Float64Array;
-  position: Float64Array;
-  inverse: Float64Array;
+  previousPosition: CanvasMatrix2D;
+  position: CanvasMatrix2D;
+  inverse: CanvasMatrix2D;
   alpha: number;
   interpolatedAlpha: number;
   previousAlpha: number;
@@ -35,7 +36,7 @@ export interface ISprite extends ISize {
   // animation
   textures: ITextureMap;
   lastInterpolated: number;
-  interpolatedPosition: Float64Array;
+  interpolatedPosition: CanvasMatrix2D;
   animationStart: number;
   animationLength: number;
   wait: number;
@@ -73,7 +74,7 @@ export interface ISprite extends ISize {
   setTexture(texture: string): this;
   over(timespan: number, wait: number, ease: (ratio: number) => number): this;
   movePosition(position: ISpritePosition): this;
-  move(position: number[] | Float64Array): this;
+  move(position: CanvasMatrix2D): this;
   setZ(z: number): this;
   setAlpha(alpha: number): this;
   interpolate(now: number): void;
@@ -84,7 +85,7 @@ export interface ISprite extends ISize {
 
 export interface ISpriteProps {
   id: string;
-  position: Float64Array | number[];
+  position: CanvasMatrix2D;
   textures?: ITextureMap;
   alpha?: number;
   z?: number;
@@ -95,10 +96,10 @@ export interface ISpriteProps {
 export class Sprite implements ISprite {
   public id: string = "";
   public type: SpriteType = SpriteType.Sprite;
-  public position: Float64Array = new Float64Array(6);
-  public previousPosition: Float64Array = new Float64Array(6);
-  public interpolatedPosition: Float64Array = new Float64Array(6);
-  public inverse: Float64Array = new Float64Array(6);
+  public position: CanvasMatrix2D = Identity.slice() as CanvasMatrix2D;
+  public previousPosition: CanvasMatrix2D = Identity.slice() as CanvasMatrix2D;
+  public interpolatedPosition: CanvasMatrix2D = Identity.slice() as CanvasMatrix2D;
+  public inverse: CanvasMatrix2D = Identity.slice() as CanvasMatrix2D;
   public alpha: number = 1;
   public interpolatedAlpha: number = 1;
   public previousAlpha: number = 1;
@@ -136,11 +137,14 @@ export class Sprite implements ISprite {
 
   constructor(props: ISpriteProps) {
     this.id = props.id;
-    const position = props.position || m.Identity;
+    const position: CanvasMatrix2D = props.position || Identity.slice() as CanvasMatrix2D;
     this.textures = props.textures ? props.textures : this.textures;
-    m.set(this.position, position);
-    m.set(this.previousPosition, position);
-    m.set(this.interpolatedPosition, position);
+    transform2D(this.position)
+      .set(position);
+    transform2D(this.previousPosition)
+      .set (position);
+    transform2D(this.interpolatedPosition)
+      .set(position);
 
     if (props.hasOwnProperty("alpha")) {
       this.previousAlpha = this.alpha = this.interpolatedAlpha = props.alpha;
@@ -170,7 +174,8 @@ export class Sprite implements ISprite {
 
   public isHovering(point: IInteractionPoint, now: number): ISprite {
     this.interpolate(now);
-    m.transformPoint(point, this.inverse);
+
+    transformPoint(point, this.inverse);
     if (this.broadPhase(point)) {
       return this.narrowPhase(point);
     }
@@ -181,7 +186,7 @@ export class Sprite implements ISprite {
     const sy = position.sy || position.sy === 0 ? position.sy : position.s;
 
     return this.move(
-      m.chain([1, 0, 0, 1, 0, 0], false)
+      transformCopy2D(Identity)
         .translate(position.x || 0, position.y || 0)
         .rotate(position.r || 0)
         .scale(sx === 0 ? 0 : sx || 1, sy === 0 ? 0 : sy || 1)
@@ -271,14 +276,17 @@ export class Sprite implements ISprite {
       this.interpolatedAlpha = this.previousAlpha + ratio * (this.alpha - this.previousAlpha);
     }
 
-    m.inverse(this.interpolatedPosition, this.inverse);
+    transformCopy2D(this.interpolatedPosition)
+      .inverse()
+      .setTo(this.inverse);
 
     if (this.parent) {
+      // assert the parent is properly moved
       this.parent.interpolate(now);
 
-      m.chain(this.parent.inverse, true)
+      transformCopy2D(this.parent.inverse)
         .transform(this.inverse)
-        .set(this.inverse);
+        .setTo(this.inverse);
     }
   }
   public setTexture(texture: string): this {

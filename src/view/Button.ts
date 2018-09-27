@@ -1,8 +1,6 @@
 import { Cursor, SpriteType, TextAlign, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
-import assert from "assert";
-
 export interface IButton extends ISprite {
   selected: boolean;
   font: string;

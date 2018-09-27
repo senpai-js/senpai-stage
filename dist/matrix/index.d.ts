@@ -1,42 +1,22 @@
 import { IInteractionPoint } from "../util";
-export interface IMatrix {
-    value: number[] | Float64Array;
-    immutable: boolean;
-    translate(x: number, y: number): IMatrix;
-    scale(x: number, y: number): IMatrix;
-    rotate(angle: number): IMatrix;
-    skewX(angle: number): IMatrix;
-    skewY(angle: number): IMatrix;
-    transform(props: Float64Array | number[]): IMatrix;
-    inverse(): IMatrix;
-    reset(): IMatrix;
-    set(target: Float64Array | number[]): IMatrix;
+export declare type CanvasMatrix2D = [number, number, number, number, number, number];
+export declare class CanvasMatrix2DTransformAPI {
+    value: CanvasMatrix2D;
+    constructor(input: CanvasMatrix2D);
+    translate(x: number, y: number): this;
+    scale(x: number, y: number): this;
+    rotate(radians: number): this;
+    skewX(radians: number): this;
+    skewY(radians: number): this;
+    inverse(): this;
+    transform(props: CanvasMatrix2D): this;
+    reset(): this;
+    set(props: CanvasMatrix2D): this;
+    setTo(target: CanvasMatrix2D): this;
 }
-export declare class Matrix implements IMatrix {
-    value: number[] | Float64Array;
-    immutable: boolean;
-    constructor(value?: number[] | Float64Array, immutable?: boolean);
-    translate(x: number, y: number): IMatrix;
-    scale(x: number, y: number): IMatrix;
-    rotate(angle: number): IMatrix;
-    skewX(angle: number): IMatrix;
-    skewY(angle: number): IMatrix;
-    transform(props: Float64Array | number[]): IMatrix;
-    reset(): IMatrix;
-    set(target: Float64Array | number[]): IMatrix;
-    inverse(): IMatrix;
-}
-export declare function inverse(matrix: Float64Array | number[], setMatrix: Float64Array | number[]): void;
-export declare const Identity: Float64Array;
-export declare const IdentityMatrix: Matrix;
-export declare function translate(x: number, y: number, matrix: Float64Array | number[], setMatrix: Float64Array | number[]): void;
-export declare function scale(x: number, y: number, matrix: Float64Array | number[], setMatrix: Float64Array | number[]): void;
-export declare function rotate(angle: number, matrix: Float64Array | number[], setMatrix: Float64Array | number[]): void;
-export declare function skewX(angle: number, matrix: Float64Array | number[], setMatrix: Float64Array | number[]): void;
-export declare function skewY(angle: number, matrix: Float64Array | number[], setMatrix: Float64Array | number[]): void;
-export declare function transform(matrix: Float64Array | number[], props: Float64Array | number[], setMatrix: Float64Array | number[]): void;
-export declare function transformPoints(points: IInteractionPoint[], matrix: Float64Array | number[]): void;
-export declare function transformPoint(point: IInteractionPoint, matrix: Float64Array | number[]): void;
-export declare function set(target: Float64Array | number[], source: Float64Array | number[]): void;
-export declare function reset(target: Float64Array | number[]): void;
-export declare function chain(value?: Float64Array | number[], immutable?: boolean): IMatrix;
+export declare const Identity: CanvasMatrix2D;
+export declare function transformCopy2D(input: CanvasMatrix2D): CanvasMatrix2DTransformAPI;
+export declare function transform2D(input: CanvasMatrix2D): CanvasMatrix2DTransformAPI;
+export declare function transformPoint(point: IInteractionPoint, matrix: CanvasMatrix2D): void;
+export declare function rads(degrees: number): number;
+export declare function degs(radians: number): number;

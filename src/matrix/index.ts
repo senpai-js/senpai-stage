@@ -1,275 +1,160 @@
 import { IInteractionPoint } from "../util";
 
-export interface IMatrix {
-  value: number[] | Float64Array;
-  immutable: boolean;
-  translate(x: number, y: number): IMatrix;
-  scale(x: number, y: number): IMatrix;
-  rotate(angle: number): IMatrix;
-  skewX(angle: number): IMatrix;
-  skewY(angle: number): IMatrix;
-  transform(props: Float64Array | number[]): IMatrix;
-  inverse(): IMatrix;
-  reset(): IMatrix;
-  set(target: Float64Array | number[]): IMatrix;
-}
+export type CanvasMatrix2D = [number, number, number, number, number, number];
 
-export class Matrix implements IMatrix {
-  public value: number[] | Float64Array = new Float64Array(Identity);
-  public immutable: boolean = false;
-
-  constructor(value?: number[] | Float64Array, immutable?: boolean) {
-    this.value = value || new Float64Array(Identity);
-    this.immutable = immutable || this.immutable;
+export class CanvasMatrix2DTransformAPI {
+  public value: CanvasMatrix2D = null;
+  constructor(input: CanvasMatrix2D) {
+    this.value = input;
   }
 
-  public translate(x: number, y: number): IMatrix {
-    if (this.immutable) {
-      const m = new Matrix(this.value, true);
-      translate(x, y, this.value, m.value);
-      return m;
-    }
-
-    translate(x, y, this.value, this.value);
+  public translate(x: number, y: number): this {
+    this.value[4] += this.value[0] * x + this.value[2] * y;
+    this.value[5] += this.value[1] * x + this.value[3] * y;
     return this;
   }
 
-  public scale(x: number, y: number): IMatrix {
-    if (this.immutable) {
-      const m = new Matrix(this.value, true);
-      scale(x, y, this.value, m.value);
-      return m;
-    }
-
-    scale(x, y, this.value, this.value);
+  public scale(x: number, y: number): this {
+    this.value[0] *= x;
+    this.value[1] *= x;
+    this.value[2] *= y;
+    this.value[3] *= y;
     return this;
   }
 
-  public rotate(angle: number): IMatrix {
-    if (this.immutable) {
-      const m = new Matrix(this.value, true);
-      rotate(angle, this.value, m.value);
-      return m;
-    }
+  public rotate(radians: number) {
+    const cos = Math.cos(radians);
+    const sin = Math.sin(radians);
+    const a = this.value[0];
+    const b = this.value[1];
+    const c = this.value[2];
+    const d = this.value[3];
 
-    rotate(angle, this.value, this.value);
+    this.value[0] = a * cos + c * sin;
+    this.value[1] = b * cos + d * sin;
+    this.value[2] = c * cos - a * sin;
+    this.value[3] = d * cos - b * sin;
+
     return this;
   }
 
-  public skewX(angle: number): IMatrix {
-    if (this.immutable) {
-      const m = new Matrix(this.value, true);
-      skewX(angle, this.value, m.value);
-      return m;
-    }
-
-    skewX(angle, this.value, this.value);
+  public skewX(radians: number): this {
+    const tan = Math.tan(radians);
+    this.value[2] += this.value[0] * tan;
+    this.value[3] += this.value[1] * tan;
     return this;
   }
 
-  public skewY(angle: number): IMatrix {
-    if (this.immutable) {
-      const m = new Matrix(this.value, true);
-      skewY(angle, this.value, m.value);
-      return m;
-    }
-
-    skewY(angle, this.value, this.value);
+  public skewY(radians: number): this {
+    const tan = Math.tan(radians);
+    this.value[0] += this.value[2] * tan;
+    this.value[1] += this.value[3] * tan;
     return this;
   }
 
-  public transform(props: Float64Array | number[]): IMatrix {
-    if (this.immutable) {
-      const m = new Matrix(this.value, true);
-      transform(this.value, props, m.value);
-      return m;
-    }
-    transform(this.value, props, this.value);
+  public inverse(): this {
+    const a: number = this.value[0];
+    const b: number = this.value[1];
+    const c: number = this.value[2];
+    const d: number = this.value[3];
+    const e: number = this.value[4];
+    const f: number = this.value[5];
+    const det: number = 1 / (a * d - c * b);
+
+    this.value[0] = d * det;
+    this.value[1] = -b * det;
+    this.value[2] = -c * det;
+    this.value[3] = a * det;
+    this.value[4] = (c * f - e * d) * det;
+    this.value[5] = (e * b - a * f) * det;
     return this;
   }
 
-  public reset(): IMatrix {
-    if (this.immutable) {
-      return chain();
-    }
-    reset(this.value);
+  public transform(props: CanvasMatrix2D): this {
+    // props values
+    const pa = props[0];
+    const pb = props[1];
+    const pc = props[2];
+    const pd = props[3];
+    const pe = props[4];
+    const pf = props[5];
+
+    // matrix values
+    const ma = this.value[0];
+    const mb = this.value[1];
+    const mc = this.value[2];
+    const md = this.value[3];
+    const me = this.value[4];
+    const mf = this.value[5];
+
+    this.value[0] = ma * pa + mc * pb;
+    this.value[1] = mb * pa + md * pb;
+    this.value[2] = ma * pc + mc * pd;
+    this.value[3] = mb * pc + md * pd;
+    this.value[4] = ma * pe + mc * pf + me;
+    this.value[5] = mb * pe + md * pf + mf;
     return this;
   }
 
-  public set(target: Float64Array | number[]): IMatrix {
-    set(target, this.value);
+  public reset(): this {
+    this.value[0] = 1;
+    this.value[1] = 0;
+    this.value[2] = 0;
+    this.value[3] = 1;
+    this.value[4] = 0;
+    this.value[5] = 0;
     return this;
   }
 
-  public inverse(): IMatrix {
-    if (this.immutable) {
-      const m = new Matrix(this.value, true);
-      inverse(this.value, m.value);
-      return m;
-    }
+  public set(props: CanvasMatrix2D): this {
+    this.value[0] = props[0];
+    this.value[1] = props[1];
+    this.value[2] = props[2];
+    this.value[3] = props[3];
+    this.value[4] = props[4];
+    this.value[5] = props[5];
+    return this;
+  }
 
-    inverse(this.value, this.value);
+  public setTo(target: CanvasMatrix2D): this {
+    target[0] = this.value[0];
+    target[1] = this.value[1];
+    target[2] = this.value[2];
+    target[3] = this.value[3];
+    target[4] = this.value[4];
+    target[5] = this.value[5];
     return this;
   }
 }
 
-export function inverse(
-  matrix: Float64Array | number[],
-  setMatrix: Float64Array | number[],
-): void {
-  const a: number = matrix[0];
-  const b: number = matrix[1];
-  const c: number = matrix[2];
-  const d: number = matrix[3];
-  const e: number = matrix[4];
-  const f: number = matrix[5];
-  const det: number = 1 / (a * d - c * b);
+export const Identity: CanvasMatrix2D = [1, 0, 0, 1, 0, 0];
 
-  setMatrix[0] = d * det;
-  setMatrix[1] = -b * det;
-  setMatrix[2] = -c * det;
-  setMatrix[3] = a * det;
-  setMatrix[4] = (c * f - e * d) * det;
-  setMatrix[5] = (e * b - a * f) * det;
+export function transformCopy2D(input: CanvasMatrix2D): CanvasMatrix2DTransformAPI {
+  return transform2D(input.slice() as CanvasMatrix2D);
 }
 
-export const Identity = new Float64Array([1, 0, 0, 1, 0, 0]);
-export const IdentityMatrix = new Matrix(Identity, true);
-
-export function translate(
-  x: number,
-  y: number,
-  matrix: Float64Array | number[],
-  setMatrix: Float64Array | number[],
-): void {
-  setMatrix[0] = matrix[0];
-  setMatrix[1] = matrix[1];
-  setMatrix[2] = matrix[2];
-  setMatrix[3] = matrix[3];
-  setMatrix[4] = matrix[0] * x + matrix[2] * y + matrix[4];
-  setMatrix[5] = matrix[1] * x + matrix[3] * y + matrix[5];
+export function transform2D(input: CanvasMatrix2D): CanvasMatrix2DTransformAPI {
+  return new CanvasMatrix2DTransformAPI(input);
 }
 
-export function scale(
-  x: number,
-  y: number,
-  matrix: Float64Array | number[],
-  setMatrix: Float64Array | number[],
-): void {
-  setMatrix[0] = matrix[0] * x;
-  setMatrix[1] = matrix[1] * x;
-  setMatrix[2] = matrix[2] * y;
-  setMatrix[3] = matrix[3] * y;
-  setMatrix[4] = matrix[4];
-  setMatrix[5] = matrix[5];
-}
-
-export function rotate(
-  angle: number,
-  matrix: Float64Array | number[],
-  setMatrix: Float64Array | number[],
-): void {
-  const cos = Math.cos(angle);
-  const sin = Math.sin(angle);
-  const a = matrix[0];
-  const b = matrix[1];
-  const c = matrix[2];
-  const d = matrix[3];
-
-  setMatrix[0] = a * cos + c * sin;
-  setMatrix[1] = b * cos + d * sin;
-  setMatrix[2] = c * cos - a * sin;
-  setMatrix[3] = d * cos - b * sin;
-  setMatrix[4] = matrix[4];
-  setMatrix[5] = matrix[5];
-}
-
-export function skewX(
-  angle: number,
-  matrix: Float64Array | number[],
-  setMatrix: Float64Array | number[],
-): void {
-  const tan = Math.tan(angle);
-
-  setMatrix[0] = matrix[0];
-  setMatrix[1] = matrix[1];
-  setMatrix[2] = matrix[2] + matrix[0] * tan;
-  setMatrix[3] = matrix[3] + matrix[1] * tan;
-  setMatrix[4] = matrix[4];
-  setMatrix[5] = matrix[5];
-}
-
-export function skewY(
-  angle: number,
-  matrix: Float64Array | number[],
-  setMatrix: Float64Array | number[],
-): void {
-  const tan = Math.tan(angle);
-
-  setMatrix[0] = matrix[0] + matrix[2] * tan;
-  setMatrix[1] = matrix[1] + matrix[3] * tan;
-  setMatrix[2] = matrix[2];
-  setMatrix[3] = matrix[3];
-  setMatrix[4] = matrix[4];
-  setMatrix[5] = matrix[5];
-}
-
-export function transform(
-  matrix: Float64Array | number[],
-  props: Float64Array | number[],
-  setMatrix: Float64Array | number[],
-): void {
-  // props values
-  const pa = props[0];
-  const pb = props[1];
-  const pc = props[2];
-  const pd = props[3];
-  const pe = props[4];
-  const pf = props[5];
-
-  // matrix values
-  const ma = matrix[0];
-  const mb = matrix[1];
-  const mc = matrix[2];
-  const md = matrix[3];
-  const me = matrix[4];
-  const mf = matrix[5];
-
-  setMatrix[0] = ma * pa + mc * pb;
-  setMatrix[1] = mb * pa + md * pb;
-  setMatrix[2] = ma * pc + mc * pd;
-  setMatrix[3] = mb * pc + md * pd;
-  setMatrix[4] = ma * pe + mc * pf + me;
-  setMatrix[5] = mb * pe + md * pf + mf;
-}
-
-export function transformPoints(
-  points: IInteractionPoint[],
-  matrix: Float64Array | number[],
-): void {
-  for (const point of points) {
-    transformPoint(point, matrix);
-  }
-}
-
-export function transformPoint(point: IInteractionPoint, matrix: Float64Array | number[]): void {
+export function transformPoint(point: IInteractionPoint, matrix: CanvasMatrix2D): void {
   point.tx = matrix[0] * point.x + matrix[2] * point.y + matrix[4];
   point.ty = matrix[1] * point.x + matrix[3] * point.y + matrix[5];
 }
 
-export function set(target: Float64Array | number[], source: Float64Array | number[]): void {
-  for (let i = 0; i < target.length && i < source.length; i++) {
-    target[i] = source[i];
-  }
+const radFactor: number = Math.PI / 180;
+export function rads(degrees: number): number {
+  const normalized = normalize(degrees, 360);
+  return normalized * radFactor;
 }
 
-export function reset(target: Float64Array | number[]): void {
-  return set(target, [1, 0, 0, 1, 0, 0]);
+const degFactor: number = 1 / radFactor;
+const PI_2: number = Math.PI * 2;
+export function degs(radians: number): number {
+  const normalized = normalize(radians, PI_2);
+  return normalized * degFactor;
 }
 
-export function chain(
-  value: Float64Array | number[] = Identity,
-  immutable: boolean = false,
-): IMatrix {
-  return new Matrix(value, immutable);
+function normalize(input: number, factor: number): number {
+  return ((input % factor) + factor) % factor;
 }

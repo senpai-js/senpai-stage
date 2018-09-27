@@ -9,7 +9,8 @@
   "author": "Joshua <tenner.joshua@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "run-s tslint microbundle",
+    "start": "run-s build",
+    "build": "run-s tslint test microbundle",
     "microbundle": "microbundle",
     "tslint": "tslint --fix --project ./",
     "test": "jest",

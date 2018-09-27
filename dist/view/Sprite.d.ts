@@ -1,6 +1,7 @@
 import * as eases from "../ease";
 import { EventEmitter, IKeyDownEvent, IKeyUpEvent, IPointClickEvent, IPointDownEvent, IPointEvent, IPointMoveEvent, IPointUpEvent, IValueChangeEvent } from "../events";
 import { ISpriteLoadedEvent } from "../events/SpriteEvents";
+import { CanvasMatrix2D } from "../matrix";
 import { ISpriteSheet, ITextureMap } from "../spritesheet";
 import { Cursor, IInteractionPoint, ISize, ISpritePosition, SpriteType } from "../util";
 import { IContainer } from "./Container";
@@ -9,16 +10,16 @@ export interface ISprite extends ISize {
     parent: ISprite;
     container: IContainer;
     readonly type: SpriteType;
-    previousPosition: Float64Array;
-    position: Float64Array;
-    inverse: Float64Array;
+    previousPosition: CanvasMatrix2D;
+    position: CanvasMatrix2D;
+    inverse: CanvasMatrix2D;
     alpha: number;
     interpolatedAlpha: number;
     previousAlpha: number;
     z: number;
     textures: ITextureMap;
     lastInterpolated: number;
-    interpolatedPosition: Float64Array;
+    interpolatedPosition: CanvasMatrix2D;
     animationStart: number;
     animationLength: number;
     wait: number;
@@ -46,7 +47,7 @@ export interface ISprite extends ISize {
     setTexture(texture: string): this;
     over(timespan: number, wait: number, ease: (ratio: number) => number): this;
     movePosition(position: ISpritePosition): this;
-    move(position: number[] | Float64Array): this;
+    move(position: CanvasMatrix2D): this;
     setZ(z: number): this;
     setAlpha(alpha: number): this;
     interpolate(now: number): void;
@@ -56,7 +57,7 @@ export interface ISprite extends ISize {
 }
 export interface ISpriteProps {
     id: string;
-    position: Float64Array | number[];
+    position: CanvasMatrix2D;
     textures?: ITextureMap;
     alpha?: number;
     z?: number;
@@ -66,10 +67,10 @@ export interface ISpriteProps {
 export declare class Sprite implements ISprite {
     id: string;
     type: SpriteType;
-    position: Float64Array;
-    previousPosition: Float64Array;
-    interpolatedPosition: Float64Array;
-    inverse: Float64Array;
+    position: CanvasMatrix2D;
+    previousPosition: CanvasMatrix2D;
+    interpolatedPosition: CanvasMatrix2D;
+    inverse: CanvasMatrix2D;
     alpha: number;
     interpolatedAlpha: number;
     previousAlpha: number;

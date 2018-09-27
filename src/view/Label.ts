@@ -48,7 +48,6 @@ export class Label extends Sprite implements ILabel {
   }
 
   public render(ctx: CanvasRenderingContext2D): void {
-    ctx.translate(this.textures[this.texture].width * 0.5, this.textures[this.texture].height * 0.5);
     ctx.textBaseline = this.textBaseline;
     ctx.textAlign = this.textAlign;
     ctx.font = `${this.fontSize}px ${this.font}`;
