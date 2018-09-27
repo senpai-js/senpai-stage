@@ -8,35 +8,14 @@ export enum SpriteSheetKind {
   JSON_TP_Array,
 }
 
-export interface ISpriteSheetPosition {
+export interface ISpriteSheetPoint {
   x: number;
   y: number;
-}
-
-export interface ISpriteSheetName {
-  name: string;
-}
-
-export interface ISpriteSheetSize {
-  width: number;
-  height: number;
 }
 
 export interface ISpriteSheetSizeShort {
   w: number;
   h: number;
-}
-
-export interface ISpriteSheetRotated {
-  rotated: boolean;
-}
-
-export interface ISpriteSheetTrimmed {
-  trimmed: boolean;
-}
-
-export interface ISpriteSheetSourceSize {
-  spriteSourceSize: ISpriteSheetPosition & ISpriteSheetSizeShort;
 }
 
 export interface ISpriteSheetMeta {
@@ -50,11 +29,13 @@ export interface ISpriteSheetMeta {
 export interface ISpriteSheetJSONHash extends ISpriteSheet {
   kind: SpriteSheetKind.JSON_TP_Hash;
   frames: {
-    [frame: string]: ISpriteSheetPosition
-      & ISpriteSheetSizeShort
-      & ISpriteSheetRotated
-      & ISpriteSheetTrimmed
-      & ISpriteSheetSourceSize;
+    [frame: string]: {
+      frame: ISpriteSheetPoint & ISpriteSheetSizeShort;
+      rotated: boolean;
+      trimmed: boolean;
+      spriteSourceSize: ISpriteSheetPoint & ISpriteSheetSizeShort;
+      sourceSize: ISpriteSheetSizeShort;
+    };
   };
   meta: ISpriteSheetMeta;
 }
@@ -65,58 +46,37 @@ export interface ISpriteSheetFileName {
 
 export interface ISpriteSheetJSONArray extends ISpriteSheet {
   kind: SpriteSheetKind.JSON_TP_Array;
-  frames: Array<ISpriteSheetPosition
-      & ISpriteSheetSizeShort
-      & ISpriteSheetRotated
-      & ISpriteSheetTrimmed
-      & ISpriteSheetSourceSize
-      & ISpriteSheetFileName>;
+  frames: Array<{
+    filename: string;
+    frame: ISpriteSheetPoint & ISpriteSheetSizeShort;
+    rotated: boolean;
+    trimmed: boolean;
+    spriteSourceSize: ISpriteSheetPoint & ISpriteSheetSizeShort;
+    sourceSize: ISpriteSheetSizeShort;
+  }>;
   meta: ISpriteSheetMeta;
 }
 
-export interface ISpriteSheetFrame {
-  frame: ISpriteSheetPosition & ISpriteSheetSizeShort;
-}
-
-export interface ISpriteSheetJSON extends ISpriteSheet, Iterable<ISpriteSheetName
-& ISpriteSheetPosition
-& ISpriteSheetSize> {
+export type ISpriteSheetJSON = Array<{
+  name: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}> & {
   kind: SpriteSheetKind.JSON;
-  [key: number]: ISpriteSheetName
-    & ISpriteSheetPosition
-    & ISpriteSheetSize;
-  length: number;
-
-}
-
-export interface IJSONSpriteSheet extends ISpriteSheet {
-  kind: SpriteSheetKind.JSON_TP_Array;
-  frames: Array<
-    ISpriteSheetFileName
-    & ISpriteSheetFrame
-    & ISpriteSheetRotated
-    & ISpriteSheetTrimmed
-    & ISpriteSheetSourceSize
-    & {
-      sourceSize: ISpriteSheetSizeShort;
-    }
-  >;
-  meta: ISpriteSheetMeta;
-}
+};
 
 export async function loadSpriteSheet(url: string | Request, opts?: RequestInit): Promise<ISpriteSheet> {
   const resp = await fetch(url, opts);
   const definition = await resp.json();
+  return createSpriteSheet(definition);
+}
 
+export function createSpriteSheet(definition: any): ISpriteSheet {
   if (Array.isArray(definition)) {
-    const result: ISpriteSheetJSON = {
-      kind: SpriteSheetKind.JSON,
-      length: definition.length,
-      [Symbol.iterator]: Array.prototype[Symbol.iterator],
-    };
-    for (let i = 0; i < definition.length; i++) {
-      result[i] = definition[i];
-    }
+    const result: ISpriteSheetJSON = definition as ISpriteSheetJSON;
+    result.kind = SpriteSheetKind.JSON;
     return result;
   }
   if (!definition.frames) {
@@ -165,10 +125,10 @@ export async function createTextureMap(definitionPromise: Promise<ISpriteSheet>,
       for (const arrayFrame of spritesheetArrayKind.frames) {
         textures[arrayFrame.filename] = await createImageBitmap(
           img,
-          arrayFrame.x,
-          arrayFrame.y,
-          arrayFrame.w,
-          arrayFrame.h,
+          arrayFrame.frame.x,
+          arrayFrame.frame.y,
+          arrayFrame.frame.w,
+          arrayFrame.frame.h,
         );
       }
       break;
@@ -178,10 +138,10 @@ export async function createTextureMap(definitionPromise: Promise<ISpriteSheet>,
         const spriteFrame = spritesheetHashKind.frames[frame];
         textures[frame] = await createImageBitmap(
           img,
-          spriteFrame.x,
-          spriteFrame.y,
-          spriteFrame.w,
-          spriteFrame.h,
+          spriteFrame.frame.x,
+          spriteFrame.frame.y,
+          spriteFrame.frame.w,
+          spriteFrame.frame.h,
         );
       }
       break;
