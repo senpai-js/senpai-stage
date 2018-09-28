@@ -1,6 +1,6 @@
 import { IInteractionPoint } from "../util";
 import { ISprite } from "../view/Sprite";
-import { IStage } from "../view/Stage";
+import { IStage, Stage } from "../view/Stage";
 
 export type CanvasMatrix2D = [number, number, number, number, number, number];
 
@@ -173,11 +173,74 @@ function normalize(input: number, factor: number): number {
   return ((input % factor) + factor) % factor;
 }
 
-export function stageLeft(sprite: ISprite, stage: IStage): CanvasMatrix2DTransformAPI {
-  return copy(Identity)
-    .translate(0, stage.canvas.height - sprite.height);
+export enum StagePosition {
+  BottomCenter,
+  BottomCenterLeft,
+  BottomCenterRight,
+  BottomLeft,
+  BottomRight,
+  CenterLeft,
+  Center,
+  CenterRight,
+  Left,
+  Right,
+  TopCenter,
+  TopCenterLeft,
+  TopCenterRight,
+  TopLeft,
+  TopRight,
 }
 
-export function stageRight(sprite: ISprite, stage: IStage): CanvasMatrix2DTransformAPI {
+export function align(sprite: ISprite, position: StagePosition) {
+  if (!sprite.container) {
+    throw new Error("Sprite cannot be aligned because it was not added to a stage.");
+  }
+
+  const stage: IStage = sprite.container as any;
+
+  let widthFactor = 0;
+  switch (position) {
+    case StagePosition.BottomCenterLeft:
+    case StagePosition.CenterLeft:
+    case StagePosition.TopCenterLeft:
+      widthFactor = 0.25;
+      break;
+    case StagePosition.BottomCenter:
+    case StagePosition.Center:
+    case StagePosition.TopCenter:
+      widthFactor = 0.5;
+      break;
+    case StagePosition.BottomCenterRight:
+    case StagePosition.CenterRight:
+    case StagePosition.TopCenterRight:
+      widthFactor = 0.75;
+      break;
+    case StagePosition.BottomRight:
+    case StagePosition.Right:
+    case StagePosition.TopRight:
+      widthFactor = 1;
+      break;
+  }
+
+  let heightFactor = 0;
+  switch (position) {
+    case StagePosition.Center:
+    case StagePosition.CenterLeft:
+    case StagePosition.CenterRight:
+    case StagePosition.Left:
+    case StagePosition.Right:
+      heightFactor = 0.5;
+      break;
+    case StagePosition.BottomCenter:
+    case StagePosition.BottomCenterLeft:
+    case StagePosition.BottomCenterRight:
+    case StagePosition.BottomLeft:
+    case StagePosition.BottomRight:
+      heightFactor = 1;
+      break;
+  }
+
   return copy(Identity)
+    .translate(stage.canvas.width * widthFactor, stage.canvas.height * heightFactor)
+    .translate(-sprite.width * widthFactor, -sprite.height * heightFactor);
 }
