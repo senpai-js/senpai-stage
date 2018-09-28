@@ -1,4 +1,6 @@
 import { IInteractionPoint } from "../util";
+import { ISprite } from "../view/Sprite";
+import { IStage } from "../view/Stage";
 
 export type CanvasMatrix2D = [number, number, number, number, number, number];
 
@@ -125,15 +127,27 @@ export class CanvasMatrix2DTransformAPI {
     target[5] = this.value[5];
     return this;
   }
+
+  public transformPoint(point: IInteractionPoint): this {
+    transformPoint(point, this.value);
+    return this;
+  }
 }
 
 export const Identity: CanvasMatrix2D = [1, 0, 0, 1, 0, 0];
 
-export function transformCopy2D(input: CanvasMatrix2D): CanvasMatrix2DTransformAPI {
-  return transform2D(input.slice() as CanvasMatrix2D);
+export function copy(input: CanvasMatrix2D): CanvasMatrix2DTransformAPI {
+  return use([
+    input[0],
+    input[1],
+    input[2],
+    input[3],
+    input[4],
+    input[5],
+  ]);
 }
 
-export function transform2D(input: CanvasMatrix2D): CanvasMatrix2DTransformAPI {
+export function use(input: CanvasMatrix2D): CanvasMatrix2DTransformAPI {
   return new CanvasMatrix2DTransformAPI(input);
 }
 
@@ -157,4 +171,13 @@ export function degs(radians: number): number {
 
 function normalize(input: number, factor: number): number {
   return ((input % factor) + factor) % factor;
+}
+
+export function stageLeft(sprite: ISprite, stage: IStage): CanvasMatrix2DTransformAPI {
+  return copy(Identity)
+    .translate(0, stage.canvas.height - sprite.height);
+}
+
+export function stageRight(sprite: ISprite, stage: IStage): CanvasMatrix2DTransformAPI {
+  return copy(Identity)
 }

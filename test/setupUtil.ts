@@ -1,6 +1,6 @@
 /* tslint:disable:max-classes-per-file */
 import { AudioContext } from "web-audio-test-api";
-import { Identity, transformCopy2D } from "../src/matrix";
+import { copy, Identity } from "../src/matrix";
 import { ITextureMap } from "../src/spritesheet";
 import { IInteractionPoint, SpriteType, TextAlign, TextBaseline } from "../src/util";
 import { Button, IButton } from "../src/view/Button";
@@ -255,7 +255,7 @@ export class TestSetup implements ITestSetup {
       throw new Error(`Cannot add Button with id ${id}: element with id already exists.`);
     }
 
-    const buttonPos = transformCopy2D(Identity).translate(x, y).value;
+    const buttonPos = copy(Identity).translate(x, y).value;
     const textures = new TextureBuilder()
       .attr("Active", "Inactive")
       .attr("Hover", "NoHover")
@@ -278,7 +278,7 @@ export class TestSetup implements ITestSetup {
       throw new Error(`Cannot add Panel with id ${id}: element with id already exists.`);
     }
 
-    const panelPos = transformCopy2D(Identity).translate(x, y).value;
+    const panelPos = copy(Identity).translate(x, y).value;
     const textures = new TextureBuilder()
       .attr("texture")
       .build();
@@ -302,7 +302,7 @@ export class TestSetup implements ITestSetup {
       throw new Error(`Cannot add Close button with id ${id}: element with id already exists.`);
     }
 
-    const buttonPos = transformCopy2D(Identity).translate(x, y).value;
+    const buttonPos = copy(Identity).translate(x, y).value;
     const textures = new TextureBuilder()
       .attr("Active", "Inactive")
       .attr("Hover", "NoHover")
@@ -323,7 +323,7 @@ export class TestSetup implements ITestSetup {
     if (this.idIsTaken(id)) {
       throw new Error(`Cannot add Checkbox with id ${id}: element with id already exists.`);
     }
-    const checkboxPos = transformCopy2D(Identity).translate(x, y).value;
+    const checkboxPos = copy(Identity).translate(x, y).value;
     const textures = new TextureBuilder()
       .attr("Active", "Inactive")
       .attr("Hover", "NoHover")
@@ -345,7 +345,7 @@ export class TestSetup implements ITestSetup {
     if (this.idIsTaken(id)) {
       throw new Error(`Cannot add Label with id ${id}: element with id already exists.`);
     }
-    const labelPos = transformCopy2D(Identity).translate(x, y).value;
+    const labelPos = copy(Identity).translate(x, y).value;
     const textures = new TextureBuilder()
       .attr("texture")
       .build();
@@ -373,7 +373,7 @@ export class TestSetup implements ITestSetup {
     if (this.idIsTaken(id)) {
       throw new Error(`Cannot add Slider with id ${id}: element with id already exists.`);
     }
-    const sliderPos = transformCopy2D(Identity).translate(x, y).value;
+    const sliderPos = copy(Identity).translate(x, y).value;
     const textures = new TextureChainBuilder()
       .attr("Pill")
       .sometimes()

@@ -11,7 +11,7 @@ import {
   IValueChangeEvent,
 } from "../events";
 import { ISpriteLoadedEvent } from "../events/SpriteEvents";
-import { CanvasMatrix2D, Identity, transform2D, transformCopy2D, transformPoint } from "../matrix";
+import { CanvasMatrix2D, copy, Identity, transformPoint, use } from "../matrix";
 import { createTextureMap, ISpriteSheet, ITextureMap, loadImage, loadSpriteSheet } from "../spritesheet";
 import { Cursor, IInteractionPoint, ISize, ISpritePosition, SpriteType } from "../util";
 import { IContainer } from "./Container";
@@ -139,11 +139,11 @@ export class Sprite implements ISprite {
     this.id = props.id;
     const position: CanvasMatrix2D = props.position || Identity.slice() as CanvasMatrix2D;
     this.textures = props.textures ? props.textures : this.textures;
-    transform2D(this.position)
+    use(this.position)
       .set(position);
-    transform2D(this.previousPosition)
+    use(this.previousPosition)
       .set (position);
-    transform2D(this.interpolatedPosition)
+    use(this.interpolatedPosition)
       .set(position);
 
     if (props.hasOwnProperty("alpha")) {
@@ -186,7 +186,7 @@ export class Sprite implements ISprite {
     const sy = position.sy || position.sy === 0 ? position.sy : position.s;
 
     return this.move(
-      transformCopy2D(Identity)
+      copy(Identity)
         .translate(position.x || 0, position.y || 0)
         .rotate(position.r || 0)
         .scale(sx === 0 ? 0 : sx || 1, sy === 0 ? 0 : sy || 1)
@@ -276,7 +276,7 @@ export class Sprite implements ISprite {
       this.interpolatedAlpha = this.previousAlpha + ratio * (this.alpha - this.previousAlpha);
     }
 
-    transformCopy2D(this.interpolatedPosition)
+    copy(this.interpolatedPosition)
       .inverse()
       .setTo(this.inverse);
 
@@ -284,7 +284,7 @@ export class Sprite implements ISprite {
       // assert the parent is properly moved
       this.parent.interpolate(now);
 
-      transformCopy2D(this.parent.inverse)
+      copy(this.parent.inverse)
         .transform(this.inverse)
         .setTo(this.inverse);
     }

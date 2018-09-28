@@ -1,6 +1,6 @@
 import { AudioContext } from "web-audio-test-api";
 import { IPointClickEvent, IPointDownEvent, IPointUpEvent } from "../src/events";
-import { Identity, transformCopy2D } from "../src/matrix";
+import { copy, Identity } from "../src/matrix";
 import { IInteractionPoint } from "../src/util";
 import { Button, IButton } from "../src/view/Button";
 import { IInteractionManager, InteractionManager } from "../src/view/InteractionManager";
@@ -23,7 +23,7 @@ const createInteractionManager = (): IInteractionManager => {
  * Helper function: create a button at 50,50.
  */
 const createButton = (id: string, x: number, y: number): Button => {
-  const buttonPos = transformCopy2D(Identity).translate(x, y).value;
+  const buttonPos = copy(Identity).translate(x, y).value;
 
   // create button
   const button = new Button({
