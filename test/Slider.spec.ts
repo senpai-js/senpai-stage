@@ -57,7 +57,7 @@ describe("Slider tests", () => {
 
   test("Hover over Slider body makes broadPhase() return true",  () => {
     const { values } = template
-      .feed(t => t.movePoint("ip", x + 50, y)) // to the right of the pill by 30px
+      .feed(t => t.pointMove("ip", x + 50, y)) // to the right of the pill by 30px
       .run();
     const ip = values.points.ip;
     const slider = values.sprites.slider as ISlider;
@@ -67,7 +67,7 @@ describe("Slider tests", () => {
 
   test("Hover over pill makes broadPhase() return true",  () => {
     const { values } = template
-      .feed(t => t.movePoint("ip", x, y))
+      .feed(t => t.pointMove("ip", x, y))
       .run();
     const ip = values.points.ip;
     const slider = values.sprites.slider as ISlider;
@@ -77,7 +77,7 @@ describe("Slider tests", () => {
 
   test("Hover over Slider body makes narrowPhase() return undefined",  () => {
     const { values } = template
-      .feed(t => t.movePoint("ip", x + 50, y)) // to the right of the pill by 30px
+      .feed(t => t.pointMove("ip", x + 50, y)) // to the right of the pill by 30px
       .run();
     const ip = values.points.ip;
     const slider = values.sprites.slider as ISlider;
@@ -87,7 +87,7 @@ describe("Slider tests", () => {
 
   test("Hover over pill makes narrowPhase() return slider",  () => {
     const { values } = template
-      .feed(t => t.movePoint("ip", x, y))
+      .feed(t => t.pointMove("ip", x, y))
       .run();
     const ip = values.points.ip;
     const slider = values.sprites.slider as ISlider;
@@ -97,7 +97,7 @@ describe("Slider tests", () => {
 
   test("Hover over Slider body does not change 'cursor' property to 'pointer'", () => {
     const { values } = template
-      .feed(t => t.movePoint("ip", x + 50, y)) // to the right of the pill by 30px
+      .feed(t => t.pointMove("ip", x + 50, y)) // to the right of the pill by 30px
       .run();
     const ip = values.points.ip;
     const slider = values.sprites.slider as ISlider;
@@ -106,7 +106,7 @@ describe("Slider tests", () => {
 
   test("Hover over pill changes 'cursor' property to 'pointer'", () => {
     const { values } = template
-      .feed(t => t.movePoint("ip", x, y))
+      .feed(t => t.pointMove("ip", x, y))
       .run();
     const ip = values.points.ip;
     const slider = values.sprites.slider as ISlider;
@@ -115,7 +115,7 @@ describe("Slider tests", () => {
 
   test("Hover over Slider body does not change Slider value", () => {
     const { values } = template
-      .feed(t => t.movePoint("ip", x + 50, y))
+      .feed(t => t.pointMove("ip", x + 50, y))
       .run();
     const ip = values.points.ip;
     const slider = values.sprites.slider as ISlider;
@@ -182,7 +182,7 @@ describe("Slider tests", () => {
 
   test("Hover outside of body makes broadPhase return false", () => {
     const { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.movePoint("ip", x + 200, y + 100))
+      .feed(t => t.pointMove("ip", x + 200, y + 100))
       .run()
       .values;
 
@@ -191,7 +191,7 @@ describe("Slider tests", () => {
 
   test("Hover outside of body makes narrowPhase return undefined", () => {
     const { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.movePoint("ip", x + 200, y + 100))
+      .feed(t => t.pointMove("ip", x + 200, y + 100))
       .run()
       .values;
 
@@ -200,7 +200,7 @@ describe("Slider tests", () => {
 
   test("After point down and move narrowPhase still returns Slider", () => {
     const { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x + 200, y + 100))
+      .feed(t => t.pointDown("ip", x, y).pointMove("ip", x + 200, y + 100))
       .run()
       .values;
 
@@ -209,7 +209,7 @@ describe("Slider tests", () => {
 
   test("After point down and move broadPhase still returns true", () => {
     const { points: {ip}, sprites: {slider} } = template
-      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x + 200, y + 100))
+      .feed(t => t.pointDown("ip", x, y).pointMove("ip", x + 200, y + 100))
       .run()
       .values;
 
@@ -218,7 +218,7 @@ describe("Slider tests", () => {
 
   test("Activating the Slider and moving the point beyond the start stops the value at min", () => {
     const { values } = template
-      .feed(t => t.pointDown("ip", x, y).movePoint("ip", 0, y))
+      .feed(t => t.pointDown("ip", x, y).pointMove("ip", 0, y))
       .run();
     const slider =  values.sprites.slider as ISlider;
     expect(slider.value).toBe(slider.min);
@@ -226,7 +226,7 @@ describe("Slider tests", () => {
 
   test("Activating the Slider and moving the point beyond the end stops the value at max", () => {
     const { values } = template
-      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x + 200, y))
+      .feed(t => t.pointDown("ip", x, y).pointMove("ip", x + 200, y))
       .run();
 
     const ip = values.points.ip;
@@ -236,7 +236,7 @@ describe("Slider tests", () => {
 
   test("Moving point off slider while slider is active projects value onto slider", () => {
     const { values } = template
-      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x + 50, y + 100))
+      .feed(t => t.pointDown("ip", x, y).pointMove("ip", x + 50, y + 100))
       .run();
     const ip = values.points.ip;
     const slider = values.sprites.slider as ISlider;
@@ -246,7 +246,7 @@ describe("Slider tests", () => {
 
   test("Moving point off slider while slider is active keeps 'cursor' property as 'pointer'", () => {
     const { values } = template
-      .feed(t => t.pointDown("ip", x, y).movePoint("ip", x + 50, y + 100))
+      .feed(t => t.pointDown("ip", x, y).pointMove("ip", x + 50, y + 100))
       .run();
     const slider = values.sprites.slider;
     expect(slider.cursor).toBe("pointer");

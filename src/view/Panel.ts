@@ -121,6 +121,16 @@ export class Panel extends Sprite implements IPanel {
       }
     }
   }
+
+  public isFocused(): ISprite {
+    for (const sprite of this.sprites) {
+      if (sprite.isFocused()) {
+        return sprite;
+      }
+    }
+    return super.isFocused();
+  }
+
   public skipAnimation(now: number): boolean {
     let result: boolean = super.skipAnimation(now);
     for (const sprite of this.sprites) {

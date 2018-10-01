@@ -1,16 +1,22 @@
-import { SpriteType, TextBaseline } from "../util";
+import { IKeyDownEvent } from "../events";
+import { IPadding, SpriteType, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
+
+export enum SelectionState {
+  Selection,
+  Caret,
+}
 
 export interface ITextInput extends ISprite {
   text: string;
   font: string;
   fontSize: number;
   fontColor: string;
+  selectionState: SelectionState;
   caretIndex: number;
+  selectionEnd: number;
   caretX: number;
-  selection: [number, number];
-  textScroll: number;
-  padding: [number, number, number, number];
+  padding: IPadding;
   frameCount: number;
   setText(text: string): this;
 }
@@ -34,11 +40,19 @@ export class TextInput extends Sprite implements ITextInput {
   public fontColor: string = "black";
   public caretIndex: number = 0;
   public caretX: number = 0;
-  public selection: [number, number] = [0, 0];
   public textScroll: number = 0;
-  public padding: [number, number, number, number] = [2, 2, 2, 2];
+  public selectionState: SelectionState = SelectionState.Caret;
+  public padding: IPadding = {
+    bottom: 2,
+    left: 2,
+    right: 2,
+    top: 2,
+  };
+  public selectionEnd: number = -1;
   public frameCount: number = 0;
   private showCaret: boolean = true;
+  private activeMidPattern: CanvasPattern = null;
+  private inactiveMidPattern: CanvasPattern = null;
 
   constructor(props: ITextInputProps) {
     super(props);
@@ -51,39 +65,31 @@ export class TextInput extends Sprite implements ITextInput {
   }
 
   public update(): void {
-    tempctx.font = `${this.fontSize}px ${this.font}`;
-    const textWidth: number = tempctx.measureText(this.text).width;
-    this.caretX = tempctx.measureText(this.text.slice(0, this.caretIndex)).width;
-    const relativeCaretX: number = this.caretX + this.textScroll;
-    const maxTextWidth: number  = this.width - this.padding[0] - this.padding[1];
-
-    if (relativeCaretX < 0) {
-      console.log("hit less than 0");
-      this.textScroll += relativeCaretX;
-    } else if (relativeCaretX > maxTextWidth) {
-      console.log("hit greater than");
-      this.textScroll -= relativeCaretX - maxTextWidth;
-    }
-
-    this.frameCount += 1;
-    if (this.frameCount >= 30) {
-      this.frameCount = 0;
-      this.showCaret = !this.showCaret;
-    }
+    // noOp
   }
 
   public render(ctx: CanvasRenderingContext2D): void {
-    ctx.fillStyle = "black";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(0, 0, this.width, this.height);
+    const left = this.active ? this.textures.Active_Left : this.textures.Inactive_Left;
+    const right = this.active ? this.textures.Active_Right : this.textures.Inactive_Right;
+    const pattern = this.active ? this.textures.Active_Mid : this.textures.Inactive_Mid;
+    ctx.drawImage(this.textures.Left_Cap_Active, 0, 0);
+    ctx.drawImage(left, 0, 0);
+    ctx.drawImage(right, this.width - right.width, 0);
+    ctx.fillStyle = this.active ? this.activeMidPattern : this.inactiveMidPattern;
+    ctx.fillRect(
+      left.width,
+      0,
+      this.width - left.width - right.width,
+      pattern.height,
+    );
 
     // clip
     ctx.beginPath();
     ctx.rect(
-      this.padding[0],
-      this.padding[2],
-      this.width - this.padding[1] - this.padding[0],
-      this.width - this.padding[3],
+      this.padding.left,
+      this.padding.top,
+      this.width - this.padding.right - this.padding.left,
+      this.width - this.padding.bottom,
     );
     ctx.clip();
 
@@ -91,13 +97,13 @@ export class TextInput extends Sprite implements ITextInput {
     ctx.font = `${this.fontSize}px ${this.font}`;
     ctx.fillStyle = this.fontColor;
     ctx.textBaseline = TextBaseline.top;
-    ctx.fillText(this.text, this.textScroll + this.padding[0], 0);
+    ctx.fillText(this.text, this.textScroll + this.padding.left, 0);
 
     if (this.showCaret) {
-      const caretX = this.textScroll + this.padding[0] + this.caretIndex;
+      const caretX = this.textScroll + this.padding.left + this.caretIndex;
       ctx.beginPath();
-      ctx.moveTo(caretX, this.padding[2]);
-      ctx.lineTo(caretX, this.height - this.padding[3]);
+      ctx.moveTo(caretX, this.padding.top);
+      ctx.lineTo(caretX, this.height - this.padding.bottom);
       ctx.stroke();
     }
   }
@@ -105,5 +111,24 @@ export class TextInput extends Sprite implements ITextInput {
   public setText(text: string): this {
     this.text = text;
     return this;
+  }
+
+  public keyDown(e: IKeyDownEvent) {
+    const isSelection = this.selectionState === SelectionState.Selection;
+    const end = isSelection ? this.selectionEnd : this.caretIndex;
+    if (e.key.codePointAt(1) === void 0) {
+      this.text = this.text.slice(0, this.caretIndex) + e.key + this.text.slice(end);
+      this.selectionState = SelectionState.Caret;
+      super.keyDown(e);
+      return;
+    }
+
+    switch (e.key) {
+      case "Backspace":
+        this.text = isSelection
+          ? this.text.slice(0, this.caretIndex) + this.text.slice(end)
+          : this.text.slice(0, this.caretIndex - 1) + this.text.slice(this.caretIndex);
+    }
+    super.keyDown(e);
   }
 }

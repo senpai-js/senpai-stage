@@ -23,13 +23,13 @@ describe("Checkbox tests", () => {
 
   // TODO: assert that update() guarantees the cursor to be changed
   test("Button Sprite Types should be SpriteType.Checkbox", () => {
-    const { values } = stateTests.feed(t => t.movePoint("ip", x, y)).run();
+    const { values } = stateTests.feed(t => t.pointMove("ip", x, y)).run();
     expect(values.sprites.checkbox.type).toStrictEqual(SpriteType.Checkbox);
   });
 
   test("Cursor should change when checkbox is hovered", () => {
     const { values } = stateTests.feed(
-      t => t.movePoint("ip", x, y),
+      t => t.pointMove("ip", x, y),
     ).run();
     expect(values.stage.canvas.style.cursor).toStrictEqual(Cursor.pointer);
   });
@@ -37,7 +37,7 @@ describe("Checkbox tests", () => {
   test("If a checkbox is added to the stage after the point is moved, the collision is still registered", () => {
     const { sprites: {checkbox} } = setup()
       .addInteractionPoint("ip")
-      .movePoint("ip", x, y)
+      .pointMove("ip", x, y)
       .addCheckbox("checkbox", x, y)
       .updateStage()
       .values;
@@ -65,7 +65,7 @@ describe("Checkbox tests", () => {
     const { values } = stateTests
       .feed(t => t
         .setChecked("checkbox", true)
-        .movePoint("ip", x, y),
+        .pointMove("ip", x, y),
       ).run();
 
     const checkbox = values.sprites.checkbox as ICheckbox;
@@ -81,7 +81,7 @@ describe("Checkbox tests", () => {
       .feed(t => t
         .setChecked("checkbox", true)
         .pointDown("ip", x, y)
-        .movePoint("ip", 0, 0),
+        .pointMove("ip", 0, 0),
       ).run();
 
     const checkbox = values.sprites.checkbox as ICheckbox;
@@ -122,7 +122,7 @@ describe("Checkbox tests", () => {
     const { values } = stateTests
       .feed(t => t
         .setChecked("checkbox", false)
-        .movePoint("ip", x, y),
+        .pointMove("ip", x, y),
       ).run();
 
     const checkbox = values.sprites.checkbox as ICheckbox;
@@ -137,7 +137,7 @@ describe("Checkbox tests", () => {
       .feed(t => t
         .setChecked("checkbox", false)
         .pointDown("ip", x, y)
-        .movePoint("ip", 0, 0),
+        .pointMove("ip", 0, 0),
       ).run();
 
     const checkbox = values.sprites.checkbox as ICheckbox;

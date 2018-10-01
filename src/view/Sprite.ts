@@ -70,6 +70,7 @@ export interface ISprite extends ISize {
   broadPhase(point: IInteractionPoint): boolean;
   narrowPhase(point: IInteractionPoint): ISprite;
   isHovering(point: IInteractionPoint, now: number): ISprite;
+  isFocused(): ISprite;
   pointCollision(point: IInteractionPoint): boolean;
   setTexture(texture: string): this;
   over(timespan: number, wait: number, ease: (ratio: number) => number): this;
@@ -81,6 +82,8 @@ export interface ISprite extends ISize {
   skipAnimation(now: number): boolean;
   update(): void;
   render(ctx: CanvasRenderingContext2D): void;
+  keyDown(event: IKeyDownEvent): void;
+  keyUp(event: IKeyUpEvent): void;
 }
 
 export interface ISpriteProps {
@@ -139,12 +142,10 @@ export class Sprite implements ISprite {
     this.id = props.id;
     const position: CanvasMatrix2D = props.position || Identity.slice() as CanvasMatrix2D;
     this.textures = props.textures ? props.textures : this.textures;
-    use(this.position)
-      .set(position);
-    use(this.previousPosition)
-      .set (position);
-    use(this.interpolatedPosition)
-      .set(position);
+    use(position)
+      .setTo(this.position)
+      .setTo(this.previousPosition)
+      .setTo(this.interpolatedPosition);
 
     if (props.hasOwnProperty("alpha")) {
       this.previousAlpha = this.alpha = this.interpolatedAlpha = props.alpha;
@@ -181,6 +182,10 @@ export class Sprite implements ISprite {
     }
   }
 
+  public isFocused(): ISprite {
+    return this.focused ? this : null;
+  }
+
   public movePosition(position: ISpritePosition): this {
     const sx = position.sx || position.sx === 0 ? position.sx : position.s;
     const sy = position.sy || position.sy === 0 ? position.sy : position.s;
@@ -195,7 +200,13 @@ export class Sprite implements ISprite {
     );
   }
 
-  public move(position: number[] | Float64Array): this {
+  public move(position: CanvasMatrix2D): this {
+    for (let i = 0; i < 6; i++) {
+      if (!Number.isFinite(position[i])) {
+        throw new Error(`Invalid Canvas Matrix for sprite ${this.id}, property ${i} is not a finite value.`);
+      }
+    }
+
     this.previousPosition[0] = this.interpolatedPosition[0];
     this.previousPosition[1] = this.interpolatedPosition[1];
     this.previousPosition[2] = this.interpolatedPosition[2];
@@ -213,12 +224,27 @@ export class Sprite implements ISprite {
   }
 
   public setAlpha(alpha: number): this {
+    if (!Number.isFinite(alpha)) {
+      throw new Error(
+        `Cannot set alpha value on sprite ${this.id}: ${alpha} is not finite. This results in undefined behavior.`,
+      );
+    }
+    if (alpha < 0 || alpha > 1) {
+      throw new Error(
+        `Cannot set alpha value on sprite ${this.id}: ${alpha} is not within range [0, 1].`,
+      );
+    }
     this.previousAlpha = this.interpolatedAlpha;
     this.alpha = alpha;
     return this;
   }
 
   public setZ(z: number): this {
+    if (!Number.isFinite(z)) {
+      throw new Error(
+        `Cannot set Z value on sprite ${this.id}: ${z} is not finite. This results in undefined behavior.`,
+      );
+    }
     this.z = z;
     return this;
   }
@@ -304,6 +330,14 @@ export class Sprite implements ISprite {
 
   public render(ctx: CanvasRenderingContext2D): void {
     ctx.drawImage(this.textures[this.texture], 0, 0);
+  }
+
+  public keyDown(event: IKeyDownEvent): void {
+    this.keyDownEvent.emit(event);
+  }
+
+  public keyUp(event: IKeyUpEvent): void {
+    this.keyUpEvent.emit(event);
   }
 
   private async loadTexture(defintion: Promise<ISpriteSheet>, source: Promise<ImageBitmap>): Promise<void> {

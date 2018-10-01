@@ -36,7 +36,7 @@ describe("Button tests", () => {
 
   test("Hover over nested button should update cursor.", () => {
     const { values } = stateTests
-      .feed(t => t.movePoint("ip", 100, 100))
+      .feed(t => t.pointMove("ip", 100, 100))
       .run();
 
     expect(values.stage.canvas.style.cursor).toBe(Cursor.pointer);
@@ -44,7 +44,7 @@ describe("Button tests", () => {
 
   test("Hover over nested button should cause narrowPhase to return button.", () => {
     const { values } = stateTests
-      .feed(t => t.movePoint("ip", 100, 100))
+      .feed(t => t.pointMove("ip", 100, 100))
       .run();
     const { panel, button } = values.sprites;
     const { ip } = values.points;

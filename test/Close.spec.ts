@@ -22,7 +22,7 @@ describe("Close button tests", () => {
   test("If a close button is added to the stage after the point is moved, the collision is still registered", () => {
     const { values } = setup()
       .addInteractionPoint("ip")
-      .movePoint("ip", x, y)
+      .pointMove("ip", x, y)
       .addCloseButton("button", x, y)
       .updateStage()
       .renderStage();
@@ -44,7 +44,7 @@ describe("Close button tests", () => {
   test("State 'Inactive_Hover' is achievable", () => {
     const { sprites: { button } } = stateTests
       .feed(t => t
-        .movePoint("ip", x, y), // hover
+        .pointMove("ip", x, y), // hover
       ).run().values;
 
     expect(button.active).toBe(false);
@@ -56,7 +56,7 @@ describe("Close button tests", () => {
     const { sprites: { button } } = stateTests
       .feed(t => t
         .pointDown("ip", x, y) // activate
-        .movePoint("ip", 0, 0), // unhover
+        .pointMove("ip", 0, 0), // unhover
       ).run().values;
 
     expect(button.active).toBe(true);

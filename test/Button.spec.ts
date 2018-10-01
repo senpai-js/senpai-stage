@@ -24,14 +24,14 @@ describe("Button tests", () => {
   });
 
   test("Button Sprite Types should be SpriteType.Button", () => {
-    const { values } = stateTests.feed(t => t.movePoint("ip", x, y)).run();
+    const { values } = stateTests.feed(t => t.pointMove("ip", x, y)).run();
     expect(values.sprites.button.type).toStrictEqual(SpriteType.Button);
   });
 
   test("If a button is added to the stage after the point is moved, the collision is still registered", () => {
     const { values } = setup()
       .addInteractionPoint("ip")
-      .movePoint("ip", x, y)
+      .pointMove("ip", x, y)
       .addButton("button", x, y)
       .updateStage()
       .renderStage();
@@ -59,7 +59,7 @@ describe("Button tests", () => {
     const { values } = stateTests
       .feed(t => t
         .setSelected("button", true)
-        .movePoint("ip", x, y), // hover over button
+        .pointMove("ip", x, y), // hover over button
       ).run();
     const button = values.sprites.button as IButton;
     expect(button.active).toBe(false);
@@ -73,7 +73,7 @@ describe("Button tests", () => {
       .feed(t => t
         .setSelected("button", true)
         .pointDown("ip", x, y) // activate button
-        .movePoint("ip", 0, 0), // move away from button to unhover
+        .pointMove("ip", 0, 0), // move away from button to unhover
       ).run();
     const button = values.sprites.button as IButton;
     expect(button.active).toBe(true);
@@ -112,7 +112,7 @@ describe("Button tests", () => {
     const { values } = stateTests
       .feed(t => t
         .setSelected("button", false)
-        .movePoint("ip", x, y),
+        .pointMove("ip", x, y),
       ).run();
     const button = values.sprites.button as IButton;
     expect(button.active).toBe(false);
@@ -126,7 +126,7 @@ describe("Button tests", () => {
       .feed(t => t
         .setSelected("button", false)
         .pointDown("ip", x, y)
-        .movePoint("ip", 0, 0),
+        .pointMove("ip", 0, 0),
       ).run();
     const button = values.sprites.button as IButton;
     expect(button.active).toBe(true);

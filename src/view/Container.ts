@@ -30,7 +30,7 @@ export class Container implements IContainer {
   public audioContext: AudioContext = null;
 
   constructor(props: IContainerProps) {
-    this.audioContext = props.audioContext || new AudioContext();
+    this.audioContext = props.audioContext;
   }
 
   public addSprite(sprite: ISprite): this {

@@ -200,3 +200,7 @@ export enum SpriteType {
   TextInput,
   Sprite,
 }
+
+export interface IKeyable {
+  key: string;
+}

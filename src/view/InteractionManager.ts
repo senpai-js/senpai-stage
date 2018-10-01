@@ -13,10 +13,10 @@ import {
   ITouchMoveEvent,
   ITouchStartEvent,
 } from "../events";
-import { IInteractionPoint, SpriteType, zSort } from "../util";
+import { IInteractionPoint, IKeyable, SpriteType, zSort } from "../util";
 import { Container, IContainer, IContainerProps } from "./Container";
 import { IPanel } from "./Panel";
-import { ISprite } from "./Sprite";
+import { ISprite, Sprite } from "./Sprite";
 
 interface IInteractionPointIndex {
   [id: number]: IInteractionPoint;
@@ -67,10 +67,11 @@ export interface IInteractionManager extends IContainer {
   touchMove(event: TouchEvent): void;
   touchCancel(event: TouchEvent): void;
 
-  keyDown(event: KeyboardEvent): void;
-  keyUp(event: KeyboardEvent): void;
+  keyDown(event: KeyboardEvent | IKeyable): void;
+  keyUp(event: KeyboardEvent | IKeyable): void;
 
   setFocus(target: ISprite): void;
+  getFocusedSprite(): void;
 }
 
 interface IInteractionPointEvent {
@@ -498,37 +499,46 @@ export class InteractionManager extends Container implements IInteractionManager
     }
   }
 
-  public keyUp(e: KeyboardEvent): void {
+  public keyUp(e: KeyboardEvent | IKeyable): void {
+    this.keyIndex[e.key] = false;
+    const focusedSprite: ISprite = this.getFocusedSprite();
+    if (focusedSprite) {
+      focusedSprite.keyUp({
+        down: false,
+        eventType: "KeyUp",
+        key: e.key,
+        source: focusedSprite,
+        stage: this,
+      });
+    }
     this.keyUpEvent.emit({
       down: false,
       eventType: "KeyUp",
       key: e.key,
-      source: this,
+      source: focusedSprite || this,
       stage: this,
     });
-    this.keyIndex[e.key] = false;
   }
 
-  public keyDown(e: KeyboardEvent): void {
-    this.keyIndex[e.key] = true;
+  public keyDown(e: KeyboardEvent | IKeyable): void {
+    this.keyIndex[e.key] = false;
+    const focusedSprite: ISprite = this.getFocusedSprite();
+    if (focusedSprite) {
+      focusedSprite.keyDown({
+        down: true,
+        eventType: "KeyDown",
+        key: e.key,
+        source: focusedSprite,
+        stage: this,
+      });
+    }
     this.keyDownEvent.emit({
       down: true,
       eventType: "KeyDown",
       key: e.key,
-      source: this,
+      source: focusedSprite || this,
       stage: this,
     });
-    for (const sprite of this.sprites) {
-      if (sprite.focused) {
-        sprite.keyDownEvent.emit({
-          down: true,
-          eventType: "KeyDown",
-          key: e.key,
-          source: sprite,
-          stage: this,
-        });
-      }
-    }
   }
 
   public setFocus(target: ISprite): void {
@@ -537,6 +547,15 @@ export class InteractionManager extends Container implements IInteractionManager
       if (sprite.type === SpriteType.Panel) {
         const panel = sprite as IPanel;
         panel.focus(target);
+      }
+    }
+  }
+
+  public getFocusedSprite(): ISprite {
+    for (const sprite of this.sprites) {
+      const s: ISprite = sprite.isFocused();
+      if (s) {
+        return s;
       }
     }
   }

@@ -111,7 +111,7 @@ export interface ITestSetup {
   /**
    * Move the given point to the given (x, y) coordinate.
    */
-  movePoint(id: string, x: number, y: number): this;
+  pointMove(id: string, x: number, y: number): this;
 
   /**
    * Set the "selected" property of a button to be true or false.
@@ -143,7 +143,30 @@ export interface ITestSetup {
    */
   pointDown(id: string, x: number, y: number): this;
 
+  /**
+   * Point up method, used to put the point up
+   */
+  pointUp(id: string, x: number, y: number): this;
+
+  /**
+   * setSize method. Used to artificially set the size of the sprite
+   */
+  setSize(id: string, width: number, height: number): this;
+
+  /**
+   * setChecked method. Used to artificially set the checked property of a checkbox
+   */
   setChecked(id: string, val: boolean): this;
+
+  /**
+   * focus method. Used to artificially focus a sprite
+   */
+  focus(id: string): this;
+
+  /**
+   * keyDown method. Used to artificially fire a key down event
+   */
+  keyDown(key: string): this;
 }
 
 export interface ITestSetupTemplate {
@@ -238,7 +261,7 @@ export class TestSetup implements ITestSetup {
     target.callbacks[id] = mock;
     return this;
   }
-  public movePoint(id: string, x: number, y: number): this {
+  public pointMove(id: string, x: number, y: number): this {
     if (!this.existsPoint(id)) {
       throw new Error(`Cannot move InteractionPoint with id ${id}: point does not exist.`);
     }
@@ -420,6 +443,9 @@ export class TestSetup implements ITestSetup {
     if (!this.existsSprite(id)) {
       throw new Error(`Cannot set the 'checked' property of Checkbox with id ${id}: checkbox does not exist.`);
     }
+    if (this.values.sprites[id].type !== SpriteType.Checkbox) {
+      throw new Error(`Cannot set the 'checked' property of Sprite with id ${id}: sprite is not a checkbox.`);
+    }
     const checkbox = this.values.sprites[id] as ICheckbox;
     checkbox.checked = val;
     return this;
@@ -439,8 +465,28 @@ export class TestSetup implements ITestSetup {
     }
     this.values.stage.pointDown(
       this.values.points[id],
-      {clientX: x, clientY: y} as MouseEvent | Touch,
+      { clientX: x, clientY: y } as MouseEvent | Touch,
     );
+    return this;
+  }
+
+  public pointUp(id: string, x: number, y: number): this {
+    if (!this.existsPoint(id)) {
+      throw new Error(`Cannot execute pointUp on point with id ${id}: point does not exist.`);
+    }
+    this.values.stage.pointUp(
+      this.values.points[id],
+      { clientX: x, clientY: y } as MouseEvent | Touch,
+    );
+    return this;
+  }
+
+  public setSize(id: string, width: number, height: number): this {
+    if (!this.existsSprite(id)) {
+      throw new Error(`Cannot resize sprite with id ${id}: sprite does not exist`);
+    }
+    this.values.sprites[id].width = width;
+    this.values.sprites[id].height = height;
     return this;
   }
 
@@ -468,6 +514,19 @@ export class TestSetup implements ITestSetup {
   }
   public renderStage(): this {
     this.values.stage.render();
+    return this;
+  }
+
+  public focus(id: string): this {
+    if (!this.existsSprite(id)) {
+      throw new Error(`Cannot focus sprite ${id}: sprite does not exist.`);
+    }
+    this.values.stage.setFocus(this.values.sprites[id]);
+    return this;
+  }
+
+  public keyDown(key: string): this {
+    this.values.stage.keyDown({ key });
     return this;
   }
 
