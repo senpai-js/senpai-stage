@@ -258,7 +258,8 @@ export class TestSetup implements ITestSetup {
     if (this.values.callbacks[id]) {
       throw new Error(`Cannot create callback ${id} => ${eventProperty} because id is already taken.`);
     }
-    target.callbacks[id] = mock;
+    this.values.callbacks[id] = mock;
+    target[eventProperty].listen(mock);
     return this;
   }
   public pointMove(id: string, x: number, y: number): this {
