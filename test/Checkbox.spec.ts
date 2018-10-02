@@ -42,7 +42,7 @@ describe("Checkbox tests", () => {
       .updateStage()
       .values;
 
-    expect(checkbox.cursor).toBe("pointer");
+    expect(checkbox.cursor).toBe(Cursor.pointer);
   });
 
   // tests asserting that all states of the checkbox are achievable
