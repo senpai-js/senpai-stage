@@ -175,7 +175,7 @@ export class Interpreter extends Stage implements IInterpreter {
 
   public advance(): void {
     if (this.interpreterState === InterpreterState.Story) {
-
+      // noOp
     }
   }
 }
