@@ -34,4 +34,40 @@ describe("Button tests", () => {
     expect(values.callbacks.cb).toBeCalled();
     expect(values.callbacks.cb.mock.calls[0][0].eventType).toBe("PostInterpolate");
   });
+
+  test("PreHoverCheck event fires successfully", () => {
+    const { values } = stateTests.feed(t => t.addStageEventCallback("cb", "preHoverCheckEvent")).run();
+    expect(values.callbacks.cb).toBeCalled();
+    expect(values.callbacks.cb.mock.calls[0][0].eventType).toBe("PreHoverCheck");
+  });
+
+  test("PostHoverCheck event fires successfully", () => {
+    const { values } = stateTests.feed(t => t.addStageEventCallback("cb", "postHoverCheckEvent")).run();
+    expect(values.callbacks.cb).toBeCalled();
+    expect(values.callbacks.cb.mock.calls[0][0].eventType).toBe("PostHoverCheck");
+  });
+
+  test("PreUpdate event fires successfully", () => {
+    const { values } = stateTests.feed(t => t.addStageEventCallback("cb", "preUpdateEvent")).run();
+    expect(values.callbacks.cb).toBeCalled();
+    expect(values.callbacks.cb.mock.calls[0][0].eventType).toBe("PreUpdate");
+  });
+
+  test("PostUpdate event fires successfully", () => {
+    const { values } = stateTests.feed(t => t.addStageEventCallback("cb", "postUpdateEvent")).run();
+    expect(values.callbacks.cb).toBeCalled();
+    expect(values.callbacks.cb.mock.calls[0][0].eventType).toBe("PostUpdate");
+  });
+
+  test("PreRender event fires successfully", () => {
+    const { values } = stateTests.feed(t => t.addStageEventCallback("cb", "preRenderEvent")).run();
+    expect(values.callbacks.cb).toBeCalled();
+    expect(values.callbacks.cb.mock.calls[0][0].eventType).toBe("PreRender");
+  });
+
+  test("PostRender event fires successfully", () => {
+    const { values } = stateTests.feed(t => t.addStageEventCallback("cb", "postRenderEvent")).run();
+    expect(values.callbacks.cb).toBeCalled();
+    expect(values.callbacks.cb.mock.calls[0][0].eventType).toBe("PostRender");
+  });
 });
