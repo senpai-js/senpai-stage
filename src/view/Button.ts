@@ -31,6 +31,7 @@ export class Button extends Sprite implements IButton {
   public text: string =  "";
   public textAlign: TextAlign = TextAlign.center;
   public textBaseline: TextBaseline = TextBaseline.middle;
+  public cursor: Cursor = Cursor.pointer;
 
   constructor(props: IButtonProps) {
     super(props);
@@ -49,7 +50,6 @@ export class Button extends Sprite implements IButton {
     const selected = this.selected ? "Selected" : "Unselected";
     this.setTexture(`${active}_${hover}_${selected}`);
 
-    this.cursor = this.hover ? Cursor.pointer : Cursor.auto;
     super.update();
   }
 

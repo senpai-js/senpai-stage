@@ -180,7 +180,7 @@ export enum Cursor {
 export interface ISpritePosition {
   x?: number;
   y?: number;
-  s: number;
+  s?: number;
   sx?: number;
   sy?: number;
   r?: number;

@@ -105,6 +105,8 @@ export class Interpreter extends Stage implements IInterpreter {
   private journal: IJournalEntry[] = [];
   private journalIndex: number = -1;
 
+  private states: IJournalStates[] = [];
+
   public link(scripts: IScriptIndex) {
     Object.assign(this.scripts, scripts);
     return this;

@@ -73,11 +73,13 @@ export interface ISprite extends ISize {
   isFocused(): ISprite;
   pointCollision(point: IInteractionPoint): boolean;
   setTexture(texture: string): this;
-  over(timespan: number, wait: number, ease: (ratio: number) => number): this;
+  over(timespan: number): this;
+  waitFor(timespan: number): this;
+  use(ease: eases.EaseFunc): this;
   movePosition(position: ISpritePosition): this;
   move(position: CanvasMatrix2D): this;
   setZ(z: number): this;
-  setAlpha(alpha: number): this;
+  visible(alpha: number): this;
   interpolate(now: number): void;
   skipAnimation(now: number): boolean;
   update(): void;
@@ -187,17 +189,17 @@ export class Sprite implements ISprite {
   }
 
   public movePosition(position: ISpritePosition): this {
+
+    use(this.previousPosition).set(this.interpolatedPosition);
     const sx = position.sx || position.sx === 0 ? position.sx : position.s;
     const sy = position.sy || position.sy === 0 ? position.sy : position.s;
-
-    return this.move(
-      copy(Identity)
-        .translate(position.x || 0, position.y || 0)
-        .rotate(position.r || 0)
-        .scale(sx === 0 ? 0 : sx || 1, sy === 0 ? 0 : sy || 1)
-        .translate(position.cx ? -position.cx : 0, position.cy ? -position.cy : 0)
-        .value,
-    );
+    use(this.position)
+      .set(Identity)
+      .translate(position.x || 0, position.y || 0)
+      .rotate(position.r || 0)
+      .scale(sx === 0 ? 0 : sx || 1, sy === 0 ? 0 : sy || 1)
+      .translate(position.cx ? -position.cx : 0, position.cy ? -position.cy : 0);
+    return this;
   }
 
   public move(position: CanvasMatrix2D): this {
@@ -206,24 +208,12 @@ export class Sprite implements ISprite {
         throw new Error(`Invalid Canvas Matrix for sprite ${this.id}, property ${i} is not a finite value.`);
       }
     }
-
-    this.previousPosition[0] = this.interpolatedPosition[0];
-    this.previousPosition[1] = this.interpolatedPosition[1];
-    this.previousPosition[2] = this.interpolatedPosition[2];
-    this.previousPosition[3] = this.interpolatedPosition[3];
-    this.previousPosition[4] = this.interpolatedPosition[4];
-    this.previousPosition[5] = this.interpolatedPosition[5];
-
-    this.position[0] = position[0];
-    this.position[1] = position[1];
-    this.position[2] = position[2];
-    this.position[3] = position[3];
-    this.position[4] = position[4];
-    this.position[5] = position[5];
+    use(this.previousPosition).set(this.interpolatedPosition);
+    use(this.position).set(position);
     return this;
   }
 
-  public setAlpha(alpha: number): this {
+  public visible(alpha: number = 1): this {
     if (!Number.isFinite(alpha)) {
       throw new Error(
         `Cannot set alpha value on sprite ${this.id}: ${alpha} is not finite. This results in undefined behavior.`,
@@ -249,11 +239,30 @@ export class Sprite implements ISprite {
     return this;
   }
 
-  public over(timespan: number, wait: number = 0, ease: (ratio: number) => number = this.ease): this {
+  public over(timespan: number): this {
+    if (!Number.isFinite(timespan)) {
+      throw new Error(`Timespan is not finite: received value ${timespan}`);
+    }
     this.animationLength = timespan;
+    this.wait = 0;
+    return this;
+  }
+
+  public use(ease: eases.EaseFunc): this {
+    if (typeof ease !== "function") {
+      throw new Error(`Ease is not a function: received value ${ease}`);
+    }
+    this.ease = ease;
+    return this;
+  }
+
+  public run(): this {
     this.animationStart = Date.now();
-    this.ease = ease || this.ease;
-    this.wait = wait;
+    return this;
+  }
+
+  public waitFor(timespan: number): this {
+    this.wait = timespan;
     return this;
   }
 

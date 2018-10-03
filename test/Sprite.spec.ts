@@ -168,4 +168,30 @@ describe("Button tests", () => {
     expect(label.focused).toBeFalsy();
     expect(cb).not.toBeCalled();
   });
+
+  test("move function sets position", () => {
+    const { values } = stateTests.feed(t => t).run();
+    const { label } = values.sprites;
+    label.move([1, 2, 3, 4, 5, 6]);
+    expect(label.position).toStrictEqual([1, 2, 3, 4, 5, 6]);
+  });
+
+  test("movePosition function sets position", () => {
+    const { values } = stateTests.feed(t => t).run();
+    const { label } = values.sprites;
+    label.movePosition({
+      s: 2,
+      x: 100,
+      y: 150,
+    });
+    expect(label.position).toStrictEqual([2, 0, 0, 2, 100, 150]);
+  });
+
+  test("move function should set previous position from interpolatedPosition", () => {
+    const { values } = stateTests.feed(t => t).run();
+    const { label } = values.sprites;
+    label.interpolatedPosition = [1, 2, 3, 4, 5, 6];
+    label.move([1, 0, 0, 1, 0, 0]);
+    expect(label.previousPosition).toStrictEqual([1, 2, 3, 4, 5, 6]);
+  });
 });
