@@ -28,4 +28,10 @@ describe("Button tests", () => {
     expect(values.callbacks.cb).toBeCalled();
     expect(values.callbacks.cb.mock.calls[0][0].eventType).toBe("PreInterpolate");
   });
+
+  test("PostInterpolate event fires successfully", () => {
+    const { values } = stateTests.feed(t => t.addStageEventCallback("cb", "postInterpolateEvent")).run();
+    expect(values.callbacks.cb).toBeCalled();
+    expect(values.callbacks.cb.mock.calls[0][0].eventType).toBe("PostInterpolate");
+  });
 });
