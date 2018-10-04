@@ -1,3 +1,5 @@
+import { EaseFunc } from "../ease";
+import { CanvasMatrix2D } from "../matrix";
 import { ISprite } from "../view/Sprite";
 
 export interface IPoint {
@@ -203,4 +205,18 @@ export enum SpriteType {
 
 export interface IKeyable {
   key: string;
+}
+
+export enum KeyFrameEntryType {
+  Wait,
+  Move,
+  Repeat,
+}
+
+export interface IKeyFrameEntry {
+  type: KeyFrameEntryType;
+  to: CanvasMatrix2D;
+  start: number;
+  end: number;
+  ease: EaseFunc;
 }

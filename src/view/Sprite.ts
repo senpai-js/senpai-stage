@@ -13,7 +13,7 @@ import {
 import { ISpriteLoadedEvent } from "../events/SpriteEvents";
 import { CanvasMatrix2D, copy, Identity, transformPoint, use } from "../matrix";
 import { createTextureMap, ISpriteSheet, ITextureMap, loadImage, loadSpriteSheet } from "../spritesheet";
-import { Cursor, IInteractionPoint, ISize, ISpritePosition, SpriteType } from "../util";
+import { Cursor, IInteractionPoint, IKeyFrameEntry, ISize, ISpritePosition, SpriteType } from "../util";
 import { IContainer } from "./Container";
 
 // import { IStage } from "./Stage";
@@ -26,9 +26,8 @@ export interface ISprite extends ISize {
 
   // position
   previousPosition: CanvasMatrix2D;
-  position: CanvasMatrix2D;
+
   inverse: CanvasMatrix2D;
-  alpha: number;
   interpolatedAlpha: number;
   previousAlpha: number;
   z: number;
@@ -37,20 +36,15 @@ export interface ISprite extends ISize {
   textures: ITextureMap;
   lastInterpolated: number;
   interpolatedPosition: CanvasMatrix2D;
-  animationStart: number;
-  animationLength: number;
-  wait: number;
-  // stage properties
 
+  // stage properties
   active: boolean;
   hover: boolean;
   down: boolean;
   focused: boolean;
   tabIndex: number;
-
   cursor: Cursor;
   loaded: Promise<void>;
-
   texture: string;
 
   // events
@@ -64,8 +58,9 @@ export interface ISprite extends ISize {
 
   textureChangeEvent: EventEmitter<IValueChangeEvent<string>>;
 
-  // this is set by the over function
-  ease(ratio: number): number;
+  // animation properties
+  keyFrames: IKeyFrameEntry[];
+  keyFrameIndex: number;
 
   broadPhase(point: IInteractionPoint): boolean;
   narrowPhase(point: IInteractionPoint): ISprite;
@@ -73,11 +68,6 @@ export interface ISprite extends ISize {
   isFocused(): ISprite;
   pointCollision(point: IInteractionPoint): boolean;
   setTexture(texture: string): this;
-  over(timespan: number): this;
-  waitFor(timespan: number): this;
-  use(ease: eases.EaseFunc): this;
-  movePosition(position: ISpritePosition): this;
-  move(position: CanvasMatrix2D): this;
   setZ(z: number): this;
   visible(alpha: number): this;
   interpolate(now: number): void;
@@ -86,6 +76,13 @@ export interface ISprite extends ISize {
   render(ctx: CanvasRenderingContext2D): void;
   keyDown(event: IKeyDownEvent): void;
   keyUp(event: IKeyUpEvent): void;
+
+  // animation functions and properties
+
+  move(to: CanvasMatrix2D): this;
+  over(animationLength: number): this;
+  with(ease: eases.EaseFunc): this;
+  movePosition(to: ISpritePosition): this;
 }
 
 export interface ISpriteProps {
@@ -105,19 +102,13 @@ export class Sprite implements ISprite {
   public previousPosition: CanvasMatrix2D = Identity.slice() as CanvasMatrix2D;
   public interpolatedPosition: CanvasMatrix2D = Identity.slice() as CanvasMatrix2D;
   public inverse: CanvasMatrix2D = Identity.slice() as CanvasMatrix2D;
-  public alpha: number = 1;
   public interpolatedAlpha: number = 1;
   public previousAlpha: number = 1;
   public z: number = 0;
   public parent: ISprite = null;
   public container: IContainer = null;
-  public wait: number = 0;
-
   public lastInterpolated: number = 0;
-  public animationStart: number = 0;
-  public ease = eases.easeLinear;
   public cursor: Cursor = Cursor.auto;
-  public animationLength: number = 0;
   public active: boolean = false;
   public hover: boolean = false;
   public down: boolean = false;
@@ -126,10 +117,8 @@ export class Sprite implements ISprite {
   public loaded: Promise<void> = null;
   public focused: boolean = false;
   public tabIndex: number = 0;
-
   public width: number = 0;
   public height: number = 0;
-
   public pointDownEvent: EventEmitter<IPointDownEvent> = new EventEmitter<IPointDownEvent>();
   public pointUpEvent: EventEmitter<IPointUpEvent> = new EventEmitter<IPointUpEvent>();
   public pointMoveEvent: EventEmitter<IPointMoveEvent> = new EventEmitter<IPointMoveEvent>();
@@ -137,8 +126,9 @@ export class Sprite implements ISprite {
   public keyDownEvent: EventEmitter<IKeyDownEvent> = new EventEmitter<IKeyDownEvent>();
   public keyUpEvent: EventEmitter<IKeyUpEvent> = new EventEmitter<IKeyUpEvent>();
   public loadedEvent: EventEmitter<ISpriteLoadedEvent> = new EventEmitter<ISpriteLoadedEvent>();
-
   public textureChangeEvent: EventEmitter<IValueChangeEvent<string>> = new EventEmitter<IValueChangeEvent<string>>();
+  public keyFrames: IKeyFrameEntry[] = [];
+  public keyFrameIndex: number = 0;
 
   constructor(props: ISpriteProps) {
     this.id = props.id;
@@ -150,7 +140,7 @@ export class Sprite implements ISprite {
       .setTo(this.interpolatedPosition);
 
     if (props.hasOwnProperty("alpha")) {
-      this.previousAlpha = this.alpha = this.interpolatedAlpha = props.alpha;
+      this.previousAlpha = this.interpolatedAlpha = props.alpha;
     }
     if (props.hasOwnProperty("z")) {
       this.z = props.z;
@@ -224,8 +214,9 @@ export class Sprite implements ISprite {
         `Cannot set alpha value on sprite ${this.id}: ${alpha} is not within range [0, 1].`,
       );
     }
+    // TODO: set alpha of latest keyframe. If no keyframe exists, add a new `move`
+
     this.previousAlpha = this.interpolatedAlpha;
-    this.alpha = alpha;
     return this;
   }
 
@@ -243,8 +234,8 @@ export class Sprite implements ISprite {
     if (!Number.isFinite(timespan)) {
       throw new Error(`Timespan is not finite: received value ${timespan}`);
     }
-    this.animationLength = timespan;
-    this.wait = 0;
+    // TODO: throw if no keyframe has been added yet
+    // TODO: set current keyframe's timespan
     return this;
   }
 
@@ -252,24 +243,24 @@ export class Sprite implements ISprite {
     if (typeof ease !== "function") {
       throw new Error(`Ease is not a function: received value ${ease}`);
     }
-    this.ease = ease;
+    // TODO: throw if no keyframe has been added yet
+    // TODO: set current keyframe ease
     return this;
   }
 
   public run(): this {
-    this.animationStart = Date.now();
-    return this;
-  }
-
-  public waitFor(timespan: number): this {
-    this.wait = timespan;
+    this.keyFrameIndex = 0;
     return this;
   }
 
   public skipAnimation(now: number): boolean {
-    const result: boolean = now < this.animationLength + this.animationStart;
-    this.animationStart = now - this.animationLength;
-    return result;
+    // TODO: determine if animation was skipped
+    // TODO: check if animation repeats, if it does, return false
+    // TODO: set keyframe index to last
+    // TODO: set lastInterpolated to last keyframe `end`
+    // TODO: set interpolatedAlpha to last keyframe `alpha`
+    // TODO: set interpolatedPosition to last keyframe `to` (check `to` property values for nulls)
+    return false;
   }
 
   public update(): void {
@@ -279,6 +270,7 @@ export class Sprite implements ISprite {
     if (now <= this.lastInterpolated) {
       return;
     }
+    /*
     this.lastInterpolated = now;
 
     const progress = now - (this.animationStart + this.wait);
@@ -310,7 +302,8 @@ export class Sprite implements ISprite {
       }
       this.interpolatedAlpha = this.previousAlpha + ratio * (this.alpha - this.previousAlpha);
     }
-
+    */
+    // TODO: Calculate interpolated position from keyframes
     copy(this.interpolatedPosition)
       .inverse()
       .setTo(this.inverse);
@@ -349,6 +342,9 @@ export class Sprite implements ISprite {
     this.keyUpEvent.emit(event);
   }
 
+  public with(ease: eases.EaseFunc): this {
+    return this;
+  }
   private async loadTexture(defintion: Promise<ISpriteSheet>, source: Promise<ImageBitmap>): Promise<void> {
     this.textures = await createTextureMap(defintion, source);
     this.loadedEvent.emit({
