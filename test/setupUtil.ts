@@ -11,6 +11,7 @@ import { IPanel, Panel } from "../src/view/Panel";
 import { Slider } from "../src/view/Slider";
 import { ISprite } from "../src/view/Sprite";
 import { IStage, Stage } from "../src/view/Stage";
+import { ITextInput, TextInput } from "../src/view/TextInput";
 
 /**
  * Create setup utility object.
@@ -109,6 +110,12 @@ export interface ITestSetup {
   addSlider(id: string, x: number, y: number): this;
 
   /**
+   * Create a textInput with the given id at the given (x, y) coordinate and add it
+   * to the stage.
+   */
+  addTextInput(id: string, x: number, y: number): this;
+
+  /**
    * Move the given point to the given (x, y) coordinate.
    */
   pointMove(id: string, x: number, y: number): this;
@@ -167,6 +174,8 @@ export interface ITestSetup {
    * keyDown method. Used to artificially fire a key down event
    */
   keyDown(key: string): this;
+
+  textInputSelectRange(id: string, begin: number, end: number): this;
 }
 
 export interface ITestSetupTemplate {
@@ -417,6 +426,28 @@ export class TestSetup implements ITestSetup {
     return this;
   }
 
+  public addTextInput(id: string, x: number, y: number): this {
+    if (this.idIsTaken(id)) {
+      throw new Error(`Cannot add TextInput with id ${id}: element with id already exists.`);
+    }
+    const ti = new TextInput({
+      definition: null,
+      height: 16,
+      id,
+      position: [1, 0, 0, 1, x, y],
+      source: null,
+      width: 100,
+    });
+
+    ti.textures = new TextureChainBuilder()
+      .attr("Focused", "Unfocused")
+      .attr("Left", "Mid", "Right")
+      .build();
+
+    this.values.sprites[id] = ti;
+    this.values.stage.addSprite(ti);
+    return this;
+  }
   public setSelected(id: string, val: boolean): this {
     if (!this.existsSprite(id)) {
       throw new Error(`Cannot set the 'selected' property of Button with id ${id}: button does not exist.`);
@@ -524,6 +555,19 @@ export class TestSetup implements ITestSetup {
 
   public keyDown(key: string): this {
     this.values.stage.keyDown({ key });
+    return this;
+  }
+
+  public textInputSelectRange(id: string, begin: number, end: number) {
+    if (!this.existsSprite(id)) {
+      throw new Error(`Cannot set input range: sprite ${id} doesn't exist`);
+    }
+    if (this.values.sprites[id].type !== SpriteType.TextInput) {
+      throw new Error(`Cannot set input range: sprite ${id} is not a TextInput`);
+    }
+
+    const ti = this.values.sprites[id] as ITextInput;
+    ti.select(begin, end);
     return this;
   }
 

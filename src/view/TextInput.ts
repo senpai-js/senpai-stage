@@ -2,23 +2,26 @@ import { IKeyDownEvent } from "../events";
 import { IPadding, SpriteType, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
+const unicodeCharacterTest = /^.$/u;
 export enum SelectionState {
   Selection,
   Caret,
 }
 
 export interface ITextInput extends ISprite {
-  text: string;
+  text: string[];
   font: string;
   fontSize: number;
   fontColor: string;
   selectionState: SelectionState;
   caretIndex: number;
+  selectionStart: number;
   selectionEnd: number;
   caretX: number;
   padding: IPadding;
   frameCount: number;
   setText(text: string): this;
+  select(begin: number, end: number): this;
 }
 
 export interface ITextInputProps extends ISpriteProps {
@@ -34,7 +37,7 @@ const tempctx = document.createElement("canvas").getContext("2d");
 
 export class TextInput extends Sprite implements ITextInput {
   public readonly type: SpriteType = SpriteType.TextInput;
-  public text: string = "";
+  public text: string[] = [];
   public font: string = "monospace";
   public fontSize: number = 12;
   public fontColor: string = "black";
@@ -49,14 +52,15 @@ export class TextInput extends Sprite implements ITextInput {
     top: 2,
   };
   public selectionEnd: number = -1;
+  public selectionStart: number = -1;
   public frameCount: number = 0;
   private showCaret: boolean = true;
-  private activeMidPattern: CanvasPattern = null;
-  private inactiveMidPattern: CanvasPattern = null;
+  private focusedMidPattern: CanvasPattern = null;
+  private unfocusedMidPattern: CanvasPattern = null;
 
   constructor(props: ITextInputProps) {
     super(props);
-    this.text = props.text || this.text;
+    this.text = props.text ? props.text.split("") : this.text;
     this.font = props.font || this.font;
     this.fontSize = props.fontSize || this.fontSize;
     this.fontColor = props.fontColor || this.fontColor;
@@ -69,13 +73,13 @@ export class TextInput extends Sprite implements ITextInput {
   }
 
   public render(ctx: CanvasRenderingContext2D): void {
-    const left = this.active ? this.textures.Active_Left : this.textures.Inactive_Left;
-    const right = this.active ? this.textures.Active_Right : this.textures.Inactive_Right;
-    const pattern = this.active ? this.textures.Active_Mid : this.textures.Inactive_Mid;
+    const left = this.focused ? this.textures.Focused_Left : this.textures.Unfocused_Left;
+    const right = this.focused ? this.textures.Focused_Right : this.textures.Unfocused_Right;
+    const pattern = this.focused ? this.textures.Focused_Mid : this.textures.Unfocused_Mid;
     ctx.drawImage(this.textures.Left_Cap_Active, 0, 0);
     ctx.drawImage(left, 0, 0);
     ctx.drawImage(right, this.width - right.width, 0);
-    ctx.fillStyle = this.active ? this.activeMidPattern : this.inactiveMidPattern;
+    ctx.fillStyle = this.focused ? this.focusedMidPattern : this.unfocusedMidPattern;
     ctx.fillRect(
       left.width,
       0,
@@ -93,11 +97,12 @@ export class TextInput extends Sprite implements ITextInput {
     );
     ctx.clip();
 
+    const text = this.text.join("");
     // draw text
     ctx.font = `${this.fontSize}px ${this.font}`;
     ctx.fillStyle = this.fontColor;
     ctx.textBaseline = TextBaseline.top;
-    ctx.fillText(this.text, this.textScroll + this.padding.left, 0);
+    ctx.fillText(text, this.textScroll + this.padding.left, 0);
 
     if (this.showCaret) {
       const caretX = this.textScroll + this.padding.left + this.caretIndex;
@@ -109,26 +114,75 @@ export class TextInput extends Sprite implements ITextInput {
   }
 
   public setText(text: string): this {
-    this.text = text;
+    this.text = text.split("");
     return this;
   }
 
-  public keyDown(e: IKeyDownEvent) {
-    const isSelection = this.selectionState === SelectionState.Selection;
-    const end = isSelection ? this.selectionEnd : this.caretIndex;
-    if (e.key.codePointAt(1) === void 0) {
-      this.text = this.text.slice(0, this.caretIndex) + e.key + this.text.slice(end);
-      this.selectionState = SelectionState.Caret;
-      super.keyDown(e);
+  public keyDown(e: IKeyDownEvent): void {
+    if (this.selectionState === SelectionState.Selection) {
+      this.keyDownSelection(e);
+    } else if (this.selectionState === SelectionState.Caret) {
+      this.keyDownCaret(e);
+    }
+
+    return super.keyDown(e);
+  }
+  public select(begin: number, end: number): this {
+    if (!Number.isFinite(begin)) {
+      throw new Error(`Cannot select text on sprite ${this.id}: begin is not finite`);
+    }
+    if (!Number.isFinite(end)) {
+      throw new Error(`Cannot select text on sprite ${this.id}: end is not finite`);
+    }
+    begin = Math.floor(begin);
+    if (this.text.length < begin || begin < 0) {
+      throw new Error(`Cannot select text on sprite ${this.id}: begin is not in range`);
+    }
+    end = Math.floor(end);
+    if (this.text.length < begin || begin < 0) {
+      throw new Error(`Cannot select text on sprite ${this.id}: end is not in range`);
+    }
+    if (begin > end) {
+      throw new Error(`Cannot select text on sprite ${this.id}: begin is greater than end`);
+    }
+
+    this.selectionState = SelectionState.Selection;
+    this.selectionStart = begin;
+    this.selectionEnd = end;
+    this.caretIndex = Math.min(Math.max(begin, this.caretIndex), end);
+    return this;
+  }
+  private keyDownCaret(e: IKeyDownEvent): void {
+    if (unicodeCharacterTest.test(e.key)) {
+      this.text.splice(this.caretIndex, 0, e.key);
+      this.caretIndex += 1;
       return;
     }
 
     switch (e.key) {
       case "Backspace":
-        this.text = isSelection
-          ? this.text.slice(0, this.caretIndex) + this.text.slice(end)
-          : this.text.slice(0, this.caretIndex - 1) + this.text.slice(this.caretIndex);
+        this.text.splice(this.caretIndex, 1);
+        this.caretIndex -= 1;
+        break;
     }
-    super.keyDown(e);
+  }
+
+  private keyDownSelection(e: IKeyDownEvent): void {
+    if (unicodeCharacterTest.test(e.key)) {
+      this.text.splice(this.selectionStart, this.selectionEnd - this.selectionStart, e.key);
+      this.caretIndex = this.selectionStart + 1;
+      this.selectionState = SelectionState.Caret;
+      this.selectionStart = -1;
+      this.selectionEnd = -1;
+      return;
+    }
+
+    switch (e.key) {
+      case "Backspace":
+        this.text.splice(this.caretIndex, this.selectionEnd - this.selectionStart);
+        this.caretIndex = this.selectionStart;
+        this.selectionState = SelectionState.Caret;
+        break;
+    }
   }
 }
