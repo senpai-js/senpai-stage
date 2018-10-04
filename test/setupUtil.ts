@@ -243,23 +243,19 @@ export class TestSetup implements ITestSetup {
     if (!target) {
       throw new Error(`Cannot attach callback ${id} => ${eventProperty} to falsy sprite.`);
     }
-    if (this.values.callbacks[id]) {
-      throw new Error(`Cannot create callback ${id} => ${eventProperty} because id is already taken.`);
+    if (!this.values.callbacks[id]) {
+      this.values.callbacks[id] = jest.fn();
     }
-    const mock = jest.fn();
-    this.values.callbacks[id] = mock;
-    target[eventProperty].listen(mock);
+    target[eventProperty].listen(this.values.callbacks[id]);
     return this;
   }
 
   public addStageEventCallback(id: string, eventProperty: string): this {
     const target: any = this.values.stage;
-    const mock = jest.fn();
-    if (this.values.callbacks[id]) {
-      throw new Error(`Cannot create callback ${id} => ${eventProperty} because id is already taken.`);
+    if (!this.values.callbacks[id]) {
+      this.values.callbacks[id] = jest.fn();
     }
-    this.values.callbacks[id] = mock;
-    target[eventProperty].listen(mock);
+    target[eventProperty].listen(this.values.callbacks[id]);
     return this;
   }
   public pointMove(id: string, x: number, y: number): this {
