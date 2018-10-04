@@ -28,6 +28,7 @@ interface IKeyIndex {
 
 export interface IInteractionManager extends IContainer {
   canvas: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
   mousePoint: IInteractionPoint;
   touchPointIndex: IInteractionPointIndex;
   keyIndex: IKeyIndex;
