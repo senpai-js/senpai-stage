@@ -270,8 +270,8 @@ export class Sprite implements ISprite {
     if (now <= this.lastInterpolated) {
       return;
     }
-    /*
     this.lastInterpolated = now;
+    /*
 
     const progress = now - (this.animationStart + this.wait);
 
