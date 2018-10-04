@@ -70,4 +70,26 @@ describe("Button tests", () => {
     expect(values.callbacks.cb).toBeCalled();
     expect(values.callbacks.cb.mock.calls[0][0].eventType).toBe("PostRender");
   });
+
+  test("Events fire in correct order, regardless of order attached", () => {
+    const { values } = stateTests.feed(t => t
+      .addStageEventCallback("cb", "postUpdateEvent")
+      .addStageEventCallback("cb", "preRenderEvent")
+      .addStageEventCallback("cb", "preInterpolateEvent")
+      .addStageEventCallback("cb", "postHoverCheckEvent")
+      .addStageEventCallback("cb", "preUpdateEvent")
+      .addStageEventCallback("cb", "postInterpolateEvent")
+      .addStageEventCallback("cb", "preHoverCheckEvent")
+      .addStageEventCallback("cb", "postRenderEvent"),
+    ).run();
+    expect(values.callbacks.cb).toBeCalled();
+    expect(values.callbacks.cb.mock.calls[0][0].eventType).toBe("PreInterpolate");
+    expect(values.callbacks.cb.mock.calls[1][0].eventType).toBe("PostInterpolate");
+    expect(values.callbacks.cb.mock.calls[2][0].eventType).toBe("PreHoverCheck");
+    expect(values.callbacks.cb.mock.calls[3][0].eventType).toBe("PostHoverCheck");
+    expect(values.callbacks.cb.mock.calls[4][0].eventType).toBe("PreUpdate");
+    expect(values.callbacks.cb.mock.calls[5][0].eventType).toBe("PostUpdate");
+    expect(values.callbacks.cb.mock.calls[6][0].eventType).toBe("PreRender");
+    expect(values.callbacks.cb.mock.calls[7][0].eventType).toBe("PostRender");
+  });
 });
