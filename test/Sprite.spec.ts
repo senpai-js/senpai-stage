@@ -169,7 +169,6 @@ describe("Button tests", () => {
     expect(cb).not.toBeCalled();
   });
 
-
   test("move function should set previous position from interpolatedPosition", () => {
     const { values } = stateTests.feed(t => t).run();
     const { label } = values.sprites;
