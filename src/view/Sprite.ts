@@ -78,11 +78,13 @@ export interface ISprite extends ISize {
   keyUp(event: IKeyUpEvent): void;
 
   // animation functions and properties
-
+  wait(length: number): this;
   move(to: CanvasMatrix2D): this;
   over(animationLength: number): this;
   with(ease: eases.EaseFunc): this;
   movePosition(to: ISpritePosition): this;
+  repeat(): this;
+  clearAnimation(now: number): this;
 }
 
 export interface ISpriteProps {
@@ -178,6 +180,10 @@ export class Sprite implements ISprite {
     return this.focused ? this : null;
   }
 
+  public wait(length: number): this {
+    // TODO: create keyframe wait
+    return this;
+  }
   public movePosition(position: ISpritePosition): this {
 
     use(this.previousPosition).set(this.interpolatedPosition);
@@ -343,6 +349,14 @@ export class Sprite implements ISprite {
   }
 
   public with(ease: eases.EaseFunc): this {
+    return this;
+  }
+
+  public repeat(): this {
+    return this;
+  }
+
+  public clearAnimation(now: number): this {
     return this;
   }
   private async loadTexture(defintion: Promise<ISpriteSheet>, source: Promise<ImageBitmap>): Promise<void> {

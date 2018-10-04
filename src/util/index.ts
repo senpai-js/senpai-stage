@@ -220,3 +220,11 @@ export interface IKeyFrameEntry {
   end: number;
   ease: EaseFunc;
 }
+
+export interface IWaitKeyFrame extends IKeyFrameEntry {
+  type: KeyFrameEntryType.Wait;
+  to: null;
+  start: number;
+  end: number;
+  ease: null;
+}
