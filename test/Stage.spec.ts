@@ -1,5 +1,4 @@
-import { Cursor, SpriteType } from "../src/util";
-import { IButton } from "../src/view/Button";
+import { Cursor } from "../src/util";
 import { ITestSetupTemplate, setup } from "./setupUtil";
 
 describe("Button tests", () => {
@@ -91,5 +90,59 @@ describe("Button tests", () => {
     expect(values.callbacks.cb.mock.calls[5][0].eventType).toBe("PostUpdate");
     expect(values.callbacks.cb.mock.calls[6][0].eventType).toBe("PreRender");
     expect(values.callbacks.cb.mock.calls[7][0].eventType).toBe("PostRender");
+  });
+
+  test("stage update should call interpolate every update", () => {
+    const { values } = stateTests.feed(t => {
+      t.values.sprites.button.interpolate = jest.fn();
+      return t;
+    }).run();
+    expect(values.sprites.button.interpolate).toBeCalled();
+  });
+
+  test("stage update should call isHovering every update if there is a point", () => {
+    const { values } = stateTests.feed(t => {
+      t.values.sprites.button.isHovering = jest.fn();
+      return t;
+    }).run();
+    expect(values.sprites.button.isHovering).toBeCalled();
+  });
+
+  test("stage update should call pointCollision every update if isHovering returns sprite", () => {
+    const { values } = stateTests.feed(t => {
+      const button = t.values.sprites.button;
+      t.values.sprites.button.isHovering = jest.fn(e => button);
+      t.values.sprites.button.pointCollision = jest.fn(e => true);
+      return t;
+    }).run();
+    expect(values.sprites.button.isHovering).toBeCalled();
+    expect(values.sprites.button.pointCollision).toBeCalled();
+  });
+
+  test("stage skipAnimation should call skipAnimation on sprite", () => {
+    const { values } = stateTests.feed(t => {
+      t.values.sprites.button.skipAnimation = jest.fn(e => true);
+      return t;
+    }).run();
+    values.stage.skipAnimations();
+    expect(values.sprites.button.skipAnimation).toBeCalled();
+  });
+
+  test("stage render should call render on sprite", () => {
+    const { values } = stateTests.feed(t => {
+      t.values.sprites.button.render = jest.fn();
+      return t;
+    }).run();
+    expect(values.sprites.button.render).toBeCalled();
+  });
+
+  test("stage render should modify the cursor property", () => {
+    const { values } = stateTests.feed(t => {
+      const button = t.values.sprites.button;
+      t.values.sprites.button.isHovering = jest.fn(e => button);
+      t.values.sprites.button.pointCollision = jest.fn(e => true);
+      return t;
+    }).run();
+    expect(values.stage.canvas.style.cursor).toBe(Cursor.pointer);
   });
 });
