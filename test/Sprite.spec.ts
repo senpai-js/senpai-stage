@@ -3,7 +3,7 @@ import { Cursor, KeyFrameEntryType, SpriteType } from "../src/util";
 import { IButton } from "../src/view/Button";
 import { ITestSetupTemplate, setup } from "./setupUtil";
 
-describe("Button tests", () => {
+describe("Sprite tests", () => {
   // location of button
   const x = 50;
   const y = 50;
