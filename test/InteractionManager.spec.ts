@@ -63,8 +63,11 @@ describe("InteractionManager tests", () => {
   
   // TODO: find a way to remove button
   test("When calling InteractionManager.pointMove() without a sprite underneath, the hover flag is falsy", () => {
-    const { values } = stateTests.feed(t => t
-      .pointMove("pointName", x, y)).run();
+    const { values } = setup()
+      .addInteractionPoint("pointName")
+      .pointMove("pointName", x, y)
+      .updateStage()
+      .renderStage();
     const ip = values.points.pointName as IInteractionPoint;
   
     expect(ip.hover).toBeFalsy();
