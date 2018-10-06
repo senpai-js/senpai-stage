@@ -15,5 +15,15 @@ describe("Ease function tests", () => {
       const result = ease(1);
       expect(result).toBeCloseTo(1);
     });
+
+    test(`${funcName} function should strictly increase to 1`, () => {
+      let previous: number = 0;
+      let current: number;
+      for (let i = 1; i < 10000; i++) {
+        current = ease(i * 0.0001);
+        expect(current).toBeCloseTo(previous, 2);
+        previous = current;
+      }
+    });
   }
 });
