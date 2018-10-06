@@ -17,7 +17,9 @@ describe("InteractionManager tests", () => {
   // Setup before each test case: create an interaction manager.
   beforeEach(() => {
     stateTests = setup().template
-      .perform(t => t) // TODO change as necessary
+      .perform(t => t
+        .addInteractionPoint("pointName")
+        .addButton("button", x, y)) // TODO change as necessary
       .placeholder()
       .perform(t => t
         .updateStage()
@@ -30,7 +32,7 @@ describe("InteractionManager tests", () => {
    * point with Touch type.
    */
   test("InteractionManager.createInteractionPoint() creates valid Touch interaction point", () => {
-    const { values } = stateTests.feed(t => t.addInteractionPoint("pointName")).run();
+    const { values } = stateTests.feed(t => t).run();
     const point = values.points.pointName as IInteractionPoint;
 
     expect(point.id).toBe("pointName");
@@ -53,17 +55,15 @@ describe("InteractionManager tests", () => {
 
   test("When calling InteractionManager.pointMove() over a button, the hover flag for the moved interaction point is set", () => {
     const { values } = stateTests.feed(t => t
-      .addInteractionPoint("pointName")
-      .addButton("button", x, y)
       .pointMove("pointName", x, y)).run();
     const ip = values.points.pointName as IInteractionPoint;
   
     expect(ip.hover.hover).toBe(true);
   });
   
+  // TODO: find a way to remove button
   test("When calling InteractionManager.pointMove() without a sprite underneath, the hover flag is falsy", () => {
     const { values } = stateTests.feed(t => t
-      .addInteractionPoint("pointName")
       .pointMove("pointName", x, y)).run();
     const ip = values.points.pointName as IInteractionPoint;
   
@@ -72,8 +72,6 @@ describe("InteractionManager tests", () => {
 
   test("When calling InteractionManager.pointDown(), the button's 'active' flag is true", () => {
     const { values } = stateTests.feed(t => t
-      .addInteractionPoint("pointName")
-      .addButton("button", x, y)
       .pointDown("pointName", x, y)).run();
     const ip = values.points.pointName as IInteractionPoint;
     const button = values.sprites.button as IButton;
@@ -83,8 +81,6 @@ describe("InteractionManager tests", () => {
 
   test("When calling InteractionManager.pointDown(), the point's 'active' property is the button", () => {
     const { values } = stateTests.feed(t => t
-      .addInteractionPoint("pointName")
-      .addButton("button", x, y)
       .pointDown("pointName", x, y)).run();
     const ip = values.points.pointName as IInteractionPoint;
     const button = values.sprites.button as IButton;
@@ -94,8 +90,6 @@ describe("InteractionManager tests", () => {
 
   test("When calling InteractionManager.pointDown(), the button's 'down' flag is true", () => {
     const { values } = stateTests.feed(t => t
-      .addInteractionPoint("pointName")
-      .addButton("button", x, y)
       .pointDown("pointName", x, y)).run();
     const ip = values.points.pointName as IInteractionPoint;
     const button = values.sprites.button as IButton;
@@ -105,7 +99,6 @@ describe("InteractionManager tests", () => {
 
   test("When calling InteractionManager.pointDown(), the point's 'down' flag is true", () => {
     const { values } = stateTests.feed(t => t
-      .addInteractionPoint("pointName")
       .pointDown("pointName", x, y)).run();
     const ip = values.points.pointName as IInteractionPoint;
 
@@ -114,7 +107,6 @@ describe("InteractionManager tests", () => {
 
   test("When calling InteractionManager.pointUp(), the point's 'down' flag is false", () => {
     const { values } = stateTests.feed(t => t
-      .addInteractionPoint("pointName")
       .pointDown("pointName", x, y)
       .pointUp("pointName", x, y)).run();
     const ip = values.points.pointName as IInteractionPoint;
@@ -124,8 +116,6 @@ describe("InteractionManager tests", () => {
 
   test("When calling InteractionManager.pointUp(), the button's 'active' flag is false", () => {
     const { values } = stateTests.feed(t => t
-      .addInteractionPoint("pointName")
-      .addButton("button", x, y)
       .pointDown("pointName", x, y)
       .pointUp("pointName", x, y)).run();
     const ip = values.points.pointName as IInteractionPoint;
@@ -136,8 +126,6 @@ describe("InteractionManager tests", () => {
 
   test("When calling pointDown(), down button event is fired", () => {
     const { values } = stateTests.feed(t => t
-      .addInteractionPoint("pointName")
-      .addButton("button", x, y)
       .addEventCallback("cb", "pointDownEvent", "button")
       .pointDown("pointName", x, y)).run();
     const im = values.stage;
@@ -162,8 +150,6 @@ describe("InteractionManager tests", () => {
 
   test("When repeatedly calling pointDown(), down button event is fired only once", () => {
     const { values } = stateTests.feed(t => t
-      .addInteractionPoint("pointName")
-      .addButton("button", x, y)
       .addEventCallback("cb", "pointDownEvent", "button")
       .pointDown("pointName", x, y)
       .pointDown("pointName", x, y)).run();
@@ -174,8 +160,6 @@ describe("InteractionManager tests", () => {
 
   test("When calling pointDown() and pointUp(), up button event is fired", () => {
     const { values } = stateTests.feed(t => t
-      .addInteractionPoint("pointName")
-      .addButton("button", x, y)
       .addEventCallback("cb", "pointUpEvent", "button")
       .pointDown("pointName", x, y)
       .pointUp("pointName", x, y)).run();
@@ -202,8 +186,6 @@ describe("InteractionManager tests", () => {
 
   test("When calling pointDown() and pointUp(), click button event is fired", () => {
     const { values } = stateTests.feed(t => t
-      .addInteractionPoint("pointName")
-      .addButton("button", x, y)
       .addEventCallback("cb", "pointClickEvent", "button")
       .pointDown("pointName", x, y)
       .pointUp("pointName", x, y)).run();
@@ -231,8 +213,6 @@ describe("InteractionManager tests", () => {
   // TODO: Check if this test does what it's supposed to
   test("When calling pointDown(), firstdown interaction manager event is fired", () => {
     const { values } = stateTests.feed(t => t
-      .addInteractionPoint("pointName")
-      .addButton("button", x, y)
       // There should be a way to specify "add callback to stage"
       .addEventCallback("cb", "pointDownEvent", "button")
       .pointDown("pointName", x, y)).run();
@@ -258,11 +238,10 @@ describe("InteractionManager tests", () => {
 
   test("When calling pointDown() and pointUp(), click interaction manager event is fired", () => {
     const { values } = stateTests.feed(t => t
-      .addInteractionPoint("pointName")
-      .addButton("button", x, y)
       // There should be a way to specify "add callback to stage"
       .addEventCallback("cb", "pointDownEvent", "button")
-      .pointDown("pointName", x, y)).run();
+      .pointDown("pointName", x, y)
+      .pointUp("pointName", x, y)).run();
     const im = values.stage;
     const ip = values.points.pointName as IInteractionPoint;
     const button = values.sprites.button as IButton;
@@ -285,7 +264,6 @@ describe("InteractionManager tests", () => {
 
   test("When buttons overlap, the 'down' event is captured by the button with the highest z level", () => {
     const { values } = stateTests.feed(t => t
-      .addInteractionPoint("pointName")
       .addButton("button1", x, y)
       .addButton("button2", x, y)
       // TODO: set Z level
@@ -306,7 +284,6 @@ describe("InteractionManager tests", () => {
 
   test("When buttons overlap, the 'up' event is captured by the button with the highest z level", () => {
     const { values } = stateTests.feed(t => t
-      .addInteractionPoint("pointName")
       .addButton("button1", x, y)
       .addButton("button2", x, y)
       // TODO: set Z level
@@ -327,7 +304,6 @@ describe("InteractionManager tests", () => {
 
   test("When buttons overlap, the 'click' event is captured by the button with the highest z level", () => {
     const { values } = stateTests.feed(t => t
-      .addInteractionPoint("pointName")
       .addButton("button1", x, y)
       .addButton("button2", x, y)
       // TODO: set Z level
@@ -346,7 +322,4 @@ describe("InteractionManager tests", () => {
     expect(callback1).toHaveBeenCalledTimes(0);
     expect(callback2).toHaveBeenCalledTimes(1);
   });
-
-  // TODO: ensure that when pointDown or pointUp is called repeatedly (twice),
-  // the event is still only fired once
 });
