@@ -32,6 +32,7 @@ export interface IInteractionManager extends IContainer {
   mousePoint: IInteractionPoint;
   touchPointIndex: IInteractionPointIndex;
   keyIndex: IKeyIndex;
+  insertMode: boolean;
 
   pointDownEvent: EventEmitter<IPointDownEvent>;
   pointUpEvent: EventEmitter<IPointUpEvent>;
@@ -111,6 +112,7 @@ export class InteractionManager extends Container implements IInteractionManager
     x: 0,
     y: 0,
   };
+  public insertMode: boolean = false;
 
   public pointDownEvent: EventEmitter<IPointDownEvent> = new EventEmitter<IPointDownEvent>();
   public pointUpEvent: EventEmitter<IPointUpEvent> = new EventEmitter<IPointUpEvent>();
