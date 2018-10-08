@@ -214,19 +214,18 @@ export enum KeyFrameEntryType {
 }
 
 export interface IKeyFrameEntry {
+  previousAlpha: number;
+  alpha: number;
+  ease: EaseFunc;
   type: KeyFrameEntryType;
+  from: CanvasMatrix2D;
   to: CanvasMatrix2D;
   start: number;
   end: number;
-  ease: EaseFunc;
 }
 
 export interface IWaitKeyFrame extends IKeyFrameEntry {
   type: KeyFrameEntryType.Wait;
-  to: null;
-  start: number;
-  end: number;
-  ease: null;
 }
 
 export interface IMoveKeyFrame extends IKeyFrameEntry {
@@ -235,8 +234,4 @@ export interface IMoveKeyFrame extends IKeyFrameEntry {
 
 export interface IRepeatKeyFrame extends IKeyFrameEntry {
   type: KeyFrameEntryType.Repeat;
-  to: null;
-  start: null;
-  end: null;
-  ease: null;
 }

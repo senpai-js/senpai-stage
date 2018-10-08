@@ -13,7 +13,7 @@ import {
 import { ISpriteLoadedEvent } from "../events/SpriteEvents";
 import { CanvasMatrix2D, copy, Identity, transformPoint, use } from "../matrix";
 import { createTextureMap, ISpriteSheet, ITextureMap, loadImage, loadSpriteSheet } from "../spritesheet";
-import { Cursor, IInteractionPoint, IKeyFrameEntry, IMoveKeyFrame, ISize, ISpritePosition, IWaitKeyFrame, KeyFrameEntryType, SpriteType } from "../util";
+import { Cursor, IInteractionPoint, IKeyFrameEntry, IMoveKeyFrame, ISize, ISpritePosition, IWaitKeyFrame, KeyFrameEntryType, SpriteType, IRepeatKeyFrame } from "../util";
 import { IContainer } from "./Container";
 
 // import { IStage } from "./Stage";
@@ -60,7 +60,6 @@ export interface ISprite extends ISize {
 
   // animation properties
   keyFrames: IKeyFrameEntry[];
-  keyFrameIndex: number;
 
   broadPhase(point: IInteractionPoint): boolean;
   narrowPhase(point: IInteractionPoint): ISprite;
@@ -181,30 +180,29 @@ export class Sprite implements ISprite {
   }
 
   public wait(length: number): this {
-    const start = this.keyFrames.length > 0
-      ? this.keyFrames[this.keyFrames.length - 1].end
-      : Date.now();
-
-    this.keyFrames.push({
-      ease: null,
-      end: start + length,
-      start,
-      to: null,
-      type: KeyFrameEntryType.Wait,
-    } as IWaitKeyFrame);
+    if (!Number.isFinite(length)) {
+      throw new Error(`Cannot create wait keyframe: wait time is not finite (received: ${length})`);
+    }
+    if (length < 0) {
+      throw new Error(`Cannot create wait keyframe: wait time is not positive (received: ${length})`);
+    }
+    const kf = this.createKeyFrame();
+    kf.type = KeyFrameEntryType.Wait;
+    kf.end = kf.start + length;
+    this.keyFrames.push(kf);
     return this;
   }
   public movePosition(position: ISpritePosition): this {
-
-    use(this.previousPosition).set(this.interpolatedPosition);
     const sx = position.sx || position.sx === 0 ? position.sx : position.s;
     const sy = position.sy || position.sy === 0 ? position.sy : position.s;
-    use(this.position)
-      .set(Identity)
+    const kf = this.createKeyFrame();
+
+    const { value } = copy(Identity)
       .translate(position.x || 0, position.y || 0)
       .rotate(position.r || 0)
       .scale(sx === 0 ? 0 : sx || 1, sy === 0 ? 0 : sy || 1)
       .translate(position.cx ? -position.cx : 0, position.cy ? -position.cy : 0);
+    kf.to = value;
     return this;
   }
 
@@ -214,17 +212,11 @@ export class Sprite implements ISprite {
         throw new Error(`Invalid Canvas Matrix for sprite ${this.id}, property ${i} is not a finite value.`);
       }
     }
-    const start = this.keyFrames.length > 0
-      ? this.keyFrames[this.keyFrames.length - 1].end
-      : Date.now();
 
-    this.keyFrames.push({
-      ease: eases.easeLinear,
-      end: start,
-      start,
-      to: position.slice(),
-      type: KeyFrameEntryType.Move,
-    } as IMoveKeyFrame);
+    const kf = this.createKeyFrame();
+    kf.to = copy(position).value;
+    this.keyFrames.push(kf);
+
     return this;
   }
 
@@ -239,8 +231,13 @@ export class Sprite implements ISprite {
         `Cannot set alpha value on sprite ${this.id}: ${alpha} is not within range [0, 1].`,
       );
     }
-    // TODO: set alpha of latest keyframe. If no keyframe exists, add a new `move`
 
+    const kf = this.getLastKeyFrame() || this.createKeyFrame();
+    kf.alpha = alpha;
+
+    if (this.keyFrames.length === 0) {
+      this.keyFrames.push(kf);
+    }
     return this;
   }
 
@@ -260,20 +257,6 @@ export class Sprite implements ISprite {
     }
     // TODO: throw if no keyframe has been added yet
     // TODO: set current keyframe's timespan
-    return this;
-  }
-
-  public use(ease: eases.EaseFunc): this {
-    if (typeof ease !== "function") {
-      throw new Error(`Ease is not a function: received value ${ease}`);
-    }
-    // TODO: throw if no keyframe has been added yet
-    // TODO: set current keyframe ease
-    return this;
-  }
-
-  public run(): this {
-    this.keyFrameIndex = 0;
     return this;
   }
 
@@ -371,10 +354,29 @@ export class Sprite implements ISprite {
   }
 
   public repeat(): this {
+    const kf = this.createKeyFrame();
+    kf.type = KeyFrameEntryType.Repeat;
+    this.keyFrames.push(kf);
     return this;
   }
 
   public clearAnimation(now: number): this {
+    const lastKeyFrame = this.getLastKeyFrame();
+    const alpha = lastKeyFrame
+      ? lastKeyFrame.alpha
+      : this.interpolatedAlpha;
+    this.interpolatedAlpha = alpha;
+    this.previousAlpha = alpha;
+
+    this.interpolatedPosition = copy(
+      lastKeyFrame
+        ? lastKeyFrame.to
+        : this.interpolatedPosition,
+    ).value;
+    this.previousPosition = copy(this.interpolatedPosition).value;
+
+    this.lastInterpolated = now;
+    this.keyFrames = [];
     return this;
   }
   private async loadTexture(defintion: Promise<ISpriteSheet>, source: Promise<ImageBitmap>): Promise<void> {
@@ -386,5 +388,35 @@ export class Sprite implements ISprite {
       spriteSource: await source,
       stage: this.container,
     });
+  }
+
+  private createKeyFrame(): IKeyFrameEntry {
+    const lastKeyFrame = this.getLastKeyFrame();
+
+    const previousPosition = lastKeyFrame
+      ? lastKeyFrame.to
+      : this.interpolatedPosition;
+    const alpha = lastKeyFrame
+      ? lastKeyFrame.alpha
+      : this.interpolatedAlpha;
+
+    const start = lastKeyFrame
+      ? lastKeyFrame.end
+      : Date.now();
+
+    return {
+      alpha,
+      ease: lastKeyFrame ? lastKeyFrame.ease : eases.easeLinear,
+      end: start,
+      from: copy(previousPosition).value,
+      previousAlpha: alpha,
+      start,
+      to: copy(previousPosition).value,
+      type: KeyFrameEntryType.Move,
+    };
+  }
+
+  private getLastKeyFrame(): IKeyFrameEntry {
+    return this.keyFrames.length > 0 ? this.keyFrames[this.keyFrames.length - 1] : null;
   }
 }

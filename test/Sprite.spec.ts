@@ -1,6 +1,5 @@
 import { easeInOutSin, easeLinear } from "../src/ease";
 import { Cursor, KeyFrameEntryType, SpriteType } from "../src/util";
-import { IButton } from "../src/view/Button";
 import { ITestSetupTemplate, setup } from "./setupUtil";
 
 describe("Sprite tests", () => {
@@ -174,12 +173,13 @@ describe("Sprite tests", () => {
     expect(cb).not.toBeCalled();
   });
 
-  test("move function should set previous position from interpolatedPosition", () => {
+  test("move function should set 'from' property of keyFrame to interpolatedPosition if it's the first keyFrame",
+    () => {
     const { values } = stateTests.feed(t => t).run();
     const { label } = values.sprites;
     label.interpolatedPosition = [1, 2, 3, 4, 5, 6];
     label.move([1, 0, 0, 1, 0, 0]);
-    expect(label.previousPosition).toStrictEqual([1, 2, 3, 4, 5, 6]);
+    expect(label.keyFrames[0].from).toStrictEqual([1, 2, 3, 4, 5, 6]);
   });
 
   test("wait creates new IKeyFrameEntry", () => {
@@ -421,5 +421,14 @@ describe("Sprite tests", () => {
       .over(10)
       .interpolate(label.keyFrames[0].start + 5);
     expect(label.interpolatedPosition).toStrictEqual([1, 0.5, 1, 1.5, 50, 50]);
+  });
+
+  test("visible sets the alpha of the current keyFrame", () => {
+    const { values } = stateTests.feed(t => t).run();
+    const { label } = values.sprites;
+    label.move([1, 2, 3, 4, 5, 6]);
+    expect(label.keyFrames[0].alpha).toBe(1);
+    label.visible(0.5);
+    expect(label.keyFrames[0].alpha).toBe(0.5);
   });
 });
