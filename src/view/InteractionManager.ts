@@ -190,6 +190,15 @@ export class InteractionManager extends Container implements IInteractionManager
   }
 
   public mouseUp(event: MouseEvent): void {
+    this.mouseUpEvent.emit({
+      down: false,
+      eventType: "MouseUp",
+      rawEvent: event,
+      source: this,
+      stage: this,
+      x: event.clientX,
+      y: event.clientY,
+    });
     return this.pointUp(this.mousePoint, event);
   }
 
