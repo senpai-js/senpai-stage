@@ -347,7 +347,7 @@ export class Sprite implements ISprite {
                 kf.from[3] + ratio * (kf.to[3] - kf.from[3]),
                 kf.from[4] + ratio * (kf.to[4] - kf.from[4]),
                 kf.from[5] + ratio * (kf.to[5] - kf.from[5]),
-              ]
+              ],
           );
         this.interpolatedAlpha = kf.previousAlpha + ratio * (kf.alpha - kf.previousAlpha);
       }
@@ -401,7 +401,7 @@ export class Sprite implements ISprite {
       throw new Error(`Cannot set ease: Ease is not a function. (Received: ${ease})`);
     }
     if (lastKeyFrame.type === KeyFrameEntryType.Repeat) {
-      throw new Error("Cannot set ease function of KeyFrame type 'repeat'.");
+      throw new Error("Cannot set ease function of KeyFrame type 'repeat.'");
     }
     lastKeyFrame.ease = ease;
     return this;

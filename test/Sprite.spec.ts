@@ -1,4 +1,4 @@
-import { easeInOutSin, easeLinear, easeInCub } from "../src/ease";
+import { easeInCub, easeInOutSin, easeLinear } from "../src/ease";
 import { Cursor, KeyFrameEntryType, SpriteType } from "../src/util";
 import { ITestSetupTemplate, setup } from "./setupUtil";
 
