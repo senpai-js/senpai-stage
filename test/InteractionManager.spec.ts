@@ -3,7 +3,10 @@ import { IPointClickEvent, IPointDownEvent, IPointUpEvent } from "../src/events"
 import { copy, Identity } from "../src/matrix";
 import { IInteractionPoint } from "../src/util";
 import { Button, IButton } from "../src/view/Button";
+import { Label, ILabel } from "../src/view/Label";
 import { IInteractionManager, InteractionManager } from "../src/view/InteractionManager";
+
+import { setup, ITestSetup } from "./setupUtil";
 
 /**
  * Helper function: create a new IInteractionManager with a fresh audio context.
@@ -72,7 +75,8 @@ describe("InteractionManager tests", () => {
    * point with Touch type.
    */
   test("InteractionManager.createInteractionPoint() creates valid Touch interaction point", () => {
-    const point = im.createInteractionPoint("pointName", "Touch");
+    const { values } = setup().addInteractionPoint("pointName", "Touch");
+    const point = values.points.pointName as IInteractionPoint;
 
     expect(point.id).toBe("pointName");
     expect(point.type).toBe("Touch");
@@ -80,74 +84,79 @@ describe("InteractionManager tests", () => {
 
   /**
    * Simple test that the interaction manager manages to create an interaction
-   * point with Touch type.
+   * point with Mouse type.
    */
   test("InteractionManager.createInteractionPoint() creates valid Mouse interaction point", () => {
-    const point = im.createInteractionPoint("pointName", "Mouse");
+    const { values } = setup().addInteractionPoint("pointName", "Mouse");
+    const point = values.points.pointName as IInteractionPoint;
 
     expect(point.id).toBe("pointName");
     expect(point.type).toBe("Mouse");
   });
-
-  test("When calling InteractionManager.pointMove(), the hover flag for the moved interaction point is set", () => {
-    const ip = addPointToInteractionManager(im);
-
-    im.pointMove(ip, { clientX: x, clientY: y } as MouseEvent | Touch);
-
-    expect(ip.hover.hover).toBe(true);
+  
+  // NOTE: should split up
+  test("Collision tests work as expected", () => {
+    const s: ITestSetup = setup().addInteractionPoint("ip", "Touch").addLabel("label", x, y);
+    
+    const choices = ["pointUp", "pointDown", "pointMove"];
+    //                outside  inside
+    const locations = [[0, 0], [x, y]];
+    
+    for (let i = 0; i < 1000; i++) {
+      const choice = choices[Math.floor(Math.random()*choices.length)];
+      const loc = locations[Math.floor(Math.random()*locations.length)];
+      
+      const { values: oldValues } = s;
+      const pointWasDown   = oldValues.points.ip.down;
+      const pointWasActive = oldValues.points.ip.active;
+      const labelWasDown   = oldValues.sprites.label.down;
+      const labelWasActive = oldValues.sprites.label.active;
+      
+      let ip = null;
+      let label = null;
+      if (choice === "pointUp") {
+        if (!pointWasDown) continue; // pointUp should not have any effect
+        const { values } = s.pointUp("ip", loc[0], loc[1]);
+        ip = values.points.ip;
+        label = values.sprites.label;
+        
+        expect(ip.down).toBe(false);
+        expect(ip.active).toBeNull();
+        expect(label.down).toBe(false);
+        expect(label.active).toBe(false);
+      } else if (choice === "pointDown") {
+        if (pointWasDown) continue; // pointDown should not have any effect
+        const { values } = s.pointDown("ip", loc[0], loc[1]);
+        ip = values.points.ip;
+        label = values.sprites.label;
+        
+        expect(ip.down).toBe(true);
+        if (label.broadPhase(ip)) {
+          expect(ip.active).toBe(label);
+        } else {
+          expect(ip.active).toBeNull();
+        }
+        expect(label.down).toBe(label.broadPhase(ip));
+        expect(label.active).toBe(label.broadPhase(ip));
+      } else {
+        const { values } = s.pointMove("ip", loc[0], loc[1]);
+        ip = values.points.ip;
+        label = values.sprites.label;
+        
+        expect(ip.down).toBe(pointWasDown);
+        expect(ip.active).toBe(pointWasActive);
+        expect(label.down).toBe(labelWasDown);
+        expect(label.active).toBe(labelWasActive);
+      }
+      
+      if (label.broadPhase(ip)) {
+        expect(ip.hover).toBe(label);
+      } else {
+        expect(ip.hover).toBeNull();
+      }
+    }
   });
-
-  test("When calling InteractionManager.pointDown(), the button's 'active' flag is true", () => {
-    const ip = addPointToInteractionManager(im);
-
-    im.pointDown(ip, { clientX: x, clientY: y } as MouseEvent | Touch);
-
-    expect(button.active).toBe(true);
-  });
-
-  test("When calling InteractionManager.pointDown(), the point's 'active' property is the button", () => {
-    const ip = addPointToInteractionManager(im);
-
-    im.pointDown(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
-
-    expect(ip.active).toBe(button);
-  });
-
-  test("When calling InteractionManager.pointDown(), the button's 'down' flag is true", () => {
-    const ip = addPointToInteractionManager(im);
-
-    im.pointDown(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
-
-    expect(button.down).toBe(true);
-  });
-
-  test("When calling InteractionManager.pointDown(), the point's 'down' flag is true", () => {
-    const ip = addPointToInteractionManager(im);
-
-    im.pointDown(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
-
-    expect(ip.down).toBe(true);
-  });
-
-  test("When calling InteractionManager.pointUp(), the point's 'down' flag is false", () => {
-    const ip = addPointToInteractionManager(im);
-
-    im.pointDown(ip, {clientX: x, clientY: y} as MouseEvent | Touch); // ensure that "down" flag has previously been set
-    im.pointUp(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
-
-    expect(ip.down).toBe(false);
-  });
-
-  test("When calling InteractionManager.pointUp(), the button's 'active' flag is false", () => {
-    const ip = addPointToInteractionManager(im);
-
-    // ensure that "active" flag has previously been set
-    im.pointDown(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
-    im.pointUp(ip, {clientX: x, clientY: y} as MouseEvent | Touch);
-
-    expect(button.active).toBe(false);
-  });
-
+  
   test("When calling pointDown(), down button event is fired", () => {
     const ip = addPointToInteractionManager(im);
     const callback = jest.fn();
