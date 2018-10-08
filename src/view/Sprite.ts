@@ -13,7 +13,7 @@ import {
 import { ISpriteLoadedEvent } from "../events/SpriteEvents";
 import { CanvasMatrix2D, copy, Identity, transformPoint, use } from "../matrix";
 import { createTextureMap, ISpriteSheet, ITextureMap, loadImage, loadSpriteSheet } from "../spritesheet";
-import { Cursor, IInteractionPoint, IKeyFrameEntry, ISize, ISpritePosition, SpriteType, IWaitKeyFrame, KeyFrameEntryType } from "../util";
+import { Cursor, IInteractionPoint, IKeyFrameEntry, IMoveKeyFrame, ISize, ISpritePosition, IWaitKeyFrame, KeyFrameEntryType, SpriteType } from "../util";
 import { IContainer } from "./Container";
 
 // import { IStage } from "./Stage";
@@ -214,8 +214,17 @@ export class Sprite implements ISprite {
         throw new Error(`Invalid Canvas Matrix for sprite ${this.id}, property ${i} is not a finite value.`);
       }
     }
-    use(this.previousPosition).set(this.interpolatedPosition);
-    use(this.position).set(position);
+    const start = this.keyFrames.length > 0
+      ? this.keyFrames[this.keyFrames.length - 1].end
+      : Date.now();
+
+    this.keyFrames.push({
+      ease: eases.easeLinear,
+      end: start,
+      start,
+      to: position.slice(),
+      type: KeyFrameEntryType.Move,
+    } as IMoveKeyFrame);
     return this;
   }
 
@@ -232,7 +241,6 @@ export class Sprite implements ISprite {
     }
     // TODO: set alpha of latest keyframe. If no keyframe exists, add a new `move`
 
-    this.previousAlpha = this.interpolatedAlpha;
     return this;
   }
 
