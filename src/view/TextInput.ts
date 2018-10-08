@@ -1,6 +1,7 @@
 import { IKeyDownEvent } from "../events";
 import { IPadding, SpriteType, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
+import { IStage } from "./Stage";
 
 const unicodeCharacterTest = /^.$/u;
 export enum SelectionState {
@@ -70,9 +71,11 @@ export class TextInput extends Sprite implements ITextInput {
 
   public update(): void {
     // noOp
+
   }
 
   public render(ctx: CanvasRenderingContext2D): void {
+    const stage = this.container as IStage;
     const left = this.focused ? this.textures.Focused_Left : this.textures.Unfocused_Left;
     const right = this.focused ? this.textures.Focused_Right : this.textures.Unfocused_Right;
     const pattern = this.focused ? this.textures.Focused_Mid : this.textures.Unfocused_Mid;
@@ -97,19 +100,12 @@ export class TextInput extends Sprite implements ITextInput {
     );
     ctx.clip();
 
-    const text = this.text.join("");
-    // draw text
-    ctx.font = `${this.fontSize}px ${this.font}`;
-    ctx.fillStyle = this.fontColor;
-    ctx.textBaseline = TextBaseline.top;
-    ctx.fillText(text, this.textScroll + this.padding.left, 0);
-
-    if (this.showCaret) {
-      const caretX = this.textScroll + this.padding.left + this.caretIndex;
-      ctx.beginPath();
-      ctx.moveTo(caretX, this.padding.top);
-      ctx.lineTo(caretX, this.height - this.padding.bottom);
-      ctx.stroke();
+    if (this.selectionState === SelectionState.Selection) {
+      this.renderSelection(ctx);
+    } else if (this.selectionState === SelectionState.Caret && stage.insertMode) {
+      this.renderCaretInsert(ctx);
+    } else if (this.selectionState === SelectionState.Caret) {
+      this.renderCaret(ctx);
     }
   }
 
@@ -121,6 +117,8 @@ export class TextInput extends Sprite implements ITextInput {
   public keyDown(e: IKeyDownEvent): void {
     if (this.selectionState === SelectionState.Selection) {
       this.keyDownSelection(e);
+    } else if ((this.container as IStage).insertMode && this.selectionState === SelectionState.Caret) {
+      this.keyDownCaretInsert(e);
     } else if (this.selectionState === SelectionState.Caret) {
       this.keyDownCaret(e);
     }
@@ -167,6 +165,20 @@ export class TextInput extends Sprite implements ITextInput {
     }
   }
 
+  private keyDownCaretInsert(e: IKeyDownEvent): void {
+    if (unicodeCharacterTest.test(e.key)) {
+      this.text.splice(this.caretIndex, 1, e.key);
+      this.caretIndex += 1;
+      return;
+    }
+
+    switch (e.key) {
+      case "Backspace":
+        this.text.splice(this.caretIndex, 1);
+        this.caretIndex -= 1;
+        break;
+    }
+  }
   private keyDownSelection(e: IKeyDownEvent): void {
     if (unicodeCharacterTest.test(e.key)) {
       this.text.splice(this.selectionStart, this.selectionEnd - this.selectionStart, e.key);
@@ -185,4 +197,31 @@ export class TextInput extends Sprite implements ITextInput {
         break;
     }
   }
+
+  private renderCaret(ctx: CanvasRenderingContext2D): void {
+    const text = this.text.join("");
+
+    ctx.translate(
+      this.padding.left + this.textScroll,
+      this.padding.top,
+    );
+    ctx.font = `${this.fontSize}px ${this.font}`;
+    ctx.fillStyle = this.fontColor;
+    ctx.fillText(text, 0, 0);
+
+    if (this.showCaret) {
+      ctx.beginPath();
+      ctx.moveTo(this.caretX, 0);
+      ctx.lineTo(this.caretX, this.height - this.padding.top - this.padding.bottom);
+    }
+  }
+
+  private renderSelection(ctx: CanvasRenderingContext2D): void {
+    // TODO: Implement this behavior
+  }
+
+  private renderCaretInsert(ctx: CanvasRenderingContext2D): void {
+    // TODO: Implmement this behavior
+  }
+
 }
