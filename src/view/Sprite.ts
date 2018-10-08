@@ -350,6 +350,13 @@ export class Sprite implements ISprite {
   }
 
   public with(ease: eases.EaseFunc): this {
+    const lastKeyFrame = this.getLastKeyFrame();
+    if (!lastKeyFrame) {
+      throw new Error("Cannot use provided ease because no keyFrames have been created.");
+    }
+    if (typeof ease !== "function") {
+      throw new Error(`Cannot set ease: Ease is not a function. (Received: ${ease})`)
+    }
     return this;
   }
 
