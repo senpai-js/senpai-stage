@@ -16,7 +16,7 @@ describe("Button tests", () => {
         .addPanel("panel", x, y)
         .addButton("button", x, y)
         .addSpriteToPanel("button", "panel")
-        .addInteractionPoint("ip"))
+        .addInteractionPoint("ip", "Touch"))
       .placeholder()
       .perform(t => t
         .updateStage()

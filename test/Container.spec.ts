@@ -9,7 +9,7 @@ describe("Containers", () => {
     template = setup()
       .template.perform(
         t => t.addLabel("label", x, y)
-          .addInteractionPoint("ip"),
+          .addInteractionPoint("ip", "Touch"),
           // .addPlayable("p"),
       )
       .placeholder()

@@ -15,7 +15,7 @@ describe("Button tests", () => {
     stateTests = setup().template
       .perform(t => t
         .addButton("button", x, y)
-        .addInteractionPoint("ip"))
+        .addInteractionPoint("ip", "Touch"))
       .placeholder()
       .perform(t => t
         .updateStage()
@@ -30,7 +30,7 @@ describe("Button tests", () => {
 
   test("If a button is added to the stage after the point is moved, the collision is still registered", () => {
     const { values } = setup()
-      .addInteractionPoint("ip")
+      .addInteractionPoint("ip", "Touch")
       .pointMove("ip", x, y)
       .addButton("button", x, y)
       .updateStage()

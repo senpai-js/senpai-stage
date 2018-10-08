@@ -13,7 +13,7 @@ describe("Checkbox tests", () => {
     stateTests = setup().template
       .perform(t => t
         .addCheckbox("checkbox", x, y)
-        .addInteractionPoint("ip"))
+        .addInteractionPoint("ip", "Touch"))
       .placeholder()
       .perform(t => t
         .updateStage()
@@ -36,7 +36,7 @@ describe("Checkbox tests", () => {
 
   test("If a checkbox is added to the stage after the point is moved, the collision is still registered", () => {
     const { sprites: {checkbox} } = setup()
-      .addInteractionPoint("ip")
+      .addInteractionPoint("ip", "Touch")
       .pointMove("ip", x, y)
       .addCheckbox("checkbox", x, y)
       .updateStage()

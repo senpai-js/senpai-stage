@@ -13,7 +13,7 @@ describe("Close button tests", () => {
     stateTests = setup().template
       .perform(t => t
         .addCloseButton("button", x, y)
-        .addInteractionPoint("ip"))
+        .addInteractionPoint("ip", "Touch"))
       .placeholder()
       .perform(t => t
         .updateStage());
@@ -21,7 +21,7 @@ describe("Close button tests", () => {
 
   test("If a close button is added to the stage after the point is moved, the collision is still registered", () => {
     const { values } = setup()
-      .addInteractionPoint("ip")
+      .addInteractionPoint("ip", "Touch")
       .pointMove("ip", x, y)
       .addCloseButton("button", x, y)
       .updateStage()

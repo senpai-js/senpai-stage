@@ -40,7 +40,7 @@ describe("Slider tests", () => {
     .perform(t => t
       .addSlider("slider", x, y)
       .setTextures("slider", new Image(20, 20)) // set all textures to a 20x20 image
-      .addInteractionPoint("ip"))
+      .addInteractionPoint("ip", "Touch"))
     .placeholder()
     .perform(t => t.updateStage());
   */
@@ -50,7 +50,7 @@ describe("Slider tests", () => {
       .perform(t => t
         .addSlider("slider", x, y)
         .setTextures("slider", new Image(20, 20)) // set all textures to a 20x20 image
-        .addInteractionPoint("ip"))
+        .addInteractionPoint("ip", "Touch"))
       .placeholder()
       .perform(t => t.updateStage());
   });

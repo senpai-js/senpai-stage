@@ -14,7 +14,7 @@ describe("Button tests", () => {
     stateTests = setup().template
       .perform(t => t
         .addButton("button", x, y)
-        .addInteractionPoint("ip"))
+        .addInteractionPoint("ip", "Touch"))
       .placeholder()
       .perform(t => t
         .updateStage()

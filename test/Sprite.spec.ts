@@ -19,7 +19,7 @@ describe("Sprite tests", () => {
     stateTests = setup().template
       .perform(t => t
         .addLabel("label", x, y)
-        .addInteractionPoint("ip"))
+        .addInteractionPoint("ip", "Touch"))
       .placeholder()
       .perform(t => t
         .updateStage()
