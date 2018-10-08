@@ -107,7 +107,7 @@ describe("Sprite tests", () => {
     const { values } = stateTests
       .feed(t => t.addEventCallback("cb", "pointMoveEvent", "label")
         .setSize("label", 50, 50)
-        .pointMove("ip", x, y)
+        .pointMove("ip", x, y),
       )
       .run();
     const { label } = values.sprites;
@@ -122,7 +122,7 @@ describe("Sprite tests", () => {
     const { label } = values.sprites;
     label.broadPhase = jest.fn(t => true);
     label.narrowPhase = jest.fn(t => label);
-    label.isHovering(values.points.ip, label.lastInterpolated)
+    label.isHovering(values.points.ip, label.lastInterpolated);
     expect(label.narrowPhase).toBeCalled();
   });
 

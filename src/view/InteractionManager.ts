@@ -203,6 +203,16 @@ export class InteractionManager extends Container implements IInteractionManager
   }
 
   public mouseMove(event: MouseEvent): void {
+    this.mouseMoveEvent.emit({
+      down: this.mousePoint.down,
+      eventType: "MouseMove",
+      rawEvent: event,
+      source: this,
+      stage: this,
+      x: event.clientX,
+      y: event.clientY,
+    });
+
     return this.pointMove(this.mousePoint, event);
   }
 
@@ -493,6 +503,7 @@ export class InteractionManager extends Container implements IInteractionManager
   public hoverCheck(now: number): void {
     let point: IInteractionPoint;
     let sprite: ISprite;
+    this.sprites.sort(zSort);
 
     for (point of this.points) {
       if (point.hover) {
@@ -500,7 +511,8 @@ export class InteractionManager extends Container implements IInteractionManager
         point.hover = null;
       }
 
-      for (sprite of this.sprites) {
+      for (let i = this.sprites.length - 1; i >= 0; i--) {
+        sprite = this.sprites[i];
         if (sprite.isHovering(point, now)) {
           sprite.pointCollision(point);
           point.hover = sprite;
