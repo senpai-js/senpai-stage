@@ -103,6 +103,29 @@ describe("Sprite tests", () => {
     expect(values.callbacks.cb.mock.calls[1][0].x).toBe(y + 10);
   });
 
+  test("pointMove event should fire with correct values", () => {
+    const { values } = stateTests
+      .feed(t => t.addEventCallback("cb", "pointMoveEvent", "label")
+        .setSize("label", 50, 50)
+        .pointMove("ip", x, y)
+      )
+      .run();
+    const { label } = values.sprites;
+    const { ip } = values.points;
+    expect(label.isHovering(ip, label.lastInterpolated)).toBe(values.sprites.label);
+  });
+
+  test("isHovering calls narrowPhase if broadPhase returns true", () => {
+    const { values } = stateTests
+      .feed(t => t.pointMove("ip", x, y))
+      .run();
+    const { label } = values.sprites;
+    label.broadPhase = jest.fn(t => true);
+    label.narrowPhase = jest.fn(t => label);
+    label.isHovering(values.points.ip, label.lastInterpolated)
+    expect(label.narrowPhase).toBeCalled();
+  });
+
   test("pointDown event should set sprite active property to true", () => {
     const { values } = stateTests
       .feed(t => t
