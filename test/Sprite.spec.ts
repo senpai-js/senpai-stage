@@ -436,7 +436,7 @@ describe("Sprite tests", () => {
     const { label } = values.sprites;
     expect(e => label
       .movePosition({ x: 100, y: 100 })
-      .over(Infinity)
+      .over(Infinity),
     ).toThrow();
   });
 
@@ -445,7 +445,7 @@ describe("Sprite tests", () => {
     const { label } = values.sprites;
     expect(e => label
       .movePosition({ x: 100, y: 100 })
-      .over(NaN)
+      .over(NaN),
     ).toThrow();
   });
 
@@ -454,7 +454,7 @@ describe("Sprite tests", () => {
     const { label } = values.sprites;
     expect(e => label
       .movePosition({ x: 100, y: 100 })
-      .over(-1)
+      .over(-1),
     ).toThrow();
   });
 
