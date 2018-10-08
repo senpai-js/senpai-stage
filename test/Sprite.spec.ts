@@ -403,4 +403,23 @@ describe("Sprite tests", () => {
     label.clearAnimation(now);
     expect(label.keyFrames).toHaveLength(0);
   });
+
+  test("sprite interpolate should move the sprite", () => {
+    const { values } = stateTests.feed(t => t).run();
+    const { label } = values.sprites;
+    label.move([1, 1, 2, 2, 3, 3])
+      .over(10)
+      .wait(10)
+      .interpolate(Date.now() + 15);
+    expect(label.interpolatedPosition).toStrictEqual([1, 1, 2, 2, 3, 3]);
+  });
+
+  test("sprite interpolate should move the sprite", () => {
+    const { values } = stateTests.feed(t => t).run();
+    const { label } = values.sprites;
+    label.move([1, 1, 2, 2, 50, 50])
+      .over(10)
+      .interpolate(label.keyFrames[0].start + 5);
+    expect(label.interpolatedPosition).toStrictEqual([1, 0.5, 1, 1.5, 50, 50]);
+  });
 });

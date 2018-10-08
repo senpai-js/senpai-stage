@@ -228,3 +228,15 @@ export interface IWaitKeyFrame extends IKeyFrameEntry {
   end: number;
   ease: null;
 }
+
+export interface IMoveKeyFrame extends IKeyFrameEntry {
+  type: KeyFrameEntryType.Move;
+}
+
+export interface IRepeatKeyFrame extends IKeyFrameEntry {
+  type: KeyFrameEntryType.Repeat;
+  to: null;
+  start: null;
+  end: null;
+  ease: null;
+}

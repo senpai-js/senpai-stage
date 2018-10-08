@@ -13,7 +13,7 @@ import {
 import { ISpriteLoadedEvent } from "../events/SpriteEvents";
 import { CanvasMatrix2D, copy, Identity, transformPoint, use } from "../matrix";
 import { createTextureMap, ISpriteSheet, ITextureMap, loadImage, loadSpriteSheet } from "../spritesheet";
-import { Cursor, IInteractionPoint, IKeyFrameEntry, ISize, ISpritePosition, SpriteType } from "../util";
+import { Cursor, IInteractionPoint, IKeyFrameEntry, ISize, ISpritePosition, SpriteType, IWaitKeyFrame, KeyFrameEntryType } from "../util";
 import { IContainer } from "./Container";
 
 // import { IStage } from "./Stage";
@@ -181,7 +181,17 @@ export class Sprite implements ISprite {
   }
 
   public wait(length: number): this {
-    // TODO: create keyframe wait
+    const start = this.keyFrames.length > 0
+      ? this.keyFrames[this.keyFrames.length - 1].end
+      : Date.now();
+
+    this.keyFrames.push({
+      ease: null,
+      end: start + length,
+      start,
+      to: null,
+      type: KeyFrameEntryType.Wait,
+    } as IWaitKeyFrame);
     return this;
   }
   public movePosition(position: ISpritePosition): this {
