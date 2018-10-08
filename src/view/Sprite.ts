@@ -255,10 +255,16 @@ export class Sprite implements ISprite {
 
   public over(timespan: number): this {
     if (!Number.isFinite(timespan)) {
-      throw new Error(`Timespan is not finite: received value ${timespan}`);
+      throw new Error(`Cannot set timespan: Timespan is not finite (received value ${timespan})`);
     }
-    // TODO: throw if no keyframe has been added yet
-    // TODO: set current keyframe's timespan
+    if (timespan < 0) {
+      throw new Error(`Cannot set timespan: Timespan is not positive (received value ${timespan})`);
+    }
+    const lastKeyFrame = this.getLastKeyFrame();
+    if (!lastKeyFrame) {
+      throw new Error(`Cannot set timespan: no keyframe exists.`);
+    }
+    lastKeyFrame.end = lastKeyFrame.start + timespan;
     return this;
   }
 
