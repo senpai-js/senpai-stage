@@ -13,7 +13,15 @@ import {
 import { ISpriteLoadedEvent } from "../events/SpriteEvents";
 import { CanvasMatrix2D, copy, Identity, transformPoint, use } from "../matrix";
 import { createTextureMap, ISpriteSheet, ITextureMap, loadImage, loadSpriteSheet } from "../spritesheet";
-import { Cursor, IInteractionPoint, IKeyFrameEntry, IMoveKeyFrame, ISize, ISpritePosition, IWaitKeyFrame, KeyFrameEntryType, SpriteType, IRepeatKeyFrame } from "../util";
+import {
+  Cursor,
+  IInteractionPoint,
+  IKeyFrameEntry,
+  ISize,
+  ISpritePosition,
+  KeyFrameEntryType,
+  SpriteType,
+} from "../util";
 import { IContainer } from "./Container";
 
 // import { IStage } from "./Stage";
@@ -186,6 +194,10 @@ export class Sprite implements ISprite {
     if (length < 0) {
       throw new Error(`Cannot create wait keyframe: wait time is not positive (received: ${length})`);
     }
+    const lastKeyFrame = this.getLastKeyFrame();
+    if (lastKeyFrame && lastKeyFrame.type === KeyFrameEntryType.Repeat) {
+      throw new Error(`Cannot move sprite after an animation repeats. (Did you call repeat before sprite.wait?)`);
+    }
     const kf = this.createKeyFrame();
     kf.type = KeyFrameEntryType.Wait;
     kf.end = kf.start + length;
@@ -193,6 +205,13 @@ export class Sprite implements ISprite {
     return this;
   }
   public movePosition(position: ISpritePosition): this {
+    const lastKeyFrame = this.getLastKeyFrame();
+    if (lastKeyFrame && lastKeyFrame.type === KeyFrameEntryType.Repeat) {
+      throw new Error(
+        `Cannot move sprite after an animation repeats. (Did you call repeat before sprite.movePosition?)`,
+      );
+    }
+
     const sx = position.sx || position.sx === 0 ? position.sx : position.s;
     const sy = position.sy || position.sy === 0 ? position.sy : position.s;
     const kf = this.createKeyFrame();
@@ -215,6 +234,11 @@ export class Sprite implements ISprite {
       }
     }
 
+    const lastKeyFrame = this.getLastKeyFrame();
+    if (lastKeyFrame && lastKeyFrame.type === KeyFrameEntryType.Repeat) {
+      throw new Error(`Cannot move sprite after an animation repeats. (Did you call repeat before sprite.move?)`);
+    }
+
     const kf = this.createKeyFrame();
     kf.to = copy(position).value;
     this.keyFrames.push(kf);
@@ -233,8 +257,14 @@ export class Sprite implements ISprite {
         `Cannot set alpha value on sprite ${this.id}: ${alpha} is not within range [0, 1].`,
       );
     }
+    const lastKeyFrame = this.getLastKeyFrame();
+    if (lastKeyFrame && lastKeyFrame.type === KeyFrameEntryType.Repeat) {
+      throw new Error(
+        `Cannot make sprite visible after an animation repeats. (Did you call repeat before sprite.visible?)`,
+      );
+    }
 
-    const kf = this.getLastKeyFrame() || this.createKeyFrame();
+    const kf = lastKeyFrame || this.createKeyFrame();
     kf.alpha = alpha;
 
     if (this.keyFrames.length === 0) {
@@ -264,18 +294,29 @@ export class Sprite implements ISprite {
     if (!lastKeyFrame) {
       throw new Error(`Cannot set timespan: no keyframe exists.`);
     }
+
+    if (lastKeyFrame && lastKeyFrame.type === KeyFrameEntryType.Repeat) {
+      throw new Error(
+        `Cannot change sprite animation length after an animation repeats. (Did you call repeat before sprite.over?)`,
+      );
+    }
     lastKeyFrame.end = lastKeyFrame.start + timespan;
     return this;
   }
 
   public skipAnimation(now: number): boolean {
-    // TODO: determine if animation was skipped
-    // TODO: check if animation repeats, if it does, return false
-    // TODO: set keyframe index to last
-    // TODO: set lastInterpolated to last keyframe `end`
-    // TODO: set interpolatedAlpha to last keyframe `alpha`
-    // TODO: set interpolatedPosition to last keyframe `to` (check `to` property values for nulls)
-    return false;
+    const lastKeyFrame = this.getLastKeyFrame();
+
+    if (!lastKeyFrame) {
+      return false;
+    }
+
+    if (lastKeyFrame.type === KeyFrameEntryType.Repeat) {
+      return false;
+    }
+
+    this.clearAnimation(now);
+    return lastKeyFrame.end > now;
   }
 
   public update(): void {
@@ -363,7 +404,7 @@ export class Sprite implements ISprite {
       throw new Error("Cannot use provided ease because no keyFrames have been created.");
     }
     if (typeof ease !== "function") {
-      throw new Error(`Cannot set ease: Ease is not a function. (Received: ${ease})`)
+      throw new Error(`Cannot set ease: Ease is not a function. (Received: ${ease})`);
     }
     lastKeyFrame.ease = ease;
     return this;
