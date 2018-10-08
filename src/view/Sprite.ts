@@ -327,39 +327,32 @@ export class Sprite implements ISprite {
       return;
     }
     this.lastInterpolated = now;
-    /*
-
-    const progress = now - (this.animationStart + this.wait);
-
-    const ratio = (progress >= this.animationLength)
-        ? 1
-        : (progress <= 0 ? 0 : this.ease(progress / this.animationLength));
-
-    if (ratio === 1) {
-      this.interpolatedPosition[0] = this.position[0];
-      this.interpolatedPosition[1] = this.position[1];
-      this.interpolatedPosition[2] = this.position[2];
-      this.interpolatedPosition[3] = this.position[3];
-      this.interpolatedPosition[4] = this.position[4];
-      this.interpolatedPosition[5] = this.position[5];
-      this.interpolatedAlpha = this.alpha;
-    } else if (ratio === 0) {
-      this.interpolatedPosition[0] = this.previousPosition[0];
-      this.interpolatedPosition[1] = this.previousPosition[1];
-      this.interpolatedPosition[2] = this.previousPosition[2];
-      this.interpolatedPosition[3] = this.previousPosition[3];
-      this.interpolatedPosition[4] = this.previousPosition[4];
-      this.interpolatedPosition[5] = this.previousPosition[5];
-      this.interpolatedAlpha = this.previousAlpha;
-    } else {
-      for (let j = 0; j < 6; j++) {
-        this.interpolatedPosition[j] = this.previousPosition[j]
-          + ratio * (this.position[j] - this.previousPosition[j]);
+    const firstKeyFrame = this.keyFrames[0];
+    now = Math.max(
+      firstKeyFrame ? firstKeyFrame.start : 0,
+      now,
+    );
+    for (const kf of this.keyFrames) {
+      if (kf.start <= now) {
+        const progress = (now - kf.start) / (kf.end - kf.start);
+        const ratio = kf.ease(progress);
+        use(this.interpolatedPosition)
+          .set(
+            progress > 1
+              ? kf.to
+              : [
+                kf.from[0] + ratio * (kf.to[0] - kf.from[0]),
+                kf.from[1] + ratio * (kf.to[1] - kf.from[1]),
+                kf.from[2] + ratio * (kf.to[2] - kf.from[2]),
+                kf.from[3] + ratio * (kf.to[3] - kf.from[3]),
+                kf.from[4] + ratio * (kf.to[4] - kf.from[4]),
+                kf.from[5] + ratio * (kf.to[5] - kf.from[5]),
+              ]
+          );
+        this.interpolatedAlpha = kf.previousAlpha + ratio * (kf.alpha - kf.previousAlpha);
       }
-      this.interpolatedAlpha = this.previousAlpha + ratio * (this.alpha - this.previousAlpha);
     }
-    */
-    // TODO: Calculate interpolated position from keyframes
+
     copy(this.interpolatedPosition)
       .inverse()
       .setTo(this.inverse);
@@ -373,6 +366,7 @@ export class Sprite implements ISprite {
         .setTo(this.inverse);
     }
   }
+
   public setTexture(texture: string): this {
     const oldTexture = this.texture;
     this.texture = texture;
