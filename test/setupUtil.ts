@@ -53,7 +53,7 @@ export interface ITestSetup {
   /**
    * Create an InteractionPoint with the given id and add it to the stage.
    */
-  addInteractionPoint(id: string): this;
+  addInteractionPoint(id: string, pointType: "Touch" | "Mouse"): this;
 
   /**
    * Create a Button with the given id at the given (x, y) coordinate and add it
@@ -237,12 +237,12 @@ export class TestSetup implements ITestSetup {
     this.template = new TestSetupTemplate();
   }
 
-  public addInteractionPoint(id: string): this {
+  public addInteractionPoint(id: string, pointType: "Touch" | "Mouse"): this {
     if (this.idIsTaken(id)) {
       throw new Error(`Cannot add InteractionPoint with id ${id}: element with id already exists.`);
     }
 
-    this.values.points[id] = this.values.stage.createInteractionPoint(id, "Touch");
+    this.values.points[id] = this.values.stage.createInteractionPoint(id, pointType);
     this.values.stage.addPoint(this.values.points[id]);
     return this;
   }
