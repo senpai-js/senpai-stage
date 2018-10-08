@@ -357,6 +357,7 @@ export class Sprite implements ISprite {
     if (typeof ease !== "function") {
       throw new Error(`Cannot set ease: Ease is not a function. (Received: ${ease})`)
     }
+    lastKeyFrame.ease = ease;
     return this;
   }
 
