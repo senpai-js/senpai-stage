@@ -458,4 +458,23 @@ describe("Sprite tests", () => {
     ).toThrow();
   });
 
+  test("over function throws for negative numbers", () => {
+    const { values } = stateTests.feed(t => t).run();
+    const { label } = values.sprites;
+    expect(e => label
+      .movePosition({ x: 100, y: 100 })
+      .over(-1),
+    ).toThrow();
+  });
+
+  test("expect setTexture to emit event", () => {
+    const { values } = stateTests.feed(
+      t => t
+        .addCheckbox("checkbox", 1, 1)
+        .addEventCallback("cb", "textureChangeEvent", "checkbox"),
+    ).run();
+    const { checkbox } = values.sprites;
+    checkbox.setTexture("Active_Hover_Checked");
+    expect(values.callbacks.cb).toBeCalled();
+  });
 });

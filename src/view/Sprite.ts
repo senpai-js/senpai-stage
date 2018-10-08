@@ -374,7 +374,14 @@ export class Sprite implements ISprite {
     this.height = this.textures[this.texture].height;
 
     if (oldTexture !== this.texture) {
-      // this.emit("texture-change", this.texture); // TODO
+      this.textureChangeEvent.emit({
+        eventType: "ValueChange",
+        previousValue: oldTexture,
+        property: "texture",
+        source: this,
+        stage: this.container,
+        value: this.texture,
+      });
     }
 
     return this;
