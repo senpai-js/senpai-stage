@@ -203,6 +203,8 @@ export class Sprite implements ISprite {
       .scale(sx === 0 ? 0 : sx || 1, sy === 0 ? 0 : sy || 1)
       .translate(position.cx ? -position.cx : 0, position.cy ? -position.cy : 0);
     kf.to = value;
+
+    this.keyFrames.push(kf);
     return this;
   }
 

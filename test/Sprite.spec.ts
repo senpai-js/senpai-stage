@@ -211,20 +211,6 @@ describe("Sprite tests", () => {
     expect(label.keyFrames[0].type).toBe(KeyFrameEntryType.Wait);
   });
 
-  test("wait sets ease to null", () => {
-    const { values } = stateTests.feed(t => t).run();
-    const { label } = values.sprites;
-    label.wait(10);
-    expect(label.keyFrames[0].ease).toBe(null);
-  });
-
-  test("wait sets 'to' to null", () => {
-    const { values } = stateTests.feed(t => t).run();
-    const { label } = values.sprites;
-    label.wait(10);
-    expect(label.keyFrames[0].to).toBe(null);
-  });
-
   test("move creates new keyFrame", () => {
     const { values } = stateTests.feed(t => t).run();
     const { label } = values.sprites;
@@ -303,14 +289,14 @@ describe("Sprite tests", () => {
     const { values } = stateTests.feed(t => t).run();
     const { label } = values.sprites;
     label.move([1, 2, 3, 4, 5, 6]);
-    expect(label.keyFrames[0].to).toBe([1, 2, 3, 4, 5, 6]);
+    expect(label.keyFrames[0].to).toStrictEqual([1, 2, 3, 4, 5, 6]);
   });
 
   test("movePosition calculates 'to' property", () => {
     const { values } = stateTests.feed(t => t).run();
     const { label } = values.sprites;
     label.movePosition(testPosition);
-    expect(label.keyFrames[0].to).toBe([2, 0, 0, 2, 200, 255]);
+    expect(label.keyFrames[0].to).toStrictEqual([2, 0, 0, 2, 200, 250]);
   });
 
   test("repeat creates new keyFrameEntry", () => {
