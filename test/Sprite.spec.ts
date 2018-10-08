@@ -430,4 +430,32 @@ describe("Sprite tests", () => {
     const { label } = values.sprites;
     expect(e => label.repeat().with(easeInCub)).toThrow();
   });
+
+  test("over function throws for non finite numbers", () => {
+    const { values } = stateTests.feed(t => t).run();
+    const { label } = values.sprites;
+    expect(e => label
+      .movePosition({ x: 100, y: 100 })
+      .over(Infinity)
+    ).toThrow();
+  });
+
+  test("over function throws for NaN", () => {
+    const { values } = stateTests.feed(t => t).run();
+    const { label } = values.sprites;
+    expect(e => label
+      .movePosition({ x: 100, y: 100 })
+      .over(NaN)
+    ).toThrow();
+  });
+
+  test("over function throws for negative numbers", () => {
+    const { values } = stateTests.feed(t => t).run();
+    const { label } = values.sprites;
+    expect(e => label
+      .movePosition({ x: 100, y: 100 })
+      .over(-1)
+    ).toThrow();
+  });
+
 });
