@@ -1,4 +1,4 @@
-import { easeInOutSin, easeLinear } from "../src/ease";
+import { easeInOutSin, easeLinear, easeInCub } from "../src/ease";
 import { Cursor, KeyFrameEntryType, SpriteType } from "../src/util";
 import { ITestSetupTemplate, setup } from "./setupUtil";
 
@@ -314,17 +314,6 @@ describe("Sprite tests", () => {
     expect(label.keyFrames[0].type).toBe(KeyFrameEntryType.Repeat);
   });
 
-  test("repeat sets every other property to null", () => {
-    const { values } = stateTests.feed(t => t).run();
-    const { label } = values.sprites;
-    label.repeat();
-    const frame = label.keyFrames[0];
-    expect(frame.ease).toBe(null);
-    expect(frame.end).toBe(null);
-    expect(frame.start).toBe(null);
-    expect(frame.to).toBe(null);
-  });
-
   test("skipAnimation returns true if the animation hasn't completed", () => {
     const { values } = stateTests.feed(t => t).run();
     const { label } = values.sprites;
@@ -416,5 +405,29 @@ describe("Sprite tests", () => {
     expect(label.keyFrames[0].alpha).toBe(1);
     label.visible(0.5);
     expect(label.keyFrames[0].alpha).toBe(0.5);
+  });
+
+  test("cannot move sprite after repeat", () => {
+    const { values } = stateTests.feed(t => t).run();
+    const { label } = values.sprites;
+    expect(e => label.repeat().move([1, 2, 3, 4, 5, 6])).toThrow();
+  });
+
+  test("cannot movePosition sprite after repeat", () => {
+    const { values } = stateTests.feed(t => t).run();
+    const { label } = values.sprites;
+    expect(e => label.repeat().movePosition({ x: 100, y: 200 })).toThrow();
+  });
+
+  test("cannot change animation timespan of repeat", () => {
+    const { values } = stateTests.feed(t => t).run();
+    const { label } = values.sprites;
+    expect(e => label.repeat().over(9000)).toThrow();
+  });
+
+  test("cannot set ease function of repeat", () => {
+    const { values } = stateTests.feed(t => t).run();
+    const { label } = values.sprites;
+    expect(e => label.repeat().with(easeInCub)).toThrow();
   });
 });

@@ -400,6 +400,9 @@ export class Sprite implements ISprite {
     if (typeof ease !== "function") {
       throw new Error(`Cannot set ease: Ease is not a function. (Received: ${ease})`);
     }
+    if (lastKeyFrame.type === KeyFrameEntryType.Repeat) {
+      throw new Error("Cannot set ease function of KeyFrame type 'repeat'.");
+    }
     lastKeyFrame.ease = ease;
     return this;
   }
