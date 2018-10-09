@@ -42,7 +42,7 @@ describe("Sprite active property", () => {
     expect(values.sprites.sprite.active).toBeFalsy();
   });
 
-  test("point that goes down over sprite and simply hovers over it", () => {
+  test("point that goes down away from sprite and hovers over it while staying down", () => {
     const { values } = testSetup.feed(awayDown).feed(hoverDown).run();
     expect(values.sprites.sprite.active).toBeFalsy();
   });
@@ -67,7 +67,7 @@ describe("Sprite active property", () => {
     expect(values.sprites.sprite.active).toBeTruthy();
   });
 
-  test("point that goes down over sprite, then moves away", () => {
+  test("point that goes down over sprite, then goes up away from it", () => {
     const { values } = testSetup.feed(hoverDown).feed(awayUp).run();
     expect(values.sprites.sprite.active).toBeFalsy();
   });

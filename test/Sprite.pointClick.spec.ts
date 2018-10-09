@@ -32,7 +32,7 @@ describe("Sprite pointClickEvent emitter", () => {
     expect(values.callbacks.pointClickEvent).not.toBeCalled();
   });
 
-  test("point that goes up over sprite after going down", () => {
+  test("point that goes up over sprite after going down away from it", () => {
     const { values } = testSetup.feed(awayDown).feed(hoverUp).run();
     expect(values.callbacks.pointClickEvent).not.toBeCalled();
   });
@@ -42,7 +42,7 @@ describe("Sprite pointClickEvent emitter", () => {
     expect(values.callbacks.pointClickEvent).not.toBeCalled();
   });
 
-  test("point that goes down over sprite and simply hovers over it", () => {
+  test("point that goes down away from sprite and moves over it while down", () => {
     const { values } = testSetup.feed(awayDown).feed(hoverDown).run();
     expect(values.callbacks.pointClickEvent).not.toBeCalled();
   });
