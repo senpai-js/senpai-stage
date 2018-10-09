@@ -102,15 +102,12 @@ export class TextInput extends Sprite implements ITextInput {
     const relativeCaretX = this.textScroll + this.caretX;
 
     const visibleTextWidth = this.width - this.padding.left - this.padding.right;
-    // maximum relative caret x to current state of textbox
-    const maxRelativeCaretX = visibleTextWidth - this.textScroll; // this is a positive number
-    // text scroll is always negative
 
-    if (relativeCaretX > maxRelativeCaretX) {
+    if (relativeCaretX > visibleTextWidth) {
       this.textScroll = visibleTextWidth - this.caretX;
     }
     if (relativeCaretX < 0) {
-      this.textScroll = -relativeCaretX;
+      this.textScroll = -this.caretX;
     }
 
     this.showCaret = this.focused;
@@ -194,20 +191,20 @@ export class TextInput extends Sprite implements ITextInput {
   private keyDownCaret(e: IKeyDownEvent): void {
     if (unicodeCharacterTest.test(e.key)) {
       this.text.splice(this.caretIndex, 0, e.key);
-      this.caretIndex += 1;
-      if (this.caretIndex > this.text.length) {
-        this.caretIndex = this.text.length;
-      }
+      this.moveCaretRight();
       return;
     }
 
     switch (e.key) {
       case "Backspace":
         this.text.splice(this.caretIndex - 1, 1);
-        this.caretIndex -= 1;
-        if (this.caretIndex < 0) {
-          this.caretIndex = 0;
-        }
+        this.moveCaretLeft();
+        break;
+      case "ArrowLeft":
+        this.moveCaretLeft();
+        break;
+      case "ArrowRight":
+        this.moveCaretRight();
         break;
     }
   }
@@ -215,20 +212,20 @@ export class TextInput extends Sprite implements ITextInput {
   private keyDownCaretInsert(e: IKeyDownEvent): void {
     if (unicodeCharacterTest.test(e.key)) {
       this.text.splice(this.caretIndex, 1, e.key);
-      this.caretIndex += 1;
-      if (this.caretIndex > this.text.length) {
-        this.caretIndex = this.text.length;
-      }
+      this.moveCaretRight();
       return;
     }
 
     switch (e.key) {
       case "Backspace":
         this.text.splice(this.caretIndex, 1);
-        this.caretIndex -= 1;
-        if (this.caretIndex < 0) {
-          this.caretIndex = 0;
-        }
+        this.moveCaretLeft();
+        break;
+      case "ArrowLeft":
+        this.moveCaretLeft();
+        break;
+      case "ArrowRight":
+        this.moveCaretRight();
         break;
     }
   }
@@ -246,6 +243,14 @@ export class TextInput extends Sprite implements ITextInput {
       case "Backspace":
         this.text.splice(this.caretIndex, this.selectionEnd - this.selectionStart);
         this.caretIndex = this.selectionStart;
+        this.selectionState = SelectionState.Caret;
+        break;
+      case "ArrowLeft":
+        this.caretIndex = this.selectionStart;
+        this.selectionState = SelectionState.Caret;
+        break;
+      case "ArrowRight":
+        this.caretIndex = this.selectionEnd;
         this.selectionState = SelectionState.Caret;
         break;
     }
@@ -331,4 +336,17 @@ export class TextInput extends Sprite implements ITextInput {
     ctx.fillText(thirdText, 0, 0);
   }
 
+  private moveCaretLeft() {
+    this.caretIndex -= 1;
+    if (this.caretIndex < 0) {
+      this.caretIndex = 0;
+    }
+  }
+
+  private moveCaretRight() {
+    this.caretIndex += 1;
+    if (this.caretIndex > this.text.length) {
+      this.caretIndex = this.text.length;
+    }
+  }
 }
