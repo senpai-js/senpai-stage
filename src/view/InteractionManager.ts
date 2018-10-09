@@ -554,6 +554,9 @@ export class InteractionManager extends Container implements IInteractionManager
 
   public keyDown(e: KeyboardEvent | IKeyable): void {
     this.keyIndex[e.key] = false;
+    if(e.key === "Insert") {
+      this.insertMode = !this.insertMode;
+    }
     const focusedSprite: ISprite = this.getFocusedSprite();
     if (focusedSprite) {
       focusedSprite.keyDown({

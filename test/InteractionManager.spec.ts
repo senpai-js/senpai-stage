@@ -1,7 +1,7 @@
 import { AudioContext } from "web-audio-test-api";
 import { IPointClickEvent, IPointDownEvent, IPointUpEvent } from "../src/events";
 import { copy, Identity } from "../src/matrix";
-import { IInteractionPoint } from "../src/util";
+import { IInteractionPoint, IKeyable } from "../src/util";
 import { Button, IButton } from "../src/view/Button";
 import { IInteractionManager, InteractionManager } from "../src/view/InteractionManager";
 import { ITestSetup, setup } from "./setupUtil";
@@ -356,4 +356,19 @@ describe("InteractionManager tests", () => {
 
   // TODO: ensure that when pointDown or pointUp is called repeatedly (twice),
   // the event is still only fired once
+
+  test("Pressing the Insert button on the keyboard toggles the insertMode to false", () => {
+    im.insertMode = true;
+    im.keyDown({key: "Insert"} as KeyboardEvent | IKeyable);
+    
+    expect(im.insertMode).toBe(false);
+  });
+
+  test("Pressing the Insert button on the keyboard toggles the insertMode to true", () => {
+    im.insertMode = false;
+    im.keyDown({key: "Insert"} as KeyboardEvent | IKeyable);
+    
+    expect(im.insertMode).toBe(true);
+  });
+
 });
