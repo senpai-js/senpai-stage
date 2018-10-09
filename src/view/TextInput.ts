@@ -251,11 +251,37 @@ export class TextInput extends Sprite implements ITextInput {
     // post-selected text
     ctx.translate(secondMeasure, 0);
     ctx.fillStyle = this.fontColor;
-    ctx.fillText(firstText, 0, 0);
+    ctx.fillText(thirdText, 0, 0);
   }
 
   private renderCaretInsert(ctx: CanvasRenderingContext2D): void {
-    // TODO: Implmement this behavior
+    ctx.font = `${this.fontSize}px ${this.font}`;
+    const firstText = this.text.slice(0, this.caretIndex).join("");
+    const secondText = this.text[this.caretIndex];
+    const thirdText = this.text.slice(this.caretIndex + 1).join("");
+    const firstMeasure = ctx.measureText(firstText).width;
+    const secondMeasure = ctx.measureText(secondText).width;
+
+    // pre-selected text
+    ctx.textBaseline = TextBaseline.hanging;
+    ctx.translate(
+      this.padding.left + this.textScroll,
+      this.padding.top,
+    );
+    ctx.fillStyle = this.fontColor;
+    ctx.fillText(firstText, 0, 0);
+
+    // selected text
+    ctx.translate(firstMeasure, 0);
+    ctx.fillStyle = this.selectedFontBackgroundColor;
+    ctx.fillRect(0, 0, secondMeasure, this.height - this.padding.top - this.padding.bottom);
+    ctx.fillStyle = this.selectedFontColor;
+    ctx.fillText(secondText, 0, 0);
+
+    // post-selected text
+    ctx.translate(secondMeasure, 0);
+    ctx.fillStyle = this.fontColor;
+    ctx.fillText(thirdText, 0, 0);
   }
 
 }

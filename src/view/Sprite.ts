@@ -107,7 +107,6 @@ export interface ISpriteProps {
 export class Sprite implements ISprite {
   public id: string = "";
   public type: SpriteType = SpriteType.Sprite;
-  public position: CanvasMatrix2D = Identity.slice() as CanvasMatrix2D;
   public previousPosition: CanvasMatrix2D = Identity.slice() as CanvasMatrix2D;
   public interpolatedPosition: CanvasMatrix2D = Identity.slice() as CanvasMatrix2D;
   public inverse: CanvasMatrix2D = Identity.slice() as CanvasMatrix2D;
@@ -137,14 +136,12 @@ export class Sprite implements ISprite {
   public loadedEvent: EventEmitter<ISpriteLoadedEvent> = new EventEmitter<ISpriteLoadedEvent>();
   public textureChangeEvent: EventEmitter<IValueChangeEvent<string>> = new EventEmitter<IValueChangeEvent<string>>();
   public keyFrames: IKeyFrameEntry[] = [];
-  public keyFrameIndex: number = 0;
 
   constructor(props: ISpriteProps) {
     this.id = props.id;
     const position: CanvasMatrix2D = props.position || Identity.slice() as CanvasMatrix2D;
     this.textures = props.textures ? props.textures : this.textures;
     use(position)
-      .setTo(this.position)
       .setTo(this.previousPosition)
       .setTo(this.interpolatedPosition);
 

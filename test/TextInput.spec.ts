@@ -10,7 +10,7 @@ describe("TextInput behavior", () => {
   beforeEach(() => {
     tests = setup().template
       .perform(t => t
-        .addInteractionPoint("im")
+        .addInteractionPoint("im", "Touch")
         .addTextInput("ti", x, y),
       )
       .placeholder()
