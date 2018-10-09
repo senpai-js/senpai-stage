@@ -32,7 +32,7 @@ describe("Sprite focused property", () => {
     expect(values.sprites.sprite.focused).toBeFalsy();
   });
 
-  test("point that gies up over sprite after going down", () => {
+  test("point that goes up over sprite after going down", () => {
     const { values } = testSetup.feed(awayDown).feed(hoverUp).run();
     expect(values.sprites.sprite.focused).toBeFalsy();
   });
@@ -45,5 +45,25 @@ describe("Sprite focused property", () => {
   test("point that goes down over sprite and simply hovers over it", () => {
     const { values } = testSetup.feed(awayDown).feed(hoverDown).run();
     expect(values.sprites.sprite.focused).toBeFalsy();
+  });
+
+  test("point that hovers over sprite, then moves away", () => {
+    const { values } = testSetup.feed(hoverUp).feed(awayUp).run();
+    expect(values.sprites.sprite.focused).toBeFalsy();
+  });
+
+  test("point that hovers over sprite, then doesn't move", () => {
+    const { values } = testSetup.feed(hoverUp).feed(hoverUp).run();
+    expect(values.sprites.sprite.focused).toBeFalsy();
+  });
+
+  test("point that hovers over sprite, then goes down away from sprite", () => {
+    const { values } = testSetup.feed(hoverUp).feed(awayDown).run();
+    expect(values.sprites.sprite.focused).toBeFalsy();
+  });
+
+  test("point that hovers over sprite, then goes down", () => {
+    const { values } = testSetup.feed(hoverUp).feed(hoverDown).run();
+    expect(values.sprites.sprite.focused).toBeTruthy();
   });
 });
