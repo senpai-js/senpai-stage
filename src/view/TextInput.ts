@@ -78,8 +78,32 @@ export class TextInput extends Sprite implements ITextInput {
   }
 
   public update(): void {
-    // noOp
 
+    // count 30 frames, then flash the cursor
+    this.frameCount += 1;
+    if (this.frameCount >= 30) {
+      this.showCaret = !this.showCaret;
+      this.frameCount -= 30;
+    }
+
+    // set the relative caretX from the start of the text
+    tempctx.font = `${this.fontSize}px ${this.font}`;
+    this.caretX = tempctx.measureText(this.text.slice(0, this.caretIndex).join("")).width;
+
+    // measure current caretX relative to the start of the TextInput padding
+    const relativeCaretX = this.textScroll + this.caretX;
+
+    const visibleTextWidth = this.width - this.padding.left - this.padding.right;
+    // maximum relative caret x to current state of textbox
+    const maxRelativeCaretX = visibleTextWidth - this.textScroll; // this is a positive number
+    // text scroll is always negative
+
+    if (relativeCaretX > maxRelativeCaretX) {
+      this.textScroll -= (relativeCaretX - maxRelativeCaretX);
+    }
+    if (relativeCaretX < 0) {
+      this.textScroll = -relativeCaretX;
+    }
   }
 
   public render(ctx: CanvasRenderingContext2D): void {
