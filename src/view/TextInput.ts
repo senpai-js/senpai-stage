@@ -119,7 +119,14 @@ export class TextInput extends Sprite implements ITextInput {
 
     // set the relative caretX from the start of the text
     tempctx.font = `${this.fontSize}px ${this.font}`;
-    this.caretX = tempctx.measureText(this.text.slice(0, this.caretIndex).join("")).width;
+    if (this.selectionState === SelectionState.Caret) {
+      this.caretX = tempctx.measureText(this.text.slice(0, this.caretIndex).join("")).width;
+    } else {
+      const selectionTarget = this.caretIndex === this.selectionStart
+        ? this.selectionEnd
+        : this.selectionStart;
+      this.caretX = tempctx.measureText(this.text.slice(0, selectionTarget).join("")).width
+    }
 
     // measure current caretX relative to the start of the TextInput padding
     const relativeCaretX = this.textScroll + this.caretX;
@@ -261,9 +268,25 @@ export class TextInput extends Sprite implements ITextInput {
         this.text.splice(this.caretIndex, 1);
         break;
       case "ArrowLeft":
+        if (e.shift) {
+          const end = this.caretIndex - 1;
+          if (end < 0) {
+            break;
+          }
+          this.select(end, this.caretIndex);
+          break;
+        }
         this.moveCaretLeft();
         break;
       case "ArrowRight":
+        if (e.shift) {
+          const end = this.caretIndex + 1;
+          if (end > this.text.length) {
+            break;
+          }
+          this.select(this.caretIndex, end);
+          break;
+        }
         this.moveCaretRight();
         break;
     }
@@ -285,9 +308,25 @@ export class TextInput extends Sprite implements ITextInput {
         this.text.splice(this.caretIndex, 1);
         break;
       case "ArrowLeft":
+        if (e.shift) {
+          const end = this.caretIndex - 1;
+          if (end < 0) {
+            break;
+          }
+          this.select(end, this.caretIndex);
+          break;
+        }
         this.moveCaretLeft();
         break;
       case "ArrowRight":
+        if (e.shift) {
+          const end = this.caretIndex + 1;
+          if (end > this.text.length) {
+            break;
+          }
+          this.select(this.caretIndex, end);
+          break;
+        }
         this.moveCaretRight();
         break;
     }
@@ -309,10 +348,42 @@ export class TextInput extends Sprite implements ITextInput {
         this.selectionState = SelectionState.Caret;
         break;
       case "ArrowLeft":
+        if (e.shift) {
+          const start = this.caretIndex;
+          const end = (this.selectionStart === this.caretIndex ? this.selectionEnd : this.selectionStart) - 1;
+          if (end < 0) {
+            break;
+          }
+          if (start === end) {
+            this.selectionState = SelectionState.Caret;
+            break;
+          }
+          this.select(
+            Math.min(start, end),
+            Math.max(start, end),
+          );
+          break;
+        }
         this.caretIndex = this.selectionStart;
         this.selectionState = SelectionState.Caret;
         break;
       case "ArrowRight":
+        if (e.shift) {
+          const start = this.caretIndex;
+          const end = (this.selectionStart === this.caretIndex ? this.selectionEnd : this.selectionStart) + 1;
+          if (end > this.text.length) {
+            break;
+          }
+          if (start === end) {
+            this.selectionState = SelectionState.Caret;
+            break;
+          }
+          this.select(
+            Math.min(start, end),
+            Math.max(start, end),
+          );
+          break;
+        }
         this.caretIndex = this.selectionEnd;
         this.selectionState = SelectionState.Caret;
         break;
