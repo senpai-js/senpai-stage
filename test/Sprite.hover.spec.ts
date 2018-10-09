@@ -1,7 +1,7 @@
 import { awayDown, awayUp, common, hoverDown, hoverUp } from "./commonSetup";
 import { ITestSetup, ITestSetupTemplate } from "./setupUtil";
 
-describe("Sprite focused property", () => {
+describe("Sprite hover property", () => {
   let testSetup: ITestSetupTemplate;
   beforeEach(() => {
     testSetup = common();
