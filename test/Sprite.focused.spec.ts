@@ -66,4 +66,24 @@ describe("Sprite focused property", () => {
     const { values } = testSetup.feed(hoverUp).feed(hoverDown).run();
     expect(values.sprites.sprite.focused).toBeTruthy();
   });
+
+  test("point that goes down over sprite, then moves away", () => {
+    const { values } = testSetup.feed(hoverDown).feed(awayUp).run();
+    expect(values.sprites.sprite.focused).toBeTruthy();
+  });
+
+  test("point that goes down over sprite, then goes up", () => {
+    const { values } = testSetup.feed(hoverDown).feed(hoverUp).run();
+    expect(values.sprites.sprite.focused).toBeTruthy();
+  });
+
+  test("point that goes down over sprite, then moves away from sprite", () => {
+    const { values } = testSetup.feed(hoverDown).feed(awayDown).run();
+    expect(values.sprites.sprite.focused).toBeTruthy();
+  });
+
+  test("point that goes down over sprite", () => {
+    const { values } = testSetup.feed(hoverDown).feed(hoverDown).run();
+    expect(values.sprites.sprite.focused).toBeTruthy();
+  });
 });
