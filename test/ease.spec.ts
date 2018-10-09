@@ -16,7 +16,7 @@ describe("Ease function tests", () => {
       expect(result).toBeCloseTo(1);
     });
 
-    test(`${funcName} function should strictly increase to 1`, () => {
+    test(`${funcName} function should be measurably continuous`, () => {
       let previous: number = 0;
       let current: number;
       for (let i = 1; i < 10000; i++) {

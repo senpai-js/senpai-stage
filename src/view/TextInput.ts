@@ -14,6 +14,8 @@ export interface ITextInput extends ISprite {
   font: string;
   fontSize: number;
   fontColor: string;
+  selectedFontColor: string;
+  selectedFontBackgroundColor: string;
   selectionState: SelectionState;
   caretIndex: number;
   selectionStart: number;
@@ -30,6 +32,8 @@ export interface ITextInputProps extends ISpriteProps {
   font?: string;
   fontSize?: number;
   fontColor?: string;
+  selectedFontColor?: string;
+  selectedFontBackgroundColor?: string;
   width: number;
   height: number;
 }
@@ -42,6 +46,8 @@ export class TextInput extends Sprite implements ITextInput {
   public font: string = "monospace";
   public fontSize: number = 12;
   public fontColor: string = "black";
+  public selectedFontColor = "white";
+  public selectedFontBackgroundColor = "blue";
   public caretIndex: number = 0;
   public caretX: number = 0;
   public textScroll: number = 0;
@@ -65,6 +71,8 @@ export class TextInput extends Sprite implements ITextInput {
     this.font = props.font || this.font;
     this.fontSize = props.fontSize || this.fontSize;
     this.fontColor = props.fontColor || this.fontColor;
+    this.selectedFontBackgroundColor = props.selectedFontBackgroundColor || this.selectedFontBackgroundColor;
+    this.selectedFontColor = props.selectedFontColor || this.selectedFontColor;
     this.width = props.width || this.width;
     this.height = props.height || this.height;
   }
@@ -217,7 +225,33 @@ export class TextInput extends Sprite implements ITextInput {
   }
 
   private renderSelection(ctx: CanvasRenderingContext2D): void {
-    // TODO: Implement this behavior
+    ctx.font = `${this.fontSize}px ${this.font}`;
+    const firstText = this.text.slice(0, this.selectionStart).join("");
+    const secondText = this.text.slice(this.selectionStart, this.selectionEnd).join("");
+    const thirdText = this.text.slice(this.selectionEnd).join("");
+    const firstMeasure = ctx.measureText(firstText).width;
+    const secondMeasure = ctx.measureText(secondText).width;
+
+    // pre-selected text
+    ctx.textBaseline = TextBaseline.hanging;
+    ctx.translate(
+      this.padding.left + this.textScroll,
+      this.padding.top,
+    );
+    ctx.fillStyle = this.fontColor;
+    ctx.fillText(firstText, 0, 0);
+
+    // selected text
+    ctx.translate(firstMeasure, 0);
+    ctx.fillStyle = this.selectedFontBackgroundColor;
+    ctx.fillRect(0, 0, secondMeasure, this.height - this.padding.top - this.padding.bottom);
+    ctx.fillStyle = this.selectedFontColor;
+    ctx.fillText(secondText, 0, 0);
+
+    // post-selected text
+    ctx.translate(secondMeasure, 0);
+    ctx.fillStyle = this.fontColor;
+    ctx.fillText(firstText, 0, 0);
   }
 
   private renderCaretInsert(ctx: CanvasRenderingContext2D): void {
