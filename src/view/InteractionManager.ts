@@ -332,6 +332,8 @@ export class InteractionManager extends Container implements IInteractionManager
         x: point.x,
         y: point.y,
       });
+    } else {
+      this.setFocus(null);
     }
     this.pointDownEvent.emit({
       down: true,

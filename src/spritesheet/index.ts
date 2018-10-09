@@ -107,7 +107,8 @@ export async function createTextureMap(definitionPromise: Promise<ISpriteSheet>,
   const textures: ITextureMap = {};
   const definition = await definitionPromise;
   const img = await imgPromise;
-  switch (definition.kind) {
+  const spritesheet = await createSpriteSheet(definition);
+  switch (spritesheet.kind) {
     case SpriteSheetKind.JSON:
       const jsonKind: ISpriteSheetJSON = definition as ISpriteSheetJSON;
       for (const frame of jsonKind) {

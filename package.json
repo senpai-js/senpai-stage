@@ -14,7 +14,7 @@
     "microbundle": "microbundle",
     "tslint": "tslint --fix --project ./",
     "test": "jest",
-    "live-test": "parcel ./parcel/index.html --out-dir parcel_build"
+    "live-test": "parcel ./parcel/index.html --out-dir parcel_build --no-source-maps"
   },
   "jest": {
     "testURL": "http://localhost/",

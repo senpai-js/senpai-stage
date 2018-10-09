@@ -1,5 +1,5 @@
 import { IKeyDownEvent } from "../events";
-import { IPadding, SpriteType, TextBaseline } from "../util";
+import { Cursor, IPadding, SpriteType, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 import { IStage } from "./Stage";
 
@@ -35,7 +35,6 @@ export interface ITextInputProps extends ISpriteProps {
   selectedFontColor?: string;
   selectedFontBackgroundColor?: string;
   width: number;
-  height: number;
 }
 
 const tempctx = document.createElement("canvas").getContext("2d");
@@ -53,14 +52,16 @@ export class TextInput extends Sprite implements ITextInput {
   public textScroll: number = 0;
   public selectionState: SelectionState = SelectionState.Caret;
   public padding: IPadding = {
-    bottom: 2,
-    left: 2,
-    right: 2,
-    top: 2,
+    bottom: 8,
+    left: 4,
+    right: 4,
+    top: 8,
   };
   public selectionEnd: number = -1;
   public selectionStart: number = -1;
   public frameCount: number = 0;
+  public cursor: Cursor = Cursor.text;
+
   private showCaret: boolean = true;
   private focusedMidPattern: CanvasPattern = null;
   private unfocusedMidPattern: CanvasPattern = null;
@@ -74,11 +75,18 @@ export class TextInput extends Sprite implements ITextInput {
     this.selectedFontBackgroundColor = props.selectedFontBackgroundColor || this.selectedFontBackgroundColor;
     this.selectedFontColor = props.selectedFontColor || this.selectedFontColor;
     this.width = props.width || this.width;
-    this.height = props.height || this.height;
   }
 
   public update(): void {
+    if (!this.focusedMidPattern && this.textures.Focused_Mid) {
+      this.focusedMidPattern = tempctx.createPattern(this.textures.Focused_Mid as any, "repeat-x");
+    }
 
+    if (!this.unfocusedMidPattern && this.textures.Unfocused_Mid) {
+      this.unfocusedMidPattern = tempctx.createPattern(this.textures.Unfocused_Mid as any, "repeat-x");
+    }
+
+    this.height = this.textures.Focused_Left.height;
     // count 30 frames, then flash the cursor
     this.frameCount += 1;
     if (this.frameCount >= 30) {
@@ -99,11 +107,13 @@ export class TextInput extends Sprite implements ITextInput {
     // text scroll is always negative
 
     if (relativeCaretX > maxRelativeCaretX) {
-      this.textScroll -= (relativeCaretX - maxRelativeCaretX);
+      this.textScroll = visibleTextWidth - this.caretX;
     }
     if (relativeCaretX < 0) {
       this.textScroll = -relativeCaretX;
     }
+
+    this.showCaret = this.focused;
   }
 
   public render(ctx: CanvasRenderingContext2D): void {
@@ -111,7 +121,6 @@ export class TextInput extends Sprite implements ITextInput {
     const left = this.focused ? this.textures.Focused_Left : this.textures.Unfocused_Left;
     const right = this.focused ? this.textures.Focused_Right : this.textures.Unfocused_Right;
     const pattern = this.focused ? this.textures.Focused_Mid : this.textures.Unfocused_Mid;
-    ctx.drawImage(this.textures.Left_Cap_Active, 0, 0);
     ctx.drawImage(left, 0, 0);
     ctx.drawImage(right, this.width - right.width, 0);
     ctx.fillStyle = this.focused ? this.focusedMidPattern : this.unfocusedMidPattern;
@@ -128,7 +137,7 @@ export class TextInput extends Sprite implements ITextInput {
       this.padding.left,
       this.padding.top,
       this.width - this.padding.right - this.padding.left,
-      this.width - this.padding.bottom,
+      this.height - this.padding.bottom - this.padding.top,
     );
     ctx.clip();
 
@@ -186,13 +195,19 @@ export class TextInput extends Sprite implements ITextInput {
     if (unicodeCharacterTest.test(e.key)) {
       this.text.splice(this.caretIndex, 0, e.key);
       this.caretIndex += 1;
+      if (this.caretIndex > this.text.length) {
+        this.caretIndex = this.text.length;
+      }
       return;
     }
 
     switch (e.key) {
       case "Backspace":
-        this.text.splice(this.caretIndex, 1);
+        this.text.splice(this.caretIndex - 1, 1);
         this.caretIndex -= 1;
+        if (this.caretIndex < 0) {
+          this.caretIndex = 0;
+        }
         break;
     }
   }
@@ -201,6 +216,9 @@ export class TextInput extends Sprite implements ITextInput {
     if (unicodeCharacterTest.test(e.key)) {
       this.text.splice(this.caretIndex, 1, e.key);
       this.caretIndex += 1;
+      if (this.caretIndex > this.text.length) {
+        this.caretIndex = this.text.length;
+      }
       return;
     }
 
@@ -208,6 +226,9 @@ export class TextInput extends Sprite implements ITextInput {
       case "Backspace":
         this.text.splice(this.caretIndex, 1);
         this.caretIndex -= 1;
+        if (this.caretIndex < 0) {
+          this.caretIndex = 0;
+        }
         break;
     }
   }
@@ -238,6 +259,7 @@ export class TextInput extends Sprite implements ITextInput {
       this.padding.top,
     );
     ctx.font = `${this.fontSize}px ${this.font}`;
+    ctx.textBaseline = TextBaseline.hanging;
     ctx.fillStyle = this.fontColor;
     ctx.fillText(text, 0, 0);
 
@@ -245,6 +267,7 @@ export class TextInput extends Sprite implements ITextInput {
       ctx.beginPath();
       ctx.moveTo(this.caretX, 0);
       ctx.lineTo(this.caretX, this.height - this.padding.top - this.padding.bottom);
+      ctx.stroke();
     }
   }
 
