@@ -3,10 +3,8 @@ import { IPointClickEvent, IPointDownEvent, IPointUpEvent } from "../src/events"
 import { copy, Identity } from "../src/matrix";
 import { IInteractionPoint } from "../src/util";
 import { Button, IButton } from "../src/view/Button";
-import { Label, ILabel } from "../src/view/Label";
 import { IInteractionManager, InteractionManager } from "../src/view/InteractionManager";
-
-import { setup, ITestSetup } from "./setupUtil";
+import { ITestSetup, setup } from "./setupUtil";
 
 /**
  * Helper function: create a new IInteractionManager with a fresh audio context.
@@ -93,43 +91,43 @@ describe("InteractionManager tests", () => {
     expect(point.id).toBe("pointName");
     expect(point.type).toBe("Mouse");
   });
-  
+
   // NOTE: should split up
   test("Collision tests work as expected", () => {
     const s: ITestSetup = setup().addInteractionPoint("ip", "Touch").addLabel("label", x, y);
-    
+
     const choices = ["pointUp", "pointDown", "pointMove"];
     //                outside  inside
     const locations = [[0, 0], [x, y]];
-    
+
     for (let i = 0; i < 1000; i++) {
-      const choice = choices[Math.floor(Math.random()*choices.length)];
-      const loc = locations[Math.floor(Math.random()*locations.length)];
-      
+      const choice = choices[Math.floor(Math.random() * choices.length)];
+      const loc = locations[Math.floor(Math.random() * locations.length)];
+
       const { values: oldValues } = s;
       const pointWasDown   = oldValues.points.ip.down;
       const pointWasActive = oldValues.points.ip.active;
       const labelWasDown   = oldValues.sprites.label.down;
       const labelWasActive = oldValues.sprites.label.active;
-      
+
       let ip = null;
       let label = null;
       if (choice === "pointUp") {
-        if (!pointWasDown) continue; // pointUp should not have any effect
+        if (!pointWasDown) { continue; } // pointUp should not have any effect
         const { values } = s.pointUp("ip", loc[0], loc[1]);
         ip = values.points.ip;
         label = values.sprites.label;
-        
+
         expect(ip.down).toBe(false);
         expect(ip.active).toBeNull();
         expect(label.down).toBe(false);
         expect(label.active).toBe(false);
       } else if (choice === "pointDown") {
-        if (pointWasDown) continue; // pointDown should not have any effect
+        if (pointWasDown) { continue; } // pointDown should not have any effect
         const { values } = s.pointDown("ip", loc[0], loc[1]);
         ip = values.points.ip;
         label = values.sprites.label;
-        
+
         expect(ip.down).toBe(true);
         if (label.broadPhase(ip)) {
           expect(ip.active).toBe(label);
@@ -142,13 +140,13 @@ describe("InteractionManager tests", () => {
         const { values } = s.pointMove("ip", loc[0], loc[1]);
         ip = values.points.ip;
         label = values.sprites.label;
-        
+
         expect(ip.down).toBe(pointWasDown);
         expect(ip.active).toBe(pointWasActive);
         expect(label.down).toBe(labelWasDown);
         expect(label.active).toBe(labelWasActive);
       }
-      
+
       if (label.broadPhase(ip)) {
         expect(ip.hover).toBe(label);
       } else {
@@ -156,7 +154,7 @@ describe("InteractionManager tests", () => {
       }
     }
   });
-  
+
   test("When calling pointDown(), down button event is fired", () => {
     const ip = addPointToInteractionManager(im);
     const callback = jest.fn();
