@@ -530,17 +530,23 @@ export class InteractionManager extends Container implements IInteractionManager
     const focusedSprite: ISprite = this.getFocusedSprite();
     if (focusedSprite) {
       focusedSprite.keyUp({
+        alt: e.altKey,
+        ctrl: e.ctrlKey,
         down: false,
         eventType: "KeyUp",
         key: e.key,
+        shift: e.shiftKey,
         source: focusedSprite,
         stage: this,
       });
     }
     this.keyUpEvent.emit({
+      alt: e.altKey,
+      ctrl: e.ctrlKey,
       down: false,
       eventType: "KeyUp",
       key: e.key,
+      shift: e.shiftKey,
       source: focusedSprite || this,
       stage: this,
     });
@@ -551,17 +557,23 @@ export class InteractionManager extends Container implements IInteractionManager
     const focusedSprite: ISprite = this.getFocusedSprite();
     if (focusedSprite) {
       focusedSprite.keyDown({
+        alt: e.altKey,
+        ctrl: e.ctrlKey,
         down: true,
         eventType: "KeyDown",
         key: e.key,
+        shift: e.shiftKey,
         source: focusedSprite,
         stage: this,
       });
     }
     this.keyDownEvent.emit({
+      alt: e.altKey,
+      ctrl: e.ctrlKey,
       down: true,
       eventType: "KeyDown",
       key: e.key,
+      shift: e.shiftKey,
       source: focusedSprite || this,
       stage: this,
     });

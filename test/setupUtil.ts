@@ -432,7 +432,6 @@ export class TestSetup implements ITestSetup {
     }
     const ti = new TextInput({
       definition: null,
-      height: 16,
       id,
       position: [1, 0, 0, 1, x, y],
       source: null,
@@ -554,7 +553,12 @@ export class TestSetup implements ITestSetup {
   }
 
   public keyDown(key: string): this {
-    this.values.stage.keyDown({ key });
+    this.values.stage.keyDown({
+      altKey: false,
+      ctrlKey: false,
+      key,
+      shiftKey: false,
+    });
     return this;
   }
 

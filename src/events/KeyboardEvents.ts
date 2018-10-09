@@ -3,6 +3,9 @@ import { ISenpaiEvent } from "./SenpaiEvent";
 export interface IKeyboardEvent extends ISenpaiEvent {
   key: string;
   down: boolean;
+  ctrl: boolean;
+  alt: boolean;
+  shift: boolean;
 }
 
 export interface IKeyDownEvent extends IKeyboardEvent {

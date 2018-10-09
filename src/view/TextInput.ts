@@ -1,5 +1,5 @@
 import { IKeyDownEvent } from "../events";
-import { Cursor, IPadding, SpriteType, TextBaseline } from "../util";
+import { Cursor, IInteractionPoint, IPadding, SpriteType, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 import { IStage } from "./Stage";
 
@@ -53,9 +53,9 @@ export class TextInput extends Sprite implements ITextInput {
   public selectionState: SelectionState = SelectionState.Caret;
   public padding: IPadding = {
     bottom: 8,
-    left: 4,
-    right: 4,
-    top: 8,
+    left: 8,
+    right: 6,
+    top: 10,
   };
   public selectionEnd: number = -1;
   public selectionStart: number = -1;
@@ -77,7 +77,30 @@ export class TextInput extends Sprite implements ITextInput {
     this.width = props.width || this.width;
   }
 
+  public broadPhase(point: IInteractionPoint): boolean {
+    if (this.active) {
+      return true;
+    }
+    return super.broadPhase(point);
+  }
+
+  public narrowPhase(point: IInteractionPoint): ISprite {
+    if (this.active) {
+      return this;
+    }
+    return point.tx > this.padding.left
+      && point.ty > this.padding.top
+      && point.tx < (this.width - this.padding.right)
+      && point.ty < (this.height - this.padding.bottom)
+      ? this
+      : null;
+  }
+
   public update(): void {
+    if (!this.focused) {
+      this.selectionState = SelectionState.Caret;
+    }
+
     if (!this.focusedMidPattern && this.textures.Focused_Mid) {
       this.focusedMidPattern = tempctx.createPattern(this.textures.Focused_Mid as any, "repeat-x");
     }
@@ -188,6 +211,40 @@ export class TextInput extends Sprite implements ITextInput {
     this.caretIndex = Math.min(Math.max(begin, this.caretIndex), end);
     return this;
   }
+
+  public pointCollision(point: IInteractionPoint): boolean {
+    let str = "";
+    if (point.firstDown) {
+      this.caretIndex = 0;
+      tempctx.font = `${this.fontSize}px ${this.font}`;
+      // tslint:disable:prefer-for-of
+      for (let i = 0; i < this.text.length; i++) {
+        str += this.text[i];
+        if ((tempctx.measureText(str).width + this.textScroll) > point.tx) {
+          break;
+        }
+        this.caretIndex += 1;
+      }
+    } else if (this.active) {
+      let idx = 0;
+      for (let i = 0; i < this.text.length; i++) {
+        str += this.text[i];
+        if ((tempctx.measureText(str).width + this.textScroll) > point.tx) {
+          break;
+        }
+        idx += 1;
+      }
+      if (idx !== this.caretIndex) {
+        this.select(
+          Math.min(idx, this.caretIndex),
+          Math.max(idx, this.caretIndex),
+        );
+      } else {
+        this.selectionState = SelectionState.Caret;
+      }
+    }
+    return super.pointCollision(point);
+  }
   private keyDownCaret(e: IKeyDownEvent): void {
     if (unicodeCharacterTest.test(e.key)) {
       this.text.splice(this.caretIndex, 0, e.key);
@@ -199,6 +256,9 @@ export class TextInput extends Sprite implements ITextInput {
       case "Backspace":
         this.text.splice(this.caretIndex - 1, 1);
         this.moveCaretLeft();
+        break;
+      case "Delete":
+        this.text.splice(this.caretIndex, 1);
         break;
       case "ArrowLeft":
         this.moveCaretLeft();
@@ -218,8 +278,11 @@ export class TextInput extends Sprite implements ITextInput {
 
     switch (e.key) {
       case "Backspace":
-        this.text.splice(this.caretIndex, 1);
+        this.text.splice(this.caretIndex - 1, 1);
         this.moveCaretLeft();
+        break;
+      case "Delete":
+        this.text.splice(this.caretIndex, 1);
         break;
       case "ArrowLeft":
         this.moveCaretLeft();

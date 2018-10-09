@@ -204,7 +204,10 @@ export enum SpriteType {
 }
 
 export interface IKeyable {
+  altKey: boolean;
+  ctrlKey: boolean;
   key: string;
+  shiftKey: boolean;
 }
 
 export enum KeyFrameEntryType {
