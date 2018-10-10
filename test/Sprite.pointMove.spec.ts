@@ -1,4 +1,4 @@
-import { awayDown, awayUp, common, hoverDown, hoverUp } from "./commonSetup";
+import { noop, pointMoveOrderCommon, awayDown, awayUp, common, hoverDown, hoverUp } from "./commonSetup";
 import { ITestSetup, ITestSetupTemplate } from "./setupUtil";
 
 describe("Sprite pointMoveEvent emitter", () => {
@@ -52,20 +52,55 @@ describe("Sprite pointMoveEvent emitter", () => {
     expect(values.callbacks.pointMoveEvent).toBeCalled();
   });
 
-  // NOTE: Whether the move event is called because the point starts outside of
-  // the sprite or just because of an implementation quirk is unclear.
-  //
-  // Scenarios:
-  // - ip created, ip moved, label added underneath ip
-  // - label created at point where ip will be created, ip created and doesn't
-  //   move
-  // - ip created, ip not moved, label added underneath ip
-  //
-  // If this is not an implementation quirk, I predict that in all these cases,
-  // pointMoveEvent should not be called.
+  // NOTE: pointMove event fired because the point starts outside of the label
+  // and moves inside it. This is verified by the 6 following tests.
   test("point that hovers over sprite, then doesn't move", () => {
     const { values } = testSetup.feed(hoverUp).feed(hoverUp).run();
     expect(values.callbacks.pointMoveEvent).toBeCalled();
+  });
+
+  test("point that moves before label added under it and then moves", () => {
+    const { values } = pointMoveOrderCommon().feed(t => t
+        .addInteractionPoint("ip", "Touch")
+        .pointMove("ip", 50, 50)
+        .addLabel("sprite", 50, 50)).feed(noop).run();
+    expect(values.callbacks.pointMoveEvent).not.toBeCalled();
+  });
+  
+  test("point that doesn't move before label added under it and then moves", () => {
+    const { values } = pointMoveOrderCommon().feed(t => t
+        .addInteractionPoint("ip", "Touch")
+        .addLabel("sprite", 0, 0)).feed(noop).run();
+    expect(values.callbacks.pointMoveEvent).not.toBeCalled();
+  });
+  
+  test("point that is added on top of label and then moves", () => {
+    const { values } = pointMoveOrderCommon().feed(t => t
+        .addLabel("sprite", 0, 0)
+        .addInteractionPoint("ip", "Touch")).feed(noop).run();
+    expect(values.callbacks.pointMoveEvent).not.toBeCalled();
+  });
+  
+  test("point that moves before label added under it and then doesn't move", () => {
+    const { values } = pointMoveOrderCommon().feed(t => t
+        .addInteractionPoint("ip", "Touch")
+        .pointMove("ip", 50, 50)
+        .addLabel("sprite", 50, 50)).feed(noop).run();
+    expect(values.callbacks.pointMoveEvent).not.toBeCalled();
+  });
+  
+  test("point that doesn't move before label added under it and then doesn't move", () => {
+    const { values } = pointMoveOrderCommon().feed(t => t
+        .addInteractionPoint("ip", "Touch")
+        .addLabel("sprite", 0, 0)).feed(noop).run();
+    expect(values.callbacks.pointMoveEvent).not.toBeCalled();
+  });
+  
+  test("point that is added on top of label and then doesn't move", () => {
+    const { values } = pointMoveOrderCommon().feed(t => t
+        .addLabel("sprite", 0, 0)
+        .addInteractionPoint("ip", "Touch")).feed(noop).run();
+    expect(values.callbacks.pointMoveEvent).not.toBeCalled();
   });
 
   test("point that hovers over sprite, then goes down away from sprite", () => {
@@ -73,7 +108,6 @@ describe("Sprite pointMoveEvent emitter", () => {
     expect(values.callbacks.pointMoveEvent).toBeCalled();
   });
 
-  // see previous comment
   test("point that hovers over sprite, then goes down", () => {
     const { values } = testSetup.feed(hoverUp).feed(hoverDown).run();
     expect(values.callbacks.pointMoveEvent).toBeCalled();
@@ -84,7 +118,6 @@ describe("Sprite pointMoveEvent emitter", () => {
     expect(values.callbacks.pointMoveEvent).toBeCalled();
   });
 
-  // see previous comment
   test("point that goes down over sprite, then goes up", () => {
     const { values } = testSetup.feed(hoverDown).feed(hoverUp).run();
     expect(values.callbacks.pointMoveEvent).toBeCalled();
@@ -95,7 +128,6 @@ describe("Sprite pointMoveEvent emitter", () => {
     expect(values.callbacks.pointMoveEvent).toBeCalled();
   });
 
-  // see previous comment
   test("point that goes down over sprite", () => {
     const { values } = testSetup.feed(hoverDown).feed(hoverDown).run();
     expect(values.callbacks.pointMoveEvent).toBeCalled();
