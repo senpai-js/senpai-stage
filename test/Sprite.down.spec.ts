@@ -41,7 +41,7 @@ describe("Sprite down property", () => {
     const { values } = testSetup.feed(awayDown).feed(awayDown).run();
     expect(values.sprites.sprite.down).toBeFalsy();
   });
-  
+
   test("point that goes down away from sprite and moves over it while down", () => {
     const { values } = testSetup.feed(awayDown).feed(hoverDown).run();
     expect(values.sprites.sprite.down).toBeFalsy();
