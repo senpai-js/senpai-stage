@@ -52,10 +52,10 @@ export class TextInput extends Sprite implements ITextInput {
   public textScroll: number = 0;
   public selectionState: SelectionState = SelectionState.Caret;
   public padding: IPadding = {
-    bottom: 8,
-    left: 8,
+    bottom: 6,
+    left: 6,
     right: 6,
-    top: 10,
+    top: 6,
   };
   public selectionEnd: number = -1;
   public selectionStart: number = -1;
@@ -119,28 +119,36 @@ export class TextInput extends Sprite implements ITextInput {
 
     // set the relative caretX from the start of the text
     tempctx.font = `${this.fontSize}px ${this.font}`;
+
     if (this.selectionState === SelectionState.Caret) {
       this.caretX = tempctx.measureText(this.text.slice(0, this.caretIndex).join("")).width;
     } else {
       const selectionTarget = this.caretIndex === this.selectionStart
         ? this.selectionEnd
         : this.selectionStart;
-      this.caretX = tempctx.measureText(this.text.slice(0, selectionTarget).join("")).width
+      this.caretX = tempctx.measureText(this.text.slice(0, selectionTarget).join("")).width;
     }
 
     // measure current caretX relative to the start of the TextInput padding
     const relativeCaretX = this.textScroll + this.caretX;
-
+    const fullTextWidth = tempctx.measureText(this.text.join("")).width;
     const visibleTextWidth = this.width - this.padding.left - this.padding.right;
-
-    if (relativeCaretX > visibleTextWidth) {
-      this.textScroll = visibleTextWidth - this.caretX;
+    const targetCharacter = this.selectionState === SelectionState.Caret
+      ? this.caretIndex
+      : (this.selectionEnd === this.caretIndex ? this.selectionStart : this.selectionEnd);
+    if (fullTextWidth < visibleTextWidth) {
+      this.textScroll = 0;
+    } else if (relativeCaretX > visibleTextWidth - 5) {
+      const charWidth = targetCharacter >= this.text.length
+        ? 0
+        : tempctx.measureText(this.text[targetCharacter]).width;
+      this.textScroll = visibleTextWidth - this.caretX - charWidth;
+    } else if (relativeCaretX < 5) {
+      const charWidth = targetCharacter <= 0
+        ? 0
+        : tempctx.measureText(this.text[targetCharacter - 1]).width;
+      this.textScroll = -this.caretX + charWidth;
     }
-    if (relativeCaretX < 0) {
-      this.textScroll = -this.caretX;
-    }
-
-    this.showCaret = this.focused;
   }
 
   public render(ctx: CanvasRenderingContext2D): void {
@@ -289,6 +297,25 @@ export class TextInput extends Sprite implements ITextInput {
         }
         this.moveCaretRight();
         break;
+      case "End":
+        if (e.shift) {
+          const end = this.text.length;
+          if (end !== this.caretIndex) {
+            this.select(this.caretIndex, end);
+          }
+          break;
+        }
+        this.caretIndex = this.text.length;
+        break;
+      case "Home":
+        if (e.shift) {
+          if (this.caretIndex !== 0) {
+            this.select(0, this.caretIndex);
+          }
+          break;
+        }
+        this.caretIndex = 0;
+        break;
     }
   }
 
@@ -329,6 +356,25 @@ export class TextInput extends Sprite implements ITextInput {
         }
         this.moveCaretRight();
         break;
+      case "End":
+        if (e.shift) {
+          const end = this.text.length;
+          if (end !== this.caretIndex) {
+            this.select(this.caretIndex, end);
+          }
+          break;
+        }
+        this.caretIndex = this.text.length;
+        break;
+      case "Home":
+        if (e.shift) {
+          if (this.caretIndex !== 0) {
+            this.select(0, this.caretIndex);
+          }
+          break;
+        }
+        this.caretIndex = 0;
+        break;
     }
   }
   private keyDownSelection(e: IKeyDownEvent): void {
@@ -342,8 +388,9 @@ export class TextInput extends Sprite implements ITextInput {
     }
 
     switch (e.key) {
+      case "Delete":
       case "Backspace":
-        this.text.splice(this.caretIndex, this.selectionEnd - this.selectionStart);
+        this.text.splice(this.selectionStart, this.selectionEnd - this.selectionStart);
         this.caretIndex = this.selectionStart;
         this.selectionState = SelectionState.Caret;
         break;
@@ -387,6 +434,27 @@ export class TextInput extends Sprite implements ITextInput {
         this.caretIndex = this.selectionEnd;
         this.selectionState = SelectionState.Caret;
         break;
+        case "End":
+        if (e.shift) {
+          const end = this.text.length;
+          if (end !== this.caretIndex) {
+            this.select(this.caretIndex, end);
+          }
+          break;
+        }
+        this.caretIndex = this.text.length;
+        this.selectionState = SelectionState.Caret;
+        break;
+      case "Home":
+        if (e.shift) {
+          if (this.caretIndex !== 0) {
+            this.select(0, this.caretIndex);
+          }
+          break;
+        }
+        this.caretIndex = 0;
+        this.selectionState = SelectionState.Caret;
+        break;
     }
   }
 
@@ -398,11 +466,12 @@ export class TextInput extends Sprite implements ITextInput {
       this.padding.top,
     );
     ctx.font = `${this.fontSize}px ${this.font}`;
-    ctx.textBaseline = TextBaseline.hanging;
     ctx.fillStyle = this.fontColor;
-    ctx.fillText(text, 0, 0);
+    ctx.textBaseline = TextBaseline.middle;
+    const midline = (this.height - this.padding.top - this.padding.bottom) * 0.5;
+    ctx.fillText(text, 0, midline);
 
-    if (this.showCaret) {
+    if (this.showCaret && this.focused) {
       ctx.beginPath();
       ctx.moveTo(this.caretX, 0);
       ctx.lineTo(this.caretX, this.height - this.padding.top - this.padding.bottom);
@@ -419,10 +488,11 @@ export class TextInput extends Sprite implements ITextInput {
     const secondMeasure = ctx.measureText(secondText).width;
 
     // pre-selected text
-    ctx.textBaseline = TextBaseline.hanging;
+    ctx.textBaseline = TextBaseline.middle;
+    const midline = (this.height - this.padding.top - this.padding.bottom) * 0.5;
     ctx.translate(
       this.padding.left + this.textScroll,
-      this.padding.top,
+      this.padding.top + midline,
     );
     ctx.fillStyle = this.fontColor;
     ctx.fillText(firstText, 0, 0);
@@ -430,7 +500,7 @@ export class TextInput extends Sprite implements ITextInput {
     // selected text
     ctx.translate(firstMeasure, 0);
     ctx.fillStyle = this.selectedFontBackgroundColor;
-    ctx.fillRect(0, 0, secondMeasure, this.height - this.padding.top - this.padding.bottom);
+    ctx.fillRect(0, -midline, secondMeasure, this.height - this.padding.top - this.padding.bottom);
     ctx.fillStyle = this.selectedFontColor;
     ctx.fillText(secondText, 0, 0);
 
@@ -449,21 +519,34 @@ export class TextInput extends Sprite implements ITextInput {
     const secondMeasure = ctx.measureText(secondText).width;
 
     // pre-selected text
-    ctx.textBaseline = TextBaseline.hanging;
+    ctx.textBaseline = TextBaseline.middle;
+    const midline = (this.height - this.padding.top - this.padding.bottom) * 0.5;
     ctx.translate(
       this.padding.left + this.textScroll,
-      this.padding.top,
+      this.padding.top + midline,
     );
     ctx.fillStyle = this.fontColor;
     ctx.fillText(firstText, 0, 0);
 
+    if (!secondText) {
+      if (this.showCaret && this.focused) {
+        ctx.beginPath();
+        ctx.moveTo(this.caretX, -midline);
+        ctx.lineTo(this.caretX, this.height - this.padding.top - this.padding.bottom - midline);
+        ctx.stroke();
+      }
+      return;
+    }
     // selected text
     ctx.translate(firstMeasure, 0);
     ctx.fillStyle = this.selectedFontBackgroundColor;
-    ctx.fillRect(0, 0, secondMeasure, this.height - this.padding.top - this.padding.bottom);
+    ctx.fillRect(0, -midline, secondMeasure, this.height - this.padding.top - this.padding.bottom);
     ctx.fillStyle = this.selectedFontColor;
     ctx.fillText(secondText, 0, 0);
 
+    if (!thirdText) {
+      return;
+    }
     // post-selected text
     ctx.translate(secondMeasure, 0);
     ctx.fillStyle = this.fontColor;
@@ -472,6 +555,8 @@ export class TextInput extends Sprite implements ITextInput {
 
   private moveCaretLeft() {
     this.caretIndex -= 1;
+    this.frameCount = 0;
+    this.showCaret = true;
     if (this.caretIndex < 0) {
       this.caretIndex = 0;
     }
@@ -479,6 +564,8 @@ export class TextInput extends Sprite implements ITextInput {
 
   private moveCaretRight() {
     this.caretIndex += 1;
+    this.frameCount = 0;
+    this.showCaret = true;
     if (this.caretIndex > this.text.length) {
       this.caretIndex = this.text.length;
     }
