@@ -1,6 +1,7 @@
 import {
   EventEmitter,
   IKeyDownEvent,
+  IKeyPressEvent,
   IKeyUpEvent,
   IMouseDownEvent,
   IMouseMoveEvent,
@@ -49,6 +50,7 @@ export interface IInteractionManager extends IContainer {
 
   keyDownEvent: EventEmitter<IKeyDownEvent>;
   keyUpEvent: EventEmitter<IKeyUpEvent>;
+  keyPressEvent: EventEmitter<IKeyPressEvent>;
 
   hookEvents(): void;
   dispose(): void;
@@ -71,18 +73,19 @@ export interface IInteractionManager extends IContainer {
 
   keyDown(event: KeyboardEvent | IKeyable): void;
   keyUp(event: KeyboardEvent | IKeyable): void;
+  keyPress(event: KeyboardEvent | IKeyable): void;
 
   setFocus(target: ISprite): void;
   getFocusedSprite(): void;
 }
 
 interface IInteractionPointEvent {
-  target: HTMLElement;
+  target: HTMLElement | Window;
   event: string;
   listener: (e: MouseEvent | TouchEvent) => void;
 }
 interface IKeyboardEvent {
-  target: HTMLElement;
+  target: HTMLElement | Window;
   event: string;
   listener: (e: KeyboardEvent) => void;
 }
@@ -129,19 +132,21 @@ export class InteractionManager extends Container implements IInteractionManager
 
   public keyDownEvent: EventEmitter<IKeyDownEvent> = new EventEmitter<IKeyDownEvent>();
   public keyUpEvent: EventEmitter<IKeyUpEvent> = new EventEmitter<IKeyUpEvent>();
+  public keyPressEvent: EventEmitter<IKeyPressEvent> = new EventEmitter<IKeyPressEvent>();
 
   private events: IInteractionPointEvent[] = [
     { target: null, event: "mousedown", listener: e => this.mouseDown(e as MouseEvent) },
-    { target: document.body, event: "mouseup", listener: e => this.mouseUp(e as MouseEvent) },
+    { target: window, event: "mouseup", listener: e => this.mouseUp(e as MouseEvent) },
     { target: null, event: "mousemove", listener: e => this.mouseMove(e as MouseEvent) },
     { target: null, event: "touchstart", listener: e => this.touchStart(e as TouchEvent) },
-    { target: document.body, event: "touchend", listener: e => this.touchEnd(e as TouchEvent) },
+    { target: window, event: "touchend", listener: e => this.touchEnd(e as TouchEvent) },
     { target: null, event: "touchmove", listener: e => this.touchMove(e as TouchEvent) },
-    { target: document.body, event: "touchcancel", listener: e => this.touchCancel(e as TouchEvent) },
+    { target: window, event: "touchcancel", listener: e => this.touchCancel(e as TouchEvent) },
   ];
   private keyboardEvents: IKeyboardEvent[] = [
-    { target: document.body, event: "keydown", listener: e => this.keyDown(e as KeyboardEvent) },
-    { target: document.body, event: "keyup", listener: e => this.keyUp(e as KeyboardEvent) },
+    { target: window, event: "keydown", listener: e => this.keyDown(e as KeyboardEvent) },
+    { target: window, event: "keypress", listener: e => this.keyPress(e as KeyboardEvent) },
+    { target: window, event: "keyup", listener: e => this.keyUp(e as KeyboardEvent) },
   ];
 
   constructor(props: IInteractionManagerProps) {
@@ -575,6 +580,32 @@ export class InteractionManager extends Container implements IInteractionManager
       ctrl: e.ctrlKey,
       down: true,
       eventType: "KeyDown",
+      key: e.key,
+      shift: e.shiftKey,
+      source: focusedSprite || this,
+      stage: this,
+    });
+  }
+
+  public keyPress(e: KeyboardEvent | IKeyable): void {
+    const focusedSprite: ISprite = this.getFocusedSprite();
+    if (focusedSprite) {
+      focusedSprite.keyPress({
+        alt: e.altKey,
+        ctrl: e.ctrlKey,
+        down: true,
+        eventType: "KeyPress",
+        key: e.key,
+        shift: e.shiftKey,
+        source: focusedSprite,
+        stage: this,
+      });
+    }
+    this.keyPressEvent.emit({
+      alt: e.altKey,
+      ctrl: e.ctrlKey,
+      down: true,
+      eventType: "KeyPress",
       key: e.key,
       shift: e.shiftKey,
       source: focusedSprite || this,

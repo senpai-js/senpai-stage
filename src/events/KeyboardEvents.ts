@@ -17,3 +17,8 @@ export interface IKeyUpEvent extends IKeyboardEvent {
   eventType: "KeyUp";
   down: false;
 }
+
+export interface IKeyPressEvent extends IKeyboardEvent {
+  eventType: "KeyPress";
+  down: true;
+}

@@ -2,6 +2,7 @@ import * as eases from "../ease";
 import {
   EventEmitter,
   IKeyDownEvent,
+  IKeyPressEvent,
   IKeyUpEvent,
   IPointClickEvent,
   IPointDownEvent,
@@ -62,6 +63,7 @@ export interface ISprite extends ISize {
   pointMoveEvent: EventEmitter<IPointMoveEvent>;
   keyDownEvent: EventEmitter<IKeyDownEvent>;
   keyUpEvent: EventEmitter<IKeyUpEvent>;
+  keyPressEvent: EventEmitter<IKeyPressEvent>;
   loadedEvent: EventEmitter<ISpriteLoadedEvent>;
 
   textureChangeEvent: EventEmitter<IValueChangeEvent<string>>;
@@ -83,6 +85,7 @@ export interface ISprite extends ISize {
   render(ctx: CanvasRenderingContext2D): void;
   keyDown(event: IKeyDownEvent): void;
   keyUp(event: IKeyUpEvent): void;
+  keyPress(event: IKeyPressEvent): void;
 
   // animation functions and properties
   wait(length: number): this;
@@ -133,6 +136,7 @@ export class Sprite implements ISprite {
   public pointClickEvent: EventEmitter<IPointClickEvent> = new EventEmitter<IPointClickEvent>();
   public keyDownEvent: EventEmitter<IKeyDownEvent> = new EventEmitter<IKeyDownEvent>();
   public keyUpEvent: EventEmitter<IKeyUpEvent> = new EventEmitter<IKeyUpEvent>();
+  public keyPressEvent: EventEmitter<IKeyPressEvent> = new EventEmitter<IKeyPressEvent>();
   public loadedEvent: EventEmitter<ISpriteLoadedEvent> = new EventEmitter<ISpriteLoadedEvent>();
   public textureChangeEvent: EventEmitter<IValueChangeEvent<string>> = new EventEmitter<IValueChangeEvent<string>>();
   public keyFrames: IKeyFrameEntry[] = [];
@@ -394,6 +398,10 @@ export class Sprite implements ISprite {
 
   public keyUp(event: IKeyUpEvent): void {
     this.keyUpEvent.emit(event);
+  }
+
+  public keyPress(event: IKeyPressEvent): void {
+    this.keyPressEvent.emit(event);
   }
 
   public with(ease: eases.EaseFunc): this {
