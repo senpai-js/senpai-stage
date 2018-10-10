@@ -16,6 +16,15 @@ export function common() {
     .perform(t => t.updateStage().renderStage());
 }
 
+export function pointMoveOrderCommon() {
+  return setup()
+    .template
+    .placeholder() // order of adding/positioning label/ip
+    .perform(t => t.addEventCallback("pointMoveEvent", "pointMoveEvent", "sprite"))
+    .placeholder() // whether ip moves after or not
+    .perform(t => t.updateStage().renderStage());
+}
+
 export function awayUp(t: ITestSetup) {
   return t.pointUp("ip", 0, 0);
 }
@@ -30,4 +39,8 @@ export function hoverUp(t: ITestSetup) {
 
 export function hoverDown(t: ITestSetup) {
   return t.pointDown("ip", 50, 50);
+}
+
+export function noop(t: ITestSetup) {
+  return t;
 }
