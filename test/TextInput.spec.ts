@@ -1,4 +1,5 @@
 
+import { Cursor } from "../src/util";
 import { ITextInput } from "../src/view/TextInput";
 import { ITestSetupTemplate, setup } from "./setupUtil";
 
@@ -181,5 +182,13 @@ describe("TextInput behavior", () => {
     expect(ti.caretIndex).toBe(6);
     expect(ti.selectionStart).toBe(2);
     expect(ti.selectionEnd).toBe(6);
+  });
+
+  test("mouseDown over textInput sets cursor to text", () => {
+    const { values } = tests.feed(t => t
+      .setSize("ti", 50, 50)
+      .pointDown("ip", x + 10, y + 10),
+    ).run();
+    expect(values.stage.canvas.style.cursor).toBe(Cursor.text);
   });
 });
