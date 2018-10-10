@@ -359,15 +359,15 @@ describe("InteractionManager tests", () => {
 
   test("Pressing the Insert button on the keyboard toggles the insertMode to false", () => {
     im.insertMode = true;
-    im.keyDown({key: "Insert"} as KeyboardEvent | IKeyable);
-    
+    im.keyDown({key: "Insert", altKey: false, ctrlKey: false, shiftKey: false} as KeyboardEvent | IKeyable);
+
     expect(im.insertMode).toBe(false);
   });
 
   test("Pressing the Insert button on the keyboard toggles the insertMode to true", () => {
     im.insertMode = false;
-    im.keyDown({key: "Insert"} as KeyboardEvent | IKeyable);
-    
+    im.keyDown({key: "Insert", altKey: false, ctrlKey: false, shiftKey: false} as KeyboardEvent | IKeyable);
+
     expect(im.insertMode).toBe(true);
   });
 
