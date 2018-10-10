@@ -230,7 +230,7 @@ export class TextInput extends Sprite implements ITextInput {
   }
 
   public pointCollision(point: IInteractionPoint): boolean {
-    let str = "";
+    const str = "";
     if (point.firstDown) {
       this.caretIndex = this.getCaretIndex(point.tx);
     } else if (this.active) {
