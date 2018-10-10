@@ -122,4 +122,64 @@ describe("TextInput behavior", () => {
     expect(ti.focused).toBeTruthy();
     expect(ti.caretIndex).toBe(4);
   });
+
+  test("dragging on the text in the right direction on input causes selection", () => {
+    const text = "abcdefghij";
+    const { values } = tests.feed(t => t.setLabelText("ti", text)).run();
+    const ti = values.sprites.ti as ITextInput;
+    const targetText1 = "ab";
+    const targetText2 = "abcdef";
+    const { stage } = values;
+    const { ip } = values.points;
+    stage.ctx.font = `${ti.fontSize}px ${ti.font}`;
+    const targetX1 = stage.ctx.measureText(targetText1).width;
+    const targetX2 = stage.ctx.measureText(targetText2).width;
+
+    ti.height = 60;
+    ti.width = Math.max(targetX1, targetX2) + 50;
+    const target1 = {
+      clientX: x + targetX1 + ti.padding.left,
+      clientY: y + ti.padding.top + 1,
+    } as MouseEvent | Touch;
+    const target2 = {
+      clientX: x + targetX2 + ti.padding.left,
+      clientY: y + ti.padding.top + 1,
+    } as MouseEvent | Touch;
+    stage.pointDown(ip, target1);
+    stage.pointUp(ip, target2);
+    expect(ti.focused).toBeTruthy();
+    expect(ti.caretIndex).toBe(2);
+    expect(ti.selectionStart).toBe(2);
+    expect(ti.selectionEnd).toBe(6);
+  });
+
+  test("dragging on the text input in right direction causes selection", () => {
+    const text = "abcdefghij";
+    const { values } = tests.feed(t => t.setLabelText("ti", text)).run();
+    const ti = values.sprites.ti as ITextInput;
+    const targetText1 = "abcdef";
+    const targetText2 = "ab";
+    const { stage } = values;
+    const { ip } = values.points;
+    stage.ctx.font = `${ti.fontSize}px ${ti.font}`;
+    const targetX1 = stage.ctx.measureText(targetText1).width;
+    const targetX2 = stage.ctx.measureText(targetText2).width;
+
+    ti.height = 60;
+    ti.width = Math.max(targetX1, targetX2) + 50;
+    const target1 = {
+      clientX: x + targetX1 + ti.padding.left,
+      clientY: y + ti.padding.top + 1,
+    } as MouseEvent | Touch;
+    const target2 = {
+      clientX: x + targetX2 + ti.padding.left,
+      clientY: y + ti.padding.top + 1,
+    } as MouseEvent | Touch;
+    stage.pointDown(ip, target1);
+    stage.pointUp(ip, target2);
+    expect(ti.focused).toBeTruthy();
+    expect(ti.caretIndex).toBe(6);
+    expect(ti.selectionStart).toBe(2);
+    expect(ti.selectionEnd).toBe(6);
+  });
 });
