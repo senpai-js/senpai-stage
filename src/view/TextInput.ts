@@ -23,6 +23,8 @@ export interface ITextInput extends ISprite {
   caretX: number;
   padding: IPadding;
   frameCount: number;
+  textScroll: number;
+  showCaret: boolean;
   setText(text: string): this;
   select(begin: number, end: number): this;
 }
@@ -62,7 +64,7 @@ export class TextInput extends Sprite implements ITextInput {
   public frameCount: number = 0;
   public cursor: Cursor = Cursor.text;
 
-  private showCaret: boolean = true;
+  public showCaret: boolean = true;
   private focusedMidPattern: CanvasPattern = null;
   private unfocusedMidPattern: CanvasPattern = null;
 

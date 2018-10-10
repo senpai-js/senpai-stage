@@ -42,6 +42,7 @@ describe("TextInput behavior", () => {
     const ti = values.sprites.ti as ITextInput;
     expect(ti.text).toStrictEqual(["t", "e", "🌋", "i", "n", "g"]);
   });
+
   test("keydown for backspace on caret", () => {
     const { values } = tests.feed(t => {
       t.setLabelText("ti", "testing")
@@ -50,7 +51,7 @@ describe("TextInput behavior", () => {
       return t.keyDown("Backspace");
     }).run();
     const ti = values.sprites.ti as ITextInput;
-    expect(ti.text).toStrictEqual(["t", "e", "t", "i", "n", "g"]);
+    expect(ti.text).toStrictEqual(["t", "s", "t", "i", "n", "g"]);
   });
 
   test("keydown for backspace on selection", () => {
@@ -62,5 +63,41 @@ describe("TextInput behavior", () => {
     ).run();
     const ti = values.sprites.ti as ITextInput;
     expect(ti.text).toStrictEqual(["t", "e", "i", "n", "g"]);
+  });
+
+  test("keydown for insertMode replaces characters", () => {
+    const { values } = tests.feed(t => {
+      t
+        .setLabelText("ti", "testing")
+        .focus("ti");
+      (t.values.sprites.ti as ITextInput).caretIndex = 3;
+      return t.keyDown("Insert")
+        .keyDown("a")
+        .keyDown("b")
+        .keyDown("c");
+    }).run();
+
+    const ti = values.sprites.ti as ITextInput;
+    expect(ti.text).toStrictEqual("tesabcg".split(""));
+  });
+
+  test("when caret advances beyond view it modifies textScroll", () => {
+    const { values } = tests.feed(t => {
+      t.setLabelText("ti", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+      (t.values.sprites.ti as ITextInput).caretIndex = 50;
+      return t;
+    }).run();
+    const ti = values.sprites.ti as ITextInput;
+    expect(ti.textScroll).not.toBe(0);
+  });
+
+  test("stage update 30x causes caret to toggle visibility", () => {
+    const { values } = tests.feed(t => t).run();
+    const ti = values.sprites.ti as ITextInput;
+    const currentState = ti.showCaret;
+    for (let i = 0; i < 30; i++) {
+      values.stage.update();
+    }
+    expect(ti.showCaret).not.toBe(currentState);
   });
 });
