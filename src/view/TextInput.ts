@@ -232,25 +232,9 @@ export class TextInput extends Sprite implements ITextInput {
   public pointCollision(point: IInteractionPoint): boolean {
     let str = "";
     if (point.firstDown) {
-      this.caretIndex = 0;
-      tempctx.font = `${this.fontSize}px ${this.font}`;
-      // tslint:disable:prefer-for-of
-      for (let i = 0; i < this.text.length; i++) {
-        str += this.text[i];
-        if ((tempctx.measureText(str).width + this.textScroll) > point.tx) {
-          break;
-        }
-        this.caretIndex += 1;
-      }
+      this.caretIndex = this.getCaretIndex(point.tx);
     } else if (this.active) {
-      let idx = 0;
-      for (let i = 0; i < this.text.length; i++) {
-        str += this.text[i];
-        if ((tempctx.measureText(str).width + this.textScroll) > point.tx) {
-          break;
-        }
-        idx += 1;
-      }
+      const idx = this.getCaretIndex(point.tx);
       if (idx !== this.caretIndex) {
         this.select(
           Math.min(idx, this.caretIndex),
@@ -571,5 +555,20 @@ export class TextInput extends Sprite implements ITextInput {
     if (this.caretIndex > this.text.length) {
       this.caretIndex = this.text.length;
     }
+  }
+
+  private getCaretIndex(relativeX: number): number {
+    tempctx.font = `${this.fontSize}px ${this.font}`;
+    let idx = 0;
+    let str = "";
+    // tslint:disable:prefer-for-of
+    for (let i = 0; i < this.text.length; i++) {
+      str += this.text[i];
+      if ((tempctx.measureText(str).width + this.textScroll) > relativeX) {
+        return idx;
+      }
+      idx += 1;
+    }
+    return this.text.length;
   }
 }

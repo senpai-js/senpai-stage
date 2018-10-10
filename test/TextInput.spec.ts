@@ -10,7 +10,7 @@ describe("TextInput behavior", () => {
   beforeEach(() => {
     tests = setup().template
       .perform(t => t
-        .addInteractionPoint("im", "Touch")
+        .addInteractionPoint("ip", "Touch")
         .addTextInput("ti", x, y),
       )
       .placeholder()
@@ -99,5 +99,27 @@ describe("TextInput behavior", () => {
       values.stage.update();
     }
     expect(ti.showCaret).not.toBe(currentState);
+  });
+
+  test("clicking on the text input moves the caret", () => {
+    const text = "abcdefghij";
+    const { values } = tests.feed(t => t.setLabelText("ti", text)).run();
+    const ti = values.sprites.ti as ITextInput;
+    const targetText = "abcd";
+    const { stage } = values;
+    const { ip } = values.points;
+    stage.ctx.font = `${ti.fontSize}px ${ti.font}`;
+    const targetX = stage.ctx.measureText(targetText).width;
+
+    ti.height = 60;
+    ti.width = targetX + 50;
+    const target = {
+      clientX: x + targetX + ti.padding.left,
+      clientY: y + ti.padding.top + 1,
+    } as MouseEvent | Touch;
+    stage.pointDown(ip, target);
+    stage.pointUp(ip, target);
+    expect(ti.focused).toBeTruthy();
+    expect(ti.caretIndex).toBe(4);
   });
 });
