@@ -175,6 +175,11 @@ export interface ITestSetup {
    */
   keyDown(key: string): this;
 
+  /**
+   * keyPress method. Used to artificially fire a key press event
+   */
+  keyPress(key: string): this;
+
   textInputSelectRange(id: string, begin: number, end: number): this;
 }
 
@@ -554,6 +559,16 @@ export class TestSetup implements ITestSetup {
 
   public keyDown(key: string): this {
     this.values.stage.keyDown({
+      altKey: false,
+      ctrlKey: false,
+      key,
+      shiftKey: false,
+    });
+    return this;
+  }
+
+  public keyPress(key: string): this {
+    this.values.stage.keyPress({
       altKey: false,
       ctrlKey: false,
       key,

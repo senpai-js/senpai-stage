@@ -1,4 +1,4 @@
-import { IKeyDownEvent } from "../events";
+import { IKeyDownEvent, IKeyPressEvent } from "../events";
 import { Cursor, IInteractionPoint, IPadding, SpriteType, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 import { IStage } from "./Stage";
@@ -203,6 +203,18 @@ export class TextInput extends Sprite implements ITextInput {
 
     return super.keyDown(e);
   }
+
+  public keyPress(e: IKeyPressEvent): void {
+    if (this.selectionState === SelectionState.Selection) {
+      this.keyPressSelection(e);
+    } else if ((this.container as IStage).insertMode && this.selectionState === SelectionState.Caret) {
+      this.keyPressCaretInsert(e);
+    } else if (this.selectionState === SelectionState.Caret) {
+      this.keyPressCaret(e);
+    }
+
+    return super.keyPress(e);
+  }
   public select(begin: number, end: number): this {
     if (!Number.isFinite(begin)) {
       throw new Error(`Cannot select text on sprite ${this.id}: begin is not finite`);
@@ -246,13 +258,15 @@ export class TextInput extends Sprite implements ITextInput {
     }
     return super.pointCollision(point);
   }
-  private keyDownCaret(e: IKeyDownEvent): void {
+
+  private keyPressCaret(e: IKeyPressEvent) {
     if (unicodeCharacterTest.test(e.key)) {
       this.text.splice(this.caretIndex, 0, e.key);
       this.moveCaretRight();
       return;
     }
-
+  }
+  private keyDownCaret(e: IKeyDownEvent): void {
     switch (e.key) {
       case "Backspace":
         this.text.splice(this.caretIndex - 1, 1);
@@ -305,13 +319,14 @@ export class TextInput extends Sprite implements ITextInput {
     }
   }
 
-  private keyDownCaretInsert(e: IKeyDownEvent): void {
+  private keyPressCaretInsert(e: IKeyPressEvent): void {
     if (unicodeCharacterTest.test(e.key)) {
       this.text.splice(this.caretIndex, 1, e.key);
       this.moveCaretRight();
       return;
     }
-
+  }
+  private keyDownCaretInsert(e: IKeyDownEvent): void {
     switch (e.key) {
       case "Backspace":
         this.text.splice(this.caretIndex - 1, 1);
@@ -363,7 +378,7 @@ export class TextInput extends Sprite implements ITextInput {
         break;
     }
   }
-  private keyDownSelection(e: IKeyDownEvent): void {
+  private keyPressSelection(e: IKeyPressEvent): void {
     if (unicodeCharacterTest.test(e.key)) {
       this.text.splice(this.selectionStart, this.selectionEnd - this.selectionStart, e.key);
       this.caretIndex = this.selectionStart + 1;
@@ -372,6 +387,8 @@ export class TextInput extends Sprite implements ITextInput {
       this.selectionEnd = -1;
       return;
     }
+  }
+  private keyDownSelection(e: IKeyDownEvent): void {
 
     switch (e.key) {
       case "Delete":
