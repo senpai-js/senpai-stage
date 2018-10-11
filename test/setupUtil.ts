@@ -634,7 +634,6 @@ export class TestSetupTemplate implements ITestSetupTemplate {
 }
 
 // helper class: ITextureBuilder
-
 interface ITextureBuilder {
 
   /**
