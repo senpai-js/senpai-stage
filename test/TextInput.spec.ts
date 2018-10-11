@@ -68,8 +68,7 @@ describe("TextInput behavior", () => {
 
   test("keyPress for insertMode replaces characters", () => {
     const { values } = tests.feed(t => {
-      t
-        .setLabelText("ti", "testing")
+      t.setLabelText("ti", "testing")
         .focus("ti");
       (t.values.sprites.ti as ITextInput).caretIndex = 3;
       return t.keyDown("Insert")
