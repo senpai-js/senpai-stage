@@ -21,24 +21,24 @@ describe("TextInput behavior", () => {
       );
   });
 
-  test("keydown for single character presses while not selecting adds text input", () => {
+  test("keyPress for single character presses while not selecting adds text input", () => {
     const { values } = tests.feed(t => t
       .focus("ti")
-      .keyDown("a")
-      .keyDown("🤔")
-      .keyDown("u")
-      .keyDown("🌋"),
+      .keyPress("a")
+      .keyPress("🤔")
+      .keyPress("u")
+      .keyPress("🌋"),
     ).run();
     const ti = values.sprites.ti as ITextInput;
     expect(ti.text).toStrictEqual(["a", "🤔", "u", "🌋"]);
   });
 
-  test("keydown for single character press replaces text input selection", () => {
+  test("keyPress for single character press replaces text input selection", () => {
     const { values } = tests.feed(t => t
       .setLabelText("ti", "testing")
       .focus("ti")
       .textInputSelectRange("ti", 2, 4)
-      .keyDown("🌋"),
+      .keyPress("🌋"),
     ).run();
     const ti = values.sprites.ti as ITextInput;
     expect(ti.text).toStrictEqual(["t", "e", "🌋", "i", "n", "g"]);
@@ -66,16 +66,16 @@ describe("TextInput behavior", () => {
     expect(ti.text).toStrictEqual(["t", "e", "i", "n", "g"]);
   });
 
-  test("keydown for insertMode replaces characters", () => {
+  test("keyPress for insertMode replaces characters", () => {
     const { values } = tests.feed(t => {
       t
         .setLabelText("ti", "testing")
         .focus("ti");
       (t.values.sprites.ti as ITextInput).caretIndex = 3;
       return t.keyDown("Insert")
-        .keyDown("a")
-        .keyDown("b")
-        .keyDown("c");
+        .keyPress("a")
+        .keyPress("b")
+        .keyPress("c");
     }).run();
 
     const ti = values.sprites.ti as ITextInput;
