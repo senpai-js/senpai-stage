@@ -27,11 +27,10 @@ export class CanvasMatrix2DTransformAPI {
   public rotate(radians: number) {
     const cos: number = Math.cos(radians);
     const sin: number = Math.sin(radians);
-    const val: number[] = this.value;
-    const a: number = val[0];
-    const b: number = val[1];
-    const c: number = val[2];
-    const d: number = val[3];
+    const a: number = this.value[0];
+    const b: number = this.value[1];
+    const c: number = this.value[2];
+    const d: number = this.value[3];
 
     this.value[0] = a * cos + c * sin;
     this.value[1] = b * cos + d * sin;
