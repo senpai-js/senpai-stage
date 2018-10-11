@@ -25,12 +25,13 @@ export class CanvasMatrix2DTransformAPI {
   }
 
   public rotate(radians: number) {
-    const cos = Math.cos(radians);
-    const sin = Math.sin(radians);
-    const a = this.value[0];
-    const b = this.value[1];
-    const c = this.value[2];
-    const d = this.value[3];
+    const cos: number = Math.cos(radians);
+    const sin: number = Math.sin(radians);
+    const val: number[] = this.value;
+    const a: number = val[0];
+    const b: number = val[1];
+    const c: number = val[2];
+    const d: number = val[3];
 
     this.value[0] = a * cos + c * sin;
     this.value[1] = b * cos + d * sin;
@@ -74,20 +75,20 @@ export class CanvasMatrix2DTransformAPI {
 
   public transform(props: CanvasMatrix2D): this {
     // props values
-    const pa = props[0];
-    const pb = props[1];
-    const pc = props[2];
-    const pd = props[3];
-    const pe = props[4];
-    const pf = props[5];
+    const pa: number = props[0];
+    const pb: number = props[1];
+    const pc: number = props[2];
+    const pd: number = props[3];
+    const pe: number = props[4];
+    const pf: number = props[5];
 
     // matrix values
-    const ma = this.value[0];
-    const mb = this.value[1];
-    const mc = this.value[2];
-    const md = this.value[3];
-    const me = this.value[4];
-    const mf = this.value[5];
+    const ma: number = this.value[0];
+    const mb: number = this.value[1];
+    const mc: number = this.value[2];
+    const md: number = this.value[3];
+    const me: number = this.value[4];
+    const mf: number = this.value[5];
 
     this.value[0] = ma * pa + mc * pb;
     this.value[1] = mb * pa + md * pb;
@@ -165,8 +166,7 @@ export function rads(degrees: number): number {
 const degFactor: number = 1 / radFactor;
 const PI_2: number = Math.PI * 2;
 export function degs(radians: number): number {
-  const normalized = normalize(radians, PI_2);
-  return normalized * degFactor;
+  return normalize(radians, PI_2) * degFactor;
 }
 
 function normalize(input: number, factor: number): number {

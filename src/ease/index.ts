@@ -22,22 +22,21 @@ export const easeLinear: EaseFunc = function linear(ratio: number): number {
   return ratio;
 };
 
-export const easeInQuad: EaseFunc = (ratio: number): number => ratio * ratio;
+export const easeInQuad: EaseFunc = (ratio: number): number => Math.pow(ratio, 2);
 export const easeOutQuad: EaseFunc = inverse(easeInQuad);
 export const easeInOutQuad: EaseFunc = inOut(easeInQuad);
 
-export const easeInCub: EaseFunc =
-  (ratio: number): number => ratio * ratio * ratio;
+export const easeInCub: EaseFunc = (ratio: number): number => Math.pow(ratio, 3);
 export const easeOutCub: EaseFunc = inverse(easeInCub);
 export const easeInOutCub: EaseFunc = inOut(easeInCub);
 
 export const easeInQuart: EaseFunc =
-  (ratio: number): number => ratio * ratio * ratio * ratio;
+  (ratio: number): number => Math.pow(ratio, 4);
 export const easeOutQuart: EaseFunc = inverse(easeInQuart);
 export const easeInOutQuart: EaseFunc = inOut(easeInQuart);
 
 export const easeInQuint: EaseFunc =
-  (ratio: number): number => ratio * ratio * ratio * ratio * ratio;
+  (ratio: number): number => Math.pow(ratio, 5);
 export const easeOutQuint: EaseFunc = inverse(easeInQuint);
 export const easeInOutQuint: EaseFunc = inOut(easeInQuint);
 
