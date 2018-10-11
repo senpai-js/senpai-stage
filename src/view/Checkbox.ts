@@ -1,7 +1,5 @@
-
 import { EventEmitter, IValueChangeEvent } from "../events";
 import {
-
   Cursor,
   IInteractionPoint,
   SpriteType,

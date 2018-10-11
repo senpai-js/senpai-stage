@@ -99,13 +99,14 @@ export class Interpreter extends Stage implements IInterpreter {
 
   public persist: IJournalData = {};
   public data: IJournalData = {};
+  public stateIndex: number;
   private flags: IJournalData = {};
 
   private scripts: IScriptIndex = {};
   private journal: IJournalEntry[] = [];
   private journalIndex: number = -1;
 
-  private states: IJournalStates[] = [];
+  private states: IJournalStates[] = []; // cannot find name IJournalStates
 
   public link(scripts: IScriptIndex) {
     Object.assign(this.scripts, scripts);
@@ -173,7 +174,16 @@ export class Interpreter extends Stage implements IInterpreter {
     this.advance();
   }
 
+  public addJournalEntry(name: string, ...props: JournalValue[]): void {
+    return void(0);
+  }
+
   public advance(): void {
+    if (this.interpreterState === InterpreterState.Story) {
+      // noOp
+    }
+  }
+  public previous(): void {
     if (this.interpreterState === InterpreterState.Story) {
       // noOp
     }

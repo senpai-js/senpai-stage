@@ -114,7 +114,7 @@ export class Stage extends InteractionManager implements IStage {
         sprite.interpolatedPosition[4],
         sprite.interpolatedPosition[5],
       );
-      ctx.globalAlpha = sprite.interpolatedPosition[6];
+      ctx.globalAlpha = sprite.interpolatedAlpha;
       sprite.render(ctx);
       ctx.restore();
       pointer = (sprite.hover && sprite.cursor) || pointer;
