@@ -1,5 +1,5 @@
 import { Cursor } from "../src/util";
-import { ITestSetupTemplate, setup } from "./setupUtil";
+import { setup, TestSetup } from "./senpaiTestSetup";
 
 describe("Close button tests", () => {
   // location of button
@@ -7,10 +7,10 @@ describe("Close button tests", () => {
   const y = 50;
 
   // setup template for state test cases
-  let stateTests: ITestSetupTemplate;
+  let stateTests: TestSetup;
 
   beforeEach(() => {
-    stateTests = setup().template
+    stateTests = setup()
       .perform(t => t
         .addCloseButton("button", x, y)
         .addInteractionPoint("ip", "Touch"))
@@ -18,23 +18,26 @@ describe("Close button tests", () => {
       .perform(t => t
         .updateStage());
   });
+  afterEach(() => {
+    stateTests.dispose();
+  });
 
   test("If a close button is added to the stage after the point is moved, the collision is still registered", () => {
-    const { values } = setup()
+    const { stage } = setup()
       .addInteractionPoint("ip", "Touch")
       .pointMove("ip", x, y)
       .addCloseButton("button", x, y)
       .updateStage()
       .renderStage();
 
-    expect(values.stage.canvas.style.cursor).toStrictEqual(Cursor.pointer);
+    expect(stage.canvas.style.cursor).toStrictEqual(Cursor.pointer);
   });
 
   test("State 'Active_Hover' is achievable", () => {
     const { sprites: { button } } = stateTests
       .feed(t => t
         .pointDown("ip", x, y), // activate button
-      ).run().values;
+      ).run();
 
     expect(button.active).toBe(true);
     expect(button.hover).toBe(true);
@@ -45,7 +48,7 @@ describe("Close button tests", () => {
     const { sprites: { button } } = stateTests
       .feed(t => t
         .pointMove("ip", x, y), // hover
-      ).run().values;
+      ).run();
 
     expect(button.active).toBe(false);
     expect(button.hover).toBe(true);
@@ -57,7 +60,7 @@ describe("Close button tests", () => {
       .feed(t => t
         .pointDown("ip", x, y) // activate
         .pointMove("ip", 0, 0), // unhover
-      ).run().values;
+      ).run();
 
     expect(button.active).toBe(true);
     expect(button.hover).toBe(false);
@@ -66,7 +69,7 @@ describe("Close button tests", () => {
 
   test("State 'Inactive_NoHover' is achievable", () => {
     const { sprites: { button } } = stateTests
-      .feed(t => t).run().values;
+      .feed(t => t).run();
         // literally do nothing
 
     expect(button.active).toBe(false);
