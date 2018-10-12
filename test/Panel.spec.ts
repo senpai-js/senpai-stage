@@ -1,5 +1,5 @@
 import { Cursor, SpriteType } from "../src/util";
-import { ITestSetupTemplate, setup } from "./setupUtil";
+import { setup, TestSetup } from "./senpaiTestSetup";
 
 describe("Button tests", () => {
   // location of button
@@ -7,11 +7,11 @@ describe("Button tests", () => {
   const y = 50;
 
   // create a setup template for the very similar state test cases
-  let stateTests: ITestSetupTemplate;
+  let stateTests: TestSetup;
 
   // setup before each test
   beforeEach(() => {
-    stateTests = setup().template
+    stateTests = setup()
       .perform(t => t
         .addPanel("panel", x, y)
         .addButton("button", x, y)
@@ -23,31 +23,34 @@ describe("Button tests", () => {
         .renderStage(),
       );
   });
+  afterEach(() => {
+    stateTests.dispose();
+  });
 
   test("Panel Sprite Types should be SpriteType.Panel", () => {
-    const { values } = stateTests.feed(t => t).run();
-    expect(values.sprites.panel.type).toStrictEqual(SpriteType.Panel);
+    const { stage, sprites, points, callbacks } = stateTests.feed(t => t).run();
+    expect(sprites.panel.type).toStrictEqual(SpriteType.Panel);
   });
 
   test("Button parent should be panel.", () => {
-    const { values } = stateTests.feed(t => t).run();
-    expect(values.sprites.button.parent).toBe(values.sprites.panel);
+    const { stage, sprites, points, callbacks } = stateTests.feed(t => t).run();
+    expect(sprites.button.parent).toBe(sprites.panel);
   });
 
   test("Hover over nested button should update cursor.", () => {
-    const { values } = stateTests
+    const { stage, sprites, points, callbacks } = stateTests
       .feed(t => t.pointMove("ip", 100, 100))
       .run();
 
-    expect(values.stage.canvas.style.cursor).toBe(Cursor.pointer);
+    expect(stage.canvas.style.cursor).toBe(Cursor.pointer);
   });
 
   test("Hover over nested button should cause narrowPhase to return button.", () => {
-    const { values } = stateTests
+    const { stage, sprites, points, callbacks } = stateTests
       .feed(t => t.pointMove("ip", 100, 100))
       .run();
-    const { panel, button } = values.sprites;
-    const { ip } = values.points;
+    const { panel, button } = sprites;
+    const { ip } = points;
     expect(panel.narrowPhase(ip)).toBe(button);
   });
 });

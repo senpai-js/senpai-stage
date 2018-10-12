@@ -32,18 +32,6 @@ describe("Button tests", () => {
     expect(stateTests.sprites.button.type).toStrictEqual(SpriteType.Button);
   });
 
-  test("If a button is added to the stage after the point is moved, the collision is still registered", () => {
-    const tests = setup()
-      .addInteractionPoint("ip", "Touch")
-      .pointMove("ip", x, y)
-      .addButton("button", x, y)
-      .updateStage()
-      .renderStage();
-    expect(tests.sprites.button.hover).toBeTruthy();
-    expect(tests.stage.canvas.style.cursor).toBe(Cursor.pointer);
-    tests.dispose();
-  });
-
   // tests asserting that all states of the button are achievable
 
   test("State 'Active_Hover_Selected' is achievable", () => {
