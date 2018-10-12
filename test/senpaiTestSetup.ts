@@ -478,7 +478,7 @@ export class TestSetup {
     return this;
   }
 
-  public setTextures(id: string, val: ImageBitmap, ...textureNames: string[]): this {
+  public setTextures(id: string, val: any, ...textureNames: string[]): this {
     const textures: string[] = textureNames.length ? textureNames : Object.keys(this.sprites[id].textures);
     for (const texture of textures) {
       this.sprites[id].textures[texture] = val;
