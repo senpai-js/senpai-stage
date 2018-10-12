@@ -1,5 +1,5 @@
 import { ILabel } from "../src/view/Label";
-import { setup } from "./setupUtil";
+import { setup } from "./senpaiTestSetup";
 
 describe("Label tests", () => {
   const x = 50;
@@ -9,7 +9,7 @@ describe("Label tests", () => {
     const { sprites: { label } } = setup()
       .addLabel("label", x, y)
       .setLabelText("label", "myLabelText")
-      .values;
+      .dispose();
 
     expect((label as ILabel).text)
       .toBe("myLabelText");
