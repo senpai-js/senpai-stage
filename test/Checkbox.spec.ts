@@ -35,13 +35,16 @@ describe("Checkbox tests", () => {
   });
 
   test("If a checkbox is added to the stage after the point is moved, the collision is still registered", () => {
-    const { sprites: { checkbox } } = setup()
+    const suite = setup()
       .addInteractionPoint("ip", "Touch")
       .pointMove("ip", x, y)
       .addCheckbox("checkbox", x, y)
-      .updateStage();
+      .updateStage()
+      .renderStage();
+    const { stage } = suite;
 
-    expect(checkbox.cursor).toBe(Cursor.pointer);
+    expect(stage.canvas.style.cursor).toBe(Cursor.pointer);
+    suite.dispose();
   });
 
   // tests asserting that all states of the checkbox are achievable

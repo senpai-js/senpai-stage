@@ -28,7 +28,8 @@ describe("Close button tests", () => {
       .pointMove("ip", x, y)
       .addCloseButton("button", x, y)
       .updateStage()
-      .renderStage();
+      .renderStage()
+      .dispose();
 
     expect(stage.canvas.style.cursor).toStrictEqual(Cursor.pointer);
   });
