@@ -595,7 +595,7 @@ export class TestSetup {
 
   public dispatchMouseEvent(type: string, clientX: number, clientY): this {
     const { canvas } = this.stage;
-    const evt = new MouseEvent(type, { clientX, clientY });
+    const evt = new MouseEvent(type, { clientX, clientY, bubbles: true });
     canvas.dispatchEvent(evt);
     return this;
   }

@@ -45,13 +45,30 @@ describe("InteractionManager Raw Events", () => {
 
   test("mouseup event calls mouseUp", () => {
     tests.mockStagePrototypeFunction("cb", "mouseUp")
-      .dispatchWindowMouseEvent("mouseup", 50, 50);
+      .dispatchMouseEvent("mouseup", 50, 50);
 
     const { callbacks } = tests;
     expect(callbacks.cb).toBeCalled();
   });
 
   test("mouseup after stage dispose doesn't call callback", () => {
+    tests.mockStagePrototypeFunction("cb", "mouseUp")
+      .disposeStage()
+      .dispatchMouseEvent("mouseup", 50, 50);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).not.toBeCalled();
+  });
+
+  test("mouseup event on window calls mouseUp", () => {
+    tests.mockStagePrototypeFunction("cb", "mouseUp")
+      .dispatchWindowMouseEvent("mouseup", 50, 50);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("mouseup event on window after stage dispose doesn't call callback", () => {
     tests.mockStagePrototypeFunction("cb", "mouseUp")
       .disposeStage()
       .dispatchWindowMouseEvent("mouseup", 50, 50);
