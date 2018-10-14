@@ -585,6 +585,33 @@ export class TestSetup {
     return this;
   }
 
+  public mockStagePrototypeFunction(id: string, funcName: string): this {
+    const stage: any = this.stage;
+    const cb = this.callbacks[id] || jest.fn();
+    this.callbacks[id] = cb;
+    stage[funcName] = cb;
+    return this;
+  }
+
+  public dispatchMouseEvent(type: string, clientX: number, clientY): this {
+    const { canvas } = this.stage;
+    const evt = new MouseEvent(type, { clientX, clientY });
+    canvas.dispatchEvent(evt);
+    return this;
+  }
+
+  public dispatchWindowMouseEvent(type: string, clientX: number, clientY): this {
+    const { canvas } = this.stage;
+    const evt = new MouseEvent(type, { clientX, clientY });
+    window.dispatchEvent(evt);
+    return this;
+  }
+
+  public disposeStage(): this {
+    this.stage.dispose();
+    return this;
+  }
+
   /* Convenience methods to ease readability */
 
   private idIsTaken(id: string): boolean {
