@@ -195,12 +195,6 @@ describe("Sprite tests", () => {
     expect(() => button.setTexture("Dummy_Texture")).toThrow();
   });
 
-  test("expect setTexture to throw if texture does not exist", () => {
-    const { sprites } = stateTests.feed(t => t.addButton("button", x, y)).run();
-    const { button } = sprites;
-    expect(() => button.setTexture("Dummy_Texture")).toThrow();
-  });
-
   test("expect setTexture to set the texture property", () => {
     const texture = "Inactive_Hover_Selected";
     const { sprites } = stateTests.feed(t => t.addButton("button", x, y)).run();
