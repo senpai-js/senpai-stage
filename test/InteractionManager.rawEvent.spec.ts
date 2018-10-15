@@ -76,4 +76,107 @@ describe("InteractionManager Raw Events", () => {
     const { callbacks } = tests;
     expect(callbacks.cb).not.toBeCalled();
   });
+
+  test("touch start event calls touchStart event", () => {
+    tests.mockStagePrototypeFunction("cb", "touchStart")
+      .dispatchTouchEvent("touchstart", 50, 50);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("touch start event calls touchStart event", () => {
+    tests.mockStagePrototypeFunction("cb", "touchStart")
+      .disposeStage()
+      .dispatchTouchEvent("touchstart", 50, 50);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).not.toBeCalled();
+  });
+
+  test("touch move event calls touchMove event", () => {
+    tests.mockStagePrototypeFunction("cb", "touchMove")
+      .dispatchTouchEvent("touchmove", 50, 50);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("touch move event calls touchMove event", () => {
+    tests.mockStagePrototypeFunction("cb", "touchMove")
+      .disposeStage()
+      .dispatchTouchEvent("touchmove", 50, 50);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).not.toBeCalled();
+  });
+
+  test("touch end event calls touchEnd event", () => {
+    tests.mockStagePrototypeFunction("cb", "touchEnd")
+      .dispatchTouchEvent("touchend", 50, 50);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("touch end event calls touchEnd event", () => {
+    tests.mockStagePrototypeFunction("cb", "touchMove")
+      .disposeStage()
+      .dispatchTouchEvent("touchend", 50, 50);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).not.toBeCalled();
+  });
+
+  test("touch end event calls touchEnd event", () => {
+    tests.mockStagePrototypeFunction("cb", "touchEnd")
+      .dispatchWindowTouchEvent("touchend", 50, 50);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("touch end event calls touchEnd event", () => {
+    tests.mockStagePrototypeFunction("cb", "touchMove")
+      .disposeStage()
+      .dispatchWindowTouchEvent("touchend", 50, 50);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).not.toBeCalled();
+  });
+
+  test("touch cancel event calls touchCancel event", () => {
+    tests.mockStagePrototypeFunction("cb", "touchCancel")
+      .dispatchTouchEvent("touchcancel", 50, 50);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("touch cancel event calls touchCancel event", () => {
+    tests.mockStagePrototypeFunction("cb", "touchCancel")
+      .disposeStage()
+      .dispatchTouchEvent("touchcancel", 50, 50);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).not.toBeCalled();
+  });
+
+  test("touch cancel event on window calls touchCancel event", () => {
+    tests.mockStagePrototypeFunction("cb", "touchCancel")
+      .dispatchWindowTouchEvent("touchcancel", 50, 50);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("touch cancel event on window calls touchCancel event", () => {
+    tests.mockStagePrototypeFunction("cb", "touchCancel")
+      .disposeStage()
+      .dispatchWindowTouchEvent("touchcancel", 50, 50);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).not.toBeCalled();
+  });
+
 });

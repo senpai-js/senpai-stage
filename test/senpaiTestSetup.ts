@@ -607,6 +607,40 @@ export class TestSetup {
     return this;
   }
 
+  public dispatchTouchEvent(type: string, clientX: number, clientY: number): this {
+    const { canvas } = this.stage;
+    const evt = new TouchEvent(type, {
+      bubbles: true,
+      touches: [
+        {
+          clientX,
+          clientY,
+          identifier: 0,
+          target: canvas,
+        } as any,
+      ],
+    });
+    canvas.dispatchEvent(evt);
+    return this;
+  }
+
+  public dispatchWindowTouchEvent(type: string, clientX: number, clientY): this {
+    const { canvas } = this.stage;
+    const evt = new TouchEvent(type, {
+      bubbles: true,
+      touches: [
+        {
+          clientX,
+          clientY,
+          identifier: 0,
+          target: window,
+        } as any,
+      ],
+    });
+    window.dispatchEvent(evt);
+    return this;
+  }
+
   public disposeStage(): this {
     this.stage.dispose();
     return this;
