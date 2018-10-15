@@ -185,7 +185,15 @@ export class Sprite implements ISprite {
 
   public isHovering(point: IInteractionPoint, now: number): ISprite {
     this.interpolate(now);
-
+    let parent: ISprite = this.parent;
+    while (parent) {
+      transformPoint(point, parent.inverse);
+      if (parent.broadPhase(point) && parent.narrowPhase(point)) {
+        parent = parent.parent;
+      } else {
+        return null;
+      }
+    }
     transformPoint(point, this.inverse);
     if (this.broadPhase(point)) {
       return this.narrowPhase(point);

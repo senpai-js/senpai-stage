@@ -1,4 +1,5 @@
 import { EventEmitter, IValueChangeEvent } from "../events";
+import { transformPoint } from "../matrix";
 import { Cursor, IInteractionPoint, SpriteType } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
@@ -10,6 +11,8 @@ export interface ISlider extends ISprite {
 
   valueChangeEvent: EventEmitter<IValueChangeEvent<number>>;
 }
+
+const tempctx = document.createElement("canvas").getContext("2d");
 
 export interface ISliderProps extends ISpriteProps {
   value?: number;
@@ -24,8 +27,10 @@ export class Slider extends Sprite implements ISlider {
   public max: number = 1;
   public min: number = 0;
   public width: number = 100;
+  public height: number = 0;
 
   public valueChangeEvent: EventEmitter<IValueChangeEvent<number>> = new EventEmitter<IValueChangeEvent<number>>();
+  public cursor: Cursor = Cursor.pointer;
 
   private sliderPattern: CanvasPattern = null;
   private pillTexture: ImageBitmap = null;
@@ -33,17 +38,10 @@ export class Slider extends Sprite implements ISlider {
   constructor(props: ISliderProps) {
     super(props);
 
-    this.height = props.textures.Pill_Hover.height;
     this.width = props.width;
     this.max = props.max || this.max;
     this.min = props.min || this.min;
     this.value = props.value || this.value;
-
-    this.sliderPattern = document
-      .createElement("canvas")
-      .getContext("2d")
-      // @ts-ignore: Dom Spec Outdated. ImageBitmap is acceptable parameter for createPattern.
-      .createPattern(props.textures.Line, "repeat-x");
   }
 
   public broadPhase(point: IInteractionPoint): boolean {
@@ -73,6 +71,13 @@ export class Slider extends Sprite implements ISlider {
       }
   }
 
+  public isHovering(point: IInteractionPoint, now: number): ISprite {
+    transformPoint(point, this.inverse);
+    if (this.broadPhase(point)) {
+      return this.narrowPhase(point);
+    }
+  }
+
   public pointCollision(point: IInteractionPoint): boolean {
     super.pointCollision(point);
 
@@ -100,7 +105,12 @@ export class Slider extends Sprite implements ISlider {
   }
 
   public update(): void {
-    this.cursor = this.hover ? Cursor.pointer : Cursor.auto;
+    if (this.textures.Pill_Hover) {
+      this.height = this.textures.Pill_Hover.height;
+    }
+    if (!this.sliderPattern && this.textures.Line) {
+      this.sliderPattern = tempctx.createPattern(this.textures.Line, "repeat-x");
+    }
     this.pillTexture = this.active
       ? this.textures.Pill_Active
       : (this.hover ? this.textures.Pill_Hover : this.textures.Pill);

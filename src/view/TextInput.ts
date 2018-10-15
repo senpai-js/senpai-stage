@@ -1,4 +1,5 @@
 import { IKeyDownEvent, IKeyPressEvent } from "../events";
+import { transformPoint } from "../matrix";
 import { Cursor, IInteractionPoint, IPadding, SpriteType, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 import { IStage } from "./Stage";
@@ -96,6 +97,13 @@ export class TextInput extends Sprite implements ITextInput {
       && point.ty < (this.height - this.padding.bottom)
       ? this
       : null;
+  }
+
+  public isHovering(point: IInteractionPoint, now: number): ISprite {
+    transformPoint(point, this.inverse);
+    if (this.broadPhase(point)) {
+      return this.narrowPhase(point);
+    }
   }
 
   public update(): void {

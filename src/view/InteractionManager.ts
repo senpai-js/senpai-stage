@@ -531,6 +531,9 @@ export class InteractionManager extends Container implements IInteractionManager
         point.hover.hover = false;
         point.hover = null;
       }
+
+      // TODO: determine z order point capture logic
+      // TODO: determine parent collision point capture logic
       let hoveringSprite: ISprite;
       if (point.active) {
         hoveringSprite = point.active.isHovering(point, now);
