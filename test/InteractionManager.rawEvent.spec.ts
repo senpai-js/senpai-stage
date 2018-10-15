@@ -280,4 +280,26 @@ describe("InteractionManager Raw Events", () => {
     const { callbacks } = tests;
     expect(callbacks.cb).toBeCalled();
   });
+
+  test("mousedown event on canvas emits mouseDownEvent", () => {
+    tests.addStageEventCallback("cb", "mouseDownEvent")
+      .dispatchMouseEvent("mousedown", 50, 50);
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("mouseup event on canvas emits mouseUpEvent", () => {
+    tests.addStageEventCallback("cb", "mouseUpEvent")
+      .dispatchMouseEvent("mouseup", 50, 50);
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("mousemove event on canvas emits mouseMoveEvent", () => {
+    tests.addStageEventCallback("cb", "mouseMoveEvent")
+      .dispatchMouseEvent("mousemove", 50, 50);
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
 });

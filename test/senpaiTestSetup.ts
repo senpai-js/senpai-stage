@@ -279,6 +279,17 @@ export class TestSetup {
     return this;
   }
 
+  public pointCancel(id: string): this {
+    if (!this.existsPoint(id)) {
+      throw new Error(`Cannot cancel InteractionPoint with id ${id}: point does not exist.`);
+    }
+    const point = this.points[id];
+    this.stage.pointCancel(point, {
+      clientX: point.x,
+      clientY: point.y,
+    } as MouseEvent | Touch);
+    return this;
+  }
   public addButton(id: string, x: number, y: number): this {
     if (this.idIsTaken(id)) {
       throw new Error(`Cannot add Button with id ${id}: element with id already exists.`);
