@@ -99,7 +99,6 @@ export class Stage extends InteractionManager implements IStage {
     });
 
     let sprite: ISprite;
-    let pointer: Cursor = Cursor.auto;
     const ctx = this.ctx;
 
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -117,10 +116,13 @@ export class Stage extends InteractionManager implements IStage {
       ctx.globalAlpha = sprite.interpolatedAlpha;
       sprite.render(ctx);
       ctx.restore();
-      pointer = (sprite.hover && sprite.cursor) || pointer;
     }
-
-    this.canvas.style.cursor = pointer;
+    this.canvas.style.cursor = Cursor.auto;
+    for (const point of this.points) {
+      if (point.hover) {
+        this.canvas.style.cursor = point.hover.cursor;
+      }
+    }
 
     this.postRenderEvent.emit({
       eventType: "PostRender",

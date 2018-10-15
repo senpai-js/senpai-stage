@@ -1,4 +1,5 @@
-import { awayDown, awayUp, common, hoverDown, hoverUp } from "./commonSetupPanel";
+import { Cursor } from "../src/util";
+import { awayDown, awayUp, common, hoverDown, hoverUp, noop } from "./commonSetupPanel";
 import { TestSetup } from "./senpaiTestSetup";
 
 describe("Sprite hover property", () => {
@@ -88,5 +89,10 @@ describe("Sprite hover property", () => {
   test("point with sprite on panel that goes down over sprite", () => {
     const { sprites } = testSetup.feed(hoverDown).feed(hoverDown).run();
     expect(sprites.sprite.hover).toBeTruthy();
+  });
+
+  test("point with sprite on panel that hovers over it should set canvas style", () => {
+    const { stage } = testSetup.feed(hoverDown).feed(noop).run();
+    expect(stage.canvas.style.cursor).toBe(Cursor.pointer);
   });
 });

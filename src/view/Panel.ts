@@ -47,44 +47,28 @@ export class Panel extends Sprite implements IPanel {
     }
   }
 
+  public isHovering(point: IInteractionPoint, now: number): ISprite {
+    this.sprites.sort(sortZ);
+    for (const sprite of this.sprites) {
+      sprite.down = false;
+      sprite.hover = false;
+    }
+    let hovering: ISprite;
+    for (let i = this.sprites.length - 1; i >= 0; i--) {
+      hovering = this.sprites[i].isHovering(point, now);
+      if (hovering) {
+        return hovering;
+      }
+    }
+    return super.isHovering(point, now);
+  }
+
   public removeSprite(sprite: ISprite): this {
     if (this.sprites.includes(sprite)) {
       this.sprites.splice(this.sprites.indexOf(sprite), 1);
       sprite.parent = null;
     }
 
-    return this;
-  }
-
-  public broadPhase(point: IInteractionPoint): boolean {
-    this.sprites.sort(sortZ);
-
-    for (const sprite of this.sprites) {
-      sprite.down = false;
-      sprite.hover = false;
-    }
-    return super.broadPhase(point);
-  }
-
-  public narrowPhase(point: IInteractionPoint): ISprite {
-    let sprite: ISprite = null;
-    let collision: ISprite = null;
-
-    for (let i = this.sprites.length - 1; i >= 0; i--) {
-      sprite = this.sprites[i];
-
-      // the sprites inverse has already been calculated relative to the parent
-      transformPoint(point, sprite.inverse);
-
-      if (!sprite.broadPhase(point)) {
-        continue;
-      }
-
-      collision = sprite.narrowPhase(point);
-      if (collision) {
-        return collision;
-      }
-    }
     return this;
   }
 
@@ -105,19 +89,101 @@ export class Panel extends Sprite implements IPanel {
     if (!this.middleCenterPattern && this.textures.Middle_Center) {
       this.middleCenterPattern = tmpctx.createPattern(this.textures.Middle_Center, "repeat");
     }
-
+    if (
+      this.textures.Top_Left
+      && this.textures.Top_Right
+      && this.textures.Bottom_Left
+      && this.textures.Bottom_Right
+    ) {
+      this.width = Math.max(
+        this.width,
+        this.textures.Bottom_Left.width + this.textures.Bottom_Right.width,
+        this.textures.Top_Left.width + this.textures.Top_Right.width,
+      );
+      this.height = Math.max(
+        this.height,
+        this.textures.Bottom_Left.width + this.textures.Top_Left.width,
+        this.textures.Bottom_Right.width + this.textures.Top_Right.width,
+      );
+    }
     for (const sprite of this.sprites) {
       sprite.update();
-
-      if (sprite.hover) {
-        this.hover = sprite.hover;
-        this.cursor = sprite.cursor;
-      }
     }
   }
 
   public render(ctx: CanvasRenderingContext2D): void {
-
+    if (this.textures.Top_Left) {
+      ctx.drawImage(this.textures.Top_Left, 0, 0);
+    }
+    if (this.textures.Top_Right) {
+      ctx.drawImage(this.textures.Top_Right, this.width - this.textures.Top_Right.width, 0);
+    }
+    if (this.textures.Bottom_Left) {
+      ctx.drawImage(this.textures.Bottom_Left, 0, this.height - this.textures.Bottom_Left.width);
+    }
+    if (this.textures.Bottom_Right) {
+      ctx.drawImage(
+        this.textures.Bottom_Right,
+        this.width - this.textures.Bottom_Right.width,
+        this.height - this.textures.Bottom_Right.height,
+      );
+    }
+    if (this.topCenterPattern) {
+      ctx.beginPath();
+      ctx.fillStyle = this.topCenterPattern;
+      ctx.fillRect(
+        this.textures.Top_Left.width,
+        0,
+        this.width - this.textures.Top_Left.width - this.textures.Top_Right.width,
+        this.textures.Top_Center.height,
+      );
+    }
+    if (this.bottomCenterPattern) {
+      const bottomCenterY = this.height - this.textures.Bottom_Center.height;
+      ctx.beginPath();
+      ctx.fillStyle = this.bottomCenterPattern;
+      ctx.translate(0, bottomCenterY);
+      ctx.fillRect(
+        this.textures.Bottom_Left.width,
+        0,
+        this.width - this.textures.Bottom_Left.width - this.textures.Bottom_Right.width,
+        this.textures.Bottom_Center.height,
+      );
+      ctx.translate(0, -bottomCenterY);
+    }
+    if (this.middleLeftPattern) {
+      ctx.beginPath();
+      ctx.fillStyle = this.middleLeftPattern;
+      ctx.fillRect(
+        0,
+        this.textures.Top_Left.height,
+        this.textures.Middle_Left.width,
+        this.height - this.textures.Top_Left.height - this.textures.Bottom_Left.height,
+      );
+    }
+    if (this.middleRightPattern) {
+      const middleRightX = this.width - this.textures.Top_Right.width;
+      ctx.beginPath();
+      ctx.fillStyle = this.middleRightPattern;
+      ctx.translate(middleRightX, 0);
+      ctx.fillRect(
+        0,
+        this.textures.Top_Right.height,
+        this.textures.Middle_Right.width,
+        this.height - this.textures.Top_Right.height - this.textures.Bottom_Right.height,
+      );
+      ctx.translate(-middleRightX, 0);
+    }
+    if (this.middleCenterPattern) {
+      ctx.beginPath();
+      ctx.fillStyle = this.middleCenterPattern;
+      ctx.fillRect(
+        this.textures.Top_Left.width,
+        this.textures.Top_Right.height,
+        this.width - this.textures.Bottom_Right.width - this.textures.Bottom_Left.width,
+        this.height - this.textures.Top_Right.height - this.textures.Bottom_Right.height,
+      );
+    }
 
     ctx.beginPath();
     ctx.rect(0, 0, this.width, this.height);
