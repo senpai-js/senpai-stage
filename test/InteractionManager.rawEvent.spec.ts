@@ -179,4 +179,105 @@ describe("InteractionManager Raw Events", () => {
     expect(callbacks.cb).not.toBeCalled();
   });
 
+  test("keydown event on canvas calls keyDown", () => {
+    tests.mockStagePrototypeFunction("cb", "keyDown")
+      .dispatchKeyEvent("keydown", "a", false, false, false);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("keydown event on canvas calls keyDown", () => {
+    tests.mockStagePrototypeFunction("cb", "keyDown")
+      .disposeStage()
+      .dispatchKeyEvent("keydown", "a", false, false, false);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("keydown event on window calls keyDown", () => {
+    tests.mockStagePrototypeFunction("cb", "keyDown")
+      .dispatchWindowKeyEvent("keydown", "a", false, false, false);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("keydown event on window calls keyDown", () => {
+    tests.mockStagePrototypeFunction("cb", "keyDown")
+      .disposeStage()
+      .dispatchWindowKeyEvent("keydown", "a", false, false, false);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("keyup event on canvas calls keyUp", () => {
+    tests.mockStagePrototypeFunction("cb", "keyUp")
+      .dispatchKeyEvent("keyup", "a", false, false, false);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("keyup event on canvas calls keyUp", () => {
+    tests.mockStagePrototypeFunction("cb", "keyUp")
+      .disposeStage()
+      .dispatchKeyEvent("keyup", "a", false, false, false);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("keyup event on window calls keyUp", () => {
+    tests.mockStagePrototypeFunction("cb", "keyUp")
+      .dispatchWindowKeyEvent("keyup", "a", false, false, false);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("keyup event on window calls keyUp", () => {
+    tests.mockStagePrototypeFunction("cb", "keyUp")
+      .disposeStage()
+      .dispatchWindowKeyEvent("keyup", "a", false, false, false);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("keypress event on canvas calls keyPress", () => {
+    tests.mockStagePrototypeFunction("cb", "keyPress")
+      .dispatchKeyEvent("keypress", "a", false, false, false);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("keypress event on canvas calls keyPress", () => {
+    tests.mockStagePrototypeFunction("cb", "keyPress")
+      .disposeStage()
+      .dispatchKeyEvent("keypress", "a", false, false, false);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("keypress event on window calls keyPress", () => {
+    tests.mockStagePrototypeFunction("cb", "keyPress")
+      .dispatchWindowKeyEvent("keypress", "a", false, false, false);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("keypress event on window calls keyPress", () => {
+    tests.mockStagePrototypeFunction("cb", "keyPress")
+      .disposeStage()
+      .dispatchWindowKeyEvent("keypress", "a", false, false, false);
+
+    const { callbacks } = tests;
+    expect(callbacks.cb).toBeCalled();
+  });
 });

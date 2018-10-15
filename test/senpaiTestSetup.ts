@@ -593,14 +593,14 @@ export class TestSetup {
     return this;
   }
 
-  public dispatchMouseEvent(type: string, clientX: number, clientY): this {
+  public dispatchMouseEvent(type: string, clientX: number, clientY: number): this {
     const { canvas } = this.stage;
     const evt = new MouseEvent(type, { clientX, clientY, bubbles: true });
     canvas.dispatchEvent(evt);
     return this;
   }
 
-  public dispatchWindowMouseEvent(type: string, clientX: number, clientY): this {
+  public dispatchWindowMouseEvent(type: string, clientX: number, clientY: number): this {
     const { canvas } = this.stage;
     const evt = new MouseEvent(type, { clientX, clientY });
     window.dispatchEvent(evt);
@@ -624,7 +624,7 @@ export class TestSetup {
     return this;
   }
 
-  public dispatchWindowTouchEvent(type: string, clientX: number, clientY): this {
+  public dispatchWindowTouchEvent(type: string, clientX: number, clientY: number): this {
     const { canvas } = this.stage;
     const evt = new TouchEvent(type, {
       bubbles: true,
@@ -638,6 +638,32 @@ export class TestSetup {
       ],
     });
     window.dispatchEvent(evt);
+    return this;
+  }
+
+  public dispatchKeyEvent(type: string, key: string, altKey: boolean, shiftKey: boolean, ctrlKey: boolean): this {
+    const { canvas } = this.stage;
+    const evt = new KeyboardEvent(type, {
+      altKey,
+      bubbles: true,
+      ctrlKey,
+      key,
+      shiftKey,
+    });
+    canvas.dispatchEvent(evt);
+    return this;
+  }
+
+  public dispatchWindowKeyEvent(type: string, key: string, altKey: boolean, shiftKey: boolean, ctrlKey: boolean): this {
+    const { canvas } = this.stage;
+    const evt = new KeyboardEvent(type, {
+      altKey,
+      bubbles: true,
+      ctrlKey,
+      key,
+      shiftKey,
+    });
+    canvas.dispatchEvent(evt);
     return this;
   }
 
