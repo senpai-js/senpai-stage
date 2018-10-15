@@ -1,6 +1,6 @@
 /* tslint:disable:max-classes-per-file */
 import { AudioContext } from "web-audio-test-api";
-import { copy, Identity } from "../src/matrix";
+import { CanvasMatrix2D, copy, Identity, use } from "../src/matrix";
 import { ITextureMap } from "../src/spritesheet";
 import { IInteractionPoint, SpriteType, TextAlign, TextBaseline } from "../src/util";
 import { Button, IButton } from "../src/view/Button";
@@ -468,6 +468,13 @@ export class TestSetup {
     return this;
   }
 
+  public setPosition(id: string, position: CanvasMatrix2D): this {
+    if (!this.existsSprite(id)) {
+      throw new Error(`Cannot set position of sprite ${id}: sprite does not exist.`);
+    }
+    use(this.sprites[id].interpolatedPosition).set(position);
+    return this;
+  }
   public setLabelText(id: string, val: string): this {
     if (!this.existsSprite(id)) {
       throw new Error(`Cannot set the 'text' property of Label with id ${id}: label does not exist.`);

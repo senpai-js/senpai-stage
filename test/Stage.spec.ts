@@ -202,31 +202,57 @@ describe("Button tests", () => {
   });
 
   test("stage update calls sprite update", () => {
-    const { sprites } = setup()
+    const { callbacks } = setup()
       .addButton("button", x, y)
       .mockSpritePrototypeFunction("cb", "button", "update")
       .updateStage();
 
-    expect(sprites.button.update).toBeCalled();
+    expect(callbacks.cb).toBeCalled();
   });
 
   test("stage render calls sprite render", () => {
-    const { sprites } = setup()
+    const { callbacks } = setup()
       .addButton("button", x, y)
       .mockSpritePrototypeFunction("cb", "button", "render")
       .updateStage()
       .renderStage();
 
-    expect(sprites.button.render).toBeCalled();
+    expect(callbacks.cb).toBeCalled();
   });
 
   test("stage render calls sprite render with canvas context", () => {
-    const { sprites, stage } = setup()
+    const { callbacks, stage } = setup()
       .addButton("button", x, y)
       .mockSpritePrototypeFunction("cb", "button", "render")
       .updateStage()
       .renderStage();
-    const fn: jest.Mock = sprites.button.render as any;
-    expect(fn.mock.calls[0][0]).toBe(stage.ctx);
+
+    expect(callbacks.cb.mock.calls[0][0]).toBe(stage.ctx);
+  });
+
+  test("stage render calls ctx.setTransform with sprite interpolatedPosition", () => {
+    const { callbacks } = setup()
+      .addButton("button", x, y)
+      .setPosition("button", [1, 2, 3, 4, 5, 6])
+      .mockContextPrototypeFunction("cb", "setTransform")
+      .updateStage()
+      .renderStage();
+
+    expect(callbacks.cb.mock.calls[0][0]).toBe(1);
+    expect(callbacks.cb.mock.calls[0][1]).toBe(2);
+    expect(callbacks.cb.mock.calls[0][2]).toBe(3);
+    expect(callbacks.cb.mock.calls[0][3]).toBe(4);
+    expect(callbacks.cb.mock.calls[0][4]).toBe(5);
+    expect(callbacks.cb.mock.calls[0][5]).toBe(6);
+  });
+
+  test("stage render calls ctx.drawImage", () => {
+    const { callbacks } = setup()
+      .addButton("button", x, y)
+      .mockContextPrototypeFunction("cb", "drawImage")
+      .updateStage()
+      .renderStage();
+
+    expect(callbacks.cb).toBeCalled();
   });
 });
