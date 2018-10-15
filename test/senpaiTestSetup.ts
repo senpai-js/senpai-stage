@@ -326,10 +326,12 @@ export class TestSetup {
     const panel = this.sprites[id] = new Panel({
       alpha: 1,
       definition: null,
+      height: 100,
       id,
       position: panelPos,
       source: null,
       textures,
+      width: 100,
       z: 1,
     });
     panel.width = 100;
