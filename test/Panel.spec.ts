@@ -39,18 +39,18 @@ describe("Button tests", () => {
 
   test("Hover over nested button should update cursor.", () => {
     const { stage, sprites, points, callbacks } = stateTests
-      .feed(t => t.pointMove("ip", 100, 100))
+      .feed(t => t.pointMove("ip", 104, 104))
       .run();
 
     expect(stage.canvas.style.cursor).toBe(Cursor.pointer);
   });
 
-  test("Hover over nested button should cause narrowPhase to return button.", () => {
+  test("Hover over nested button should cause isHovering to return button.", () => {
     const { stage, sprites, points, callbacks } = stateTests
-      .feed(t => t.pointMove("ip", 100, 100))
+      .feed(t => t.pointMove("ip", 104, 104))
       .run();
     const { panel, button } = sprites;
     const { ip } = points;
-    expect(panel.narrowPhase(ip)).toBe(button);
+    expect(panel.isHovering(ip, Date.now()).id).toBe(button.id);
   });
 });

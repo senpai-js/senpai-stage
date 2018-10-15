@@ -24,6 +24,7 @@ import {
   SpriteType,
 } from "../util";
 import { IContainer } from "./Container";
+import { IPanel } from "./Panel";
 
 // import { IStage } from "./Stage";
 
@@ -366,8 +367,9 @@ export class Sprite implements ISprite {
     if (this.parent) {
       // assert the parent is properly moved
       this.parent.interpolate(now);
-
-      copy(this.parent.inverse)
+      const parent = this.parent as IPanel;
+      copy(parent.inverse)
+        .translate(-parent.padding.left, -parent.padding.top)
         .transform(this.inverse)
         .setTo(this.inverse);
     }

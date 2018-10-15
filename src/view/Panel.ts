@@ -1,23 +1,31 @@
 import { transformPoint } from "../matrix";
-import { IInteractionPoint, SpriteType } from "../util";
+import { IInteractionPoint, SpriteType, IPadding } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 const sortZ = (a: ISprite, b: ISprite): number => a.z - b.z;
 const tmpctx = document.createElement("canvas").getContext("2d");
 
 export interface IPanel extends ISprite {
+  padding: IPadding;
   addSprite(sprite: ISprite): this;
   removeSprite(sprite: ISprite): this;
   focus(sprite: ISprite): void;
 }
 
 export interface IPanelProps extends ISpriteProps {
+  padding?: IPadding;
   width: number;
   height: number;
 }
 
 export class Panel extends Sprite implements IPanel {
   public readonly type: SpriteType = SpriteType.Panel;
+  public padding: IPadding = {
+    bottom: 4,
+    left: 4,
+    right: 4,
+    top: 4,
+  };
   private sprites: ISprite[] = [];
   private bottomCenterPattern: CanvasPattern = null;
   private topCenterPattern: CanvasPattern = null;
@@ -29,6 +37,7 @@ export class Panel extends Sprite implements IPanel {
     super(props);
     this.width = props.width;
     this.height = props.height;
+    this.padding = props.padding || this.padding;
   }
 
   public addSprite(sprite: ISprite): this {
@@ -186,9 +195,14 @@ export class Panel extends Sprite implements IPanel {
     }
 
     ctx.beginPath();
-    ctx.rect(0, 0, this.width, this.height);
+    ctx.rect(
+      this.padding.left,
+      this.padding.top,
+      this.width - this.padding.left - this.padding.right,
+      this.height - this.padding.top - this.padding.bottom,
+    );
     ctx.clip();
-
+    ctx.translate(this.padding.left, this.padding.top);
     for (const sprite of this.sprites) {
       ctx.save();
       ctx.transform(
