@@ -96,4 +96,9 @@ describe("Sprite tests", () => {
     checkbox.setTexture("Active_Hover_Checked");
     expect(callbacks.cb).toBeCalled();
   });
+
+  test("expect sprite container to be stage", () => {
+    const { sprites, stage } = stateTests.feed(t => t).run();
+    expect(sprites.label.container).toBe(stage);
+  });
 });

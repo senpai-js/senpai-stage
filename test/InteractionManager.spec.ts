@@ -292,8 +292,32 @@ describe("InteractionManager tests", () => {
     expect(callback2).toHaveBeenCalledTimes(1);
   });
 
-  // TODO: ensure that when pointDown or pointUp is called repeatedly (twice),
-  // the event is still only fired once
+  test("repeated calls to point down call pointDown once", () => {
+    const ip = addPointToInteractionManager(im);
+    const fn = jest.fn();
+    im.pointDownEvent.listen(fn);
+    const point: any = {
+      clientX: 10,
+      clientY: 10,
+    };
+    im.pointDown(ip, point);
+    im.pointDown(ip, point);
+    expect(fn).toBeCalledTimes(1);
+  });
+
+  test("repeated calls to point up call pointUp once", () => {
+    const ip = addPointToInteractionManager(im);
+    const fn = jest.fn();
+    im.pointUpEvent.listen(fn);
+    const point: any = {
+      clientX: 10,
+      clientY: 10,
+    };
+    im.pointDown(ip, point);
+    im.pointUp(ip, point);
+    im.pointUp(ip, point);
+    expect(fn).toBeCalledTimes(1);
+  });
 
   test("Pressing the Insert button on the keyboard toggles the insertMode to false", () => {
     im.insertMode = true;
