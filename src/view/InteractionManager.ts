@@ -531,10 +531,20 @@ export class InteractionManager extends Container implements IInteractionManager
         point.hover.hover = false;
         point.hover = null;
       }
+      let hoveringSprite: ISprite;
+      if (point.active) {
+        hoveringSprite = point.active.isHovering(point, now);
+        if (hoveringSprite) {
+          hoveringSprite.pointCollision(point);
+          point.hover = hoveringSprite;
+          hoveringSprite.hover = true;
+          continue;
+        }
+      }
 
       for (let i = this.sprites.length - 1; i >= 0; i--) {
         sprite = this.sprites[i];
-        const hoveringSprite = sprite.isHovering(point, now);
+        hoveringSprite = sprite.isHovering(point, now);
         if (hoveringSprite) {
           hoveringSprite.pointCollision(point);
           point.hover = hoveringSprite;
