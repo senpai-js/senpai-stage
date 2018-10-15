@@ -180,4 +180,12 @@ describe("Sprite tests", () => {
     label.interpolate(animatedTo);
     expect(label.lastInterpolated).toBe(animatedTo);
   });
+
+  test("expect narrowPhase to return self", () => {
+    const { sprites } = stateTests.feed(t => t).run();
+    const { label } = sprites;
+
+    // no logic is performed for narrowphase in generic sprites
+    expect(label.narrowPhase(null)).toBe(label);
+  });
 });

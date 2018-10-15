@@ -434,12 +434,12 @@ export class Sprite implements ISprite {
     this.interpolatedAlpha = alpha;
     this.previousAlpha = alpha;
 
-    this.interpolatedPosition = copy(
+    use(this.interpolatedPosition).set(
       lastKeyFrame
         ? lastKeyFrame.to
         : this.interpolatedPosition,
-    ).value;
-    this.previousPosition = copy(this.interpolatedPosition).value;
+    );
+    use(this.previousPosition).set(this.interpolatedPosition);
 
     this.lastInterpolated = now;
     this.keyFrames = [];
