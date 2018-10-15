@@ -4,6 +4,7 @@ import * as Spritesheet from "./spritesheet";
 import * as Util from "./util";
 export { Matrix, Ease, Util, Spritesheet };
 
+export * from "./spritesheet";
 export * from "./view/Button";
 export * from "./view/Character";
 export * from "./view/Checkbox";

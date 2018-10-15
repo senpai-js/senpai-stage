@@ -171,4 +171,15 @@ describe("Checkbox tests", () => {
 
     expect(callbacks.cb).toBeCalled();
   });
+
+  test("checkbox click calls toggle", () => {
+    const { callbacks } = stateTests
+      .feed(t => t
+        .mockSpritePrototypeFunction("cb", "checkbox", "toggle")
+        .pointDown("ip", x, y)
+        .pointUp("ip", x, y),
+      ).run();
+
+    expect(callbacks.cb).toBeCalled();
+  });
 });
