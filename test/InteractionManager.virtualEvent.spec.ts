@@ -95,4 +95,49 @@ describe("InteractionManager virtual events", () => {
 
     expect(callbacks.cb).toBeCalled();
   });
+
+  test("touchmove calls pointMove", () => {
+    const { callbacks } = tests.dispatchTouchEvent("touchstart", x, y)
+      .mockStagePrototypeFunction("cb", "pointMove")
+      .dispatchTouchEvent("touchmove", x, y);
+
+    expect(callbacks.cb).toBeCalled();
+  });
+
+  test("touchmove from offscreen onto canvas does not throw", () => {
+    expect(
+      () => tests.dispatchWindowTouchEvent("touchstart", x, y)
+      .dispatchTouchEvent("touchmove", x, y),
+    ).not.toThrow();
+  });
+
+  test("touchcancel from offscreen onto canvas does not throw", () => {
+    expect(
+      () => tests.dispatchWindowTouchEvent("touchstart", x, y)
+      .dispatchTouchEvent("touchcancel", x, y),
+    ).not.toThrow();
+  });
+
+  test("touchend from offscreen onto canvas does not throw", () => {
+    expect(
+      () => tests.dispatchWindowTouchEvent("touchstart", x, y)
+      .dispatchTouchEvent("touchend", x, y),
+    ).not.toThrow();
+  });
+
+  test("touchmove after touchstart outside of canvas adds point to stage", () => {
+    const { stage } = tests;
+    expect(stage.points).toHaveLength(1);
+    tests.dispatchWindowTouchEvent("touchstart", x, y);
+    expect(stage.points).toHaveLength(1);
+    tests.dispatchTouchEvent("touchmove", x, y);
+    expect(stage.points).toHaveLength(2);
+  });
+
+  test("touchmove after touchstart outside of canvas sets point.down to true", () => {
+    const { stage } = tests
+      .dispatchWindowTouchEvent("touchstart", x, y)
+      .dispatchTouchEvent("touchmove", x, y);
+    expect(stage.points[1].down).toBeTruthy();
+  });
 });

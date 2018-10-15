@@ -259,9 +259,15 @@ export class InteractionManager extends Container implements IInteractionManager
         x: touch.clientX,
         y: touch.clientY,
       });
-      point = this.touchPointIndex[touch.identifier];
-      this.pointUp(point, touch);
-      this.removeTouchPoint(touch);
+
+      if (!this.touchPointIndex[touch.identifier]) {
+        point = this.createInteractionPoint(touch.identifier.toString(), "Touch");
+        this.pointMove(point, touch);
+      } else {
+        point = this.touchPointIndex[touch.identifier];
+        this.pointUp(point, touch);
+        this.removeTouchPoint(touch);
+      }
     }
   }
 
@@ -282,9 +288,11 @@ export class InteractionManager extends Container implements IInteractionManager
         x: null,
         y: null,
       });
-      point = this.touchPointIndex[touch.identifier];
-      this.pointCancel(point, touch);
-      this.removeTouchPoint(touch);
+      if (this.touchPointIndex[touch.identifier]) {
+        point = this.touchPointIndex[touch.identifier];
+        this.pointCancel(point, touch);
+        this.removeTouchPoint(touch);
+      }
     }
   }
 
@@ -305,7 +313,12 @@ export class InteractionManager extends Container implements IInteractionManager
         x: touch.clientX,
         y: touch.clientY,
       });
-      point = this.touchPointIndex[touch.identifier];
+      if (!this.touchPointIndex[touch.identifier]) {
+        point = this.addTouchPoint(touch);
+        point.down = true;
+      } else {
+        point = this.touchPointIndex[touch.identifier];
+      }
       this.pointMove(point, touch);
     }
   }
