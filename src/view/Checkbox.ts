@@ -43,6 +43,7 @@ export class Checkbox extends Sprite implements ICheckbox {
   public textAlign: TextAlign = TextAlign.left;
   public textBaseline: TextBaseline = TextBaseline.middle;
   public checkedChangeEvent: EventEmitter<IValueChangeEvent<boolean>> = new EventEmitter<IValueChangeEvent<boolean>>();
+  public cursor: Cursor = Cursor.pointer;
 
   constructor(props: ICheckboxProps) {
     super(props);
@@ -88,8 +89,6 @@ export class Checkbox extends Sprite implements ICheckbox {
     const hover = this.hover ? "Hover" : "NoHover";
     const checked = this.checked ? "Checked" : "Unchecked";
     this.setTexture(`${active}_${hover}_${checked}`);
-
-    this.cursor = this.hover ? Cursor.pointer : Cursor.auto;
     super.update();
   }
 
