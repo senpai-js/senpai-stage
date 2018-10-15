@@ -63,4 +63,12 @@ describe("InteractionManager virtual events", () => {
 
     expect(callbacks.cb).toBeCalled();
   });
+
+  test("touchend calls pointDown", () => {
+    const { callbacks } = tests.mockStagePrototypeFunction("cb", "removeTouchPoint")
+      .dispatchTouchEvent("touchstart", x, y)
+      .dispatchTouchEvent("touchend", x, y);
+
+    expect(callbacks.cb).toBeCalled();
+  });
 });
