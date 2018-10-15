@@ -161,4 +161,14 @@ describe("Checkbox tests", () => {
     expect(checkbox.checked).toBe(false);
     expect(checkbox.texture).toBe("Inactive_NoHover_Unchecked");
   });
+
+  test("checkbox checkchange event fires when toggled", () => {
+    const { callbacks } = stateTests
+      .feed(
+        t => t.addEventCallback("cb", "checkedChangeEvent", "checkbox")
+        .toggleCheckbox("checkbox"),
+      ).run();
+
+    expect(callbacks.cb).toBeCalled();
+  });
 });

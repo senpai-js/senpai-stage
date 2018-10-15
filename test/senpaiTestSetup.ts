@@ -504,6 +504,17 @@ export class TestSetup {
     return this;
   }
 
+  public toggleCheckbox(sprite: string): this {
+    if (!this.existsSprite(sprite)) {
+      throw new Error(`Cannot toggle checkbox with id ${sprite}: sprite does not exist.`);
+    }
+    const cb = this.sprites[sprite];
+    if (cb.type !== SpriteType.Checkbox) {
+      throw new Error(`Cannot toggle checkbox with id ${sprite}: sprite is not a checkbox.`);
+    }
+    (cb as ICheckbox).toggle();
+    return this;
+  }
   public pointDown(id: string, x: number, y: number): this {
     if (!this.existsPoint(id)) {
       throw new Error(`Cannot execute pointDown on point with id ${id}: point dows not exist.`);
