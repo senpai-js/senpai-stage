@@ -154,7 +154,7 @@ export class TextInput extends Sprite implements ITextInput {
   }
 
   public render(ctx: CanvasRenderingContext2D): void {
-    const stage = this.container as IStage;
+    const stage = this.getStage();
     const left = this.focused ? this.textures.Focused_Left : this.textures.Unfocused_Left;
     const right = this.focused ? this.textures.Focused_Right : this.textures.Unfocused_Right;
     const pattern = this.focused ? this.textures.Focused_Mid : this.textures.Unfocused_Mid;
@@ -193,9 +193,10 @@ export class TextInput extends Sprite implements ITextInput {
   }
 
   public keyDown(e: IKeyDownEvent): void {
+    const stage = this.getStage();
     if (this.selectionState === SelectionState.Selection) {
       this.keyDownSelection(e);
-    } else if ((this.container as IStage).insertMode && this.selectionState === SelectionState.Caret) {
+    } else if (stage && stage.insertMode && this.selectionState === SelectionState.Caret) {
       this.keyDownCaretInsert(e);
     } else if (this.selectionState === SelectionState.Caret) {
       this.keyDownCaret(e);
@@ -205,9 +206,10 @@ export class TextInput extends Sprite implements ITextInput {
   }
 
   public keyPress(e: IKeyPressEvent): void {
+    const stage = this.getStage();
     if (this.selectionState === SelectionState.Selection) {
       this.keyPressSelection(e);
-    } else if ((this.container as IStage).insertMode && this.selectionState === SelectionState.Caret) {
+    } else if (stage && stage.insertMode && this.selectionState === SelectionState.Caret) {
       this.keyPressCaretInsert(e);
     } else if (this.selectionState === SelectionState.Caret) {
       this.keyPressCaret(e);

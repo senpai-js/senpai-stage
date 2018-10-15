@@ -1,5 +1,5 @@
 import { transformPoint } from "../matrix";
-import { IInteractionPoint, SpriteType, IPadding } from "../util";
+import { IInteractionPoint, IPadding, SpriteType } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 
 const sortZ = (a: ISprite, b: ISprite): number => a.z - b.z;
@@ -57,6 +57,10 @@ export class Panel extends Sprite implements IPanel {
   }
 
   public isHovering(point: IInteractionPoint, now: number): ISprite {
+    const isHovering = super.isHovering(point, now);
+    if (!isHovering) {
+      return null;
+    }
     this.sprites.sort(sortZ);
     for (const sprite of this.sprites) {
       sprite.down = false;
@@ -69,7 +73,18 @@ export class Panel extends Sprite implements IPanel {
         return hovering;
       }
     }
-    return super.isHovering(point, now);
+    return isHovering;
+  }
+
+  public narrowPhase(point: IInteractionPoint): ISprite {
+    if (
+      point.tx >= this.padding.left
+      && point.tx <= (this.width - this.padding.right)
+      && point.ty >= this.padding.top
+      && point.ty <= (this.height - this.padding.bottom)
+    ) {
+      return this;
+    }
   }
 
   public removeSprite(sprite: ISprite): this {

@@ -25,6 +25,7 @@ import {
 } from "../util";
 import { IContainer } from "./Container";
 import { IPanel } from "./Panel";
+import { IStage } from "./Stage";
 
 // import { IStage } from "./Stage";
 
@@ -97,6 +98,7 @@ export interface ISprite extends ISize {
   movePosition(to: ISpritePosition): this;
   repeat(): this;
   clearAnimation(now: number): this;
+  getStage(): IStage;
 }
 
 export interface ISpriteProps {
@@ -452,6 +454,17 @@ export class Sprite implements ISprite {
     this.keyFrames = [];
     return this;
   }
+
+  public getStage(): IStage {
+    if (this.container) {
+      return this.container as IStage;
+    }
+    if (this.parent) {
+      return this.parent.getStage();
+    }
+    return null;
+  }
+
   private async loadTexture(defintion: Promise<ISpriteSheet>, source: Promise<ImageBitmap>): Promise<void> {
     this.textures = await createTextureMap(defintion, source);
     this.loadedEvent.emit({
