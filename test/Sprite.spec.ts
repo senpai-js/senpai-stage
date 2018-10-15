@@ -101,4 +101,21 @@ describe("Sprite tests", () => {
     const { sprites, stage } = stateTests.feed(t => t).run();
     expect(sprites.label.container).toBe(stage);
   });
+
+  test("expect sprite to set z position", () => {
+    const { sprites } = stateTests.feed(t => t).run();
+    const { label } = sprites;
+    label.setZ(10);
+    expect(label.z).toBe(10);
+  });
+
+  test("expect sprite setZ to throw with bad Values", () => {
+    const { sprites } = stateTests.feed(t => t).run();
+    const { label } = sprites;
+    expect(() => label.setZ(NaN)).toThrow();
+    expect(() => label.setZ(Infinity)).toThrow();
+    expect(() => label.setZ(-Infinity)).toThrow();
+    expect(() => label.setZ(null)).toThrow();
+    expect(() => label.setZ("10" as any)).toThrow();
+  });
 });
