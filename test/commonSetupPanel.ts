@@ -6,12 +6,13 @@ export function common() {
       .addButton("sprite", 50, 50)
       .setSize("sprite", 50, 50)
       .addPanel("panel", 50, 50)
-      .addSpriteToPanel("sprite", "panel")
       .addInteractionPoint("ip", "Touch")
       .addEventCallback("pointMoveEvent", "pointMoveEvent", "sprite")
       .addEventCallback("pointDownEvent", "pointDownEvent", "sprite")
       .addEventCallback("pointUpEvent", "pointUpEvent", "sprite")
-      .addEventCallback("pointClickEvent", "pointClickEvent", "sprite"),
+      .addEventCallback("pointClickEvent", "pointClickEvent", "sprite")
+      .mockSpritePrototypeFunction("pointClick", "sprite", "pointClick")
+      .addSpriteToPanel("sprite", "panel"),
     )
     .placeholder()
     .placeholder()
