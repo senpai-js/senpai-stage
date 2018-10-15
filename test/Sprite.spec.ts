@@ -1,3 +1,4 @@
+import { use } from "../src/matrix";
 import { setup, TestSetup } from "./senpaiTestSetup";
 
 describe("Sprite tests", () => {
@@ -117,5 +118,66 @@ describe("Sprite tests", () => {
     expect(() => label.setZ(-Infinity)).toThrow();
     expect(() => label.setZ(null)).toThrow();
     expect(() => label.setZ("10" as any)).toThrow();
+  });
+
+  test("expect sprite interpolatedPosition to be modified", () => {
+    const { sprites } = stateTests.feed(t => t).run();
+    const { label } = sprites;
+    use(label.interpolatedPosition).set([1, 1, 1, 1, 1, 1]);
+    label.move([2, 2, 2, 2, 2, 2]).over(100);
+    label.interpolate(label.keyFrames[0].start + 50);
+    expect(label.interpolatedPosition[0]).toBeCloseTo(1.5);
+    expect(label.interpolatedPosition[1]).toBeCloseTo(1.5);
+    expect(label.interpolatedPosition[2]).toBeCloseTo(1.5);
+    expect(label.interpolatedPosition[3]).toBeCloseTo(1.5);
+    expect(label.interpolatedPosition[4]).toBeCloseTo(1.5);
+    expect(label.interpolatedPosition[5]).toBeCloseTo(1.5);
+  });
+
+  test("repeated calls to interpolated before the last interpolated time do not move the sprite", () => {
+    const { sprites } = stateTests.feed(t => t).run();
+    const { label } = sprites;
+    use(label.interpolatedPosition).set([1, 1, 1, 1, 1, 1]);
+    label.move([2, 2, 2, 2, 2, 2]).over(100);
+    const animateTo = label.keyFrames[0].start + 50;
+    label.interpolate(animateTo);
+    label.interpolate(animateTo - 10);
+    expect(label.interpolatedPosition[0]).toBeCloseTo(1.5);
+    expect(label.interpolatedPosition[1]).toBeCloseTo(1.5);
+    expect(label.interpolatedPosition[2]).toBeCloseTo(1.5);
+    expect(label.interpolatedPosition[3]).toBeCloseTo(1.5);
+    expect(label.interpolatedPosition[4]).toBeCloseTo(1.5);
+    expect(label.interpolatedPosition[5]).toBeCloseTo(1.5);
+  });
+
+  test("expect visible to animate alpha", () => {
+    const { sprites } = stateTests.feed(t => t).run();
+    const { label } = sprites;
+    label.visible(0).over(100);
+    label.interpolate(label.keyFrames[0].start + 50);
+    expect(label.interpolatedAlpha).toBeCloseTo(0.5);
+  });
+
+  test("expect interpolated inverse to be calculated", () => {
+    const { sprites } = stateTests.feed(t => t).run();
+    const { label } = sprites;
+    use(label.interpolatedPosition).set([1, 0, 0, 1, 0, 0]);
+    label.move([2, 0, 0, 2, 100, 100]).over(100);
+    label.interpolate(label.keyFrames[0].start + 100);
+    expect(label.inverse[0]).toBeCloseTo(0.5);
+    expect(label.inverse[1]).toBeCloseTo(0);
+    expect(label.inverse[2]).toBeCloseTo(0);
+    expect(label.inverse[3]).toBeCloseTo(0.5);
+    expect(label.inverse[4]).toBeCloseTo(-50);
+    expect(label.inverse[5]).toBeCloseTo(-50);
+  });
+
+  test("expect lastInterpolated to be cached", () => {
+    const { sprites } = stateTests.feed(t => t).run();
+    const { label } = sprites;
+    label.move([2, 0, 0, 2, 100, 100]).over(100);
+    const animatedTo = label.keyFrames[0].start + 100;
+    label.interpolate(animatedTo);
+    expect(label.lastInterpolated).toBe(animatedTo);
   });
 });

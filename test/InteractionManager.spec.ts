@@ -333,4 +333,9 @@ describe("InteractionManager tests", () => {
     expect(im.insertMode).toBe(true);
   });
 
+  test("calling setFocus on sprite sets the focused property", () => {
+    im.setFocus(button);
+    expect(button.focused).toBeTruthy();
+  });
+
 });
