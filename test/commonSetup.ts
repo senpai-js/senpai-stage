@@ -8,7 +8,8 @@ export function common() {
       .addEventCallback("pointMoveEvent", "pointMoveEvent", "sprite")
       .addEventCallback("pointDownEvent", "pointDownEvent", "sprite")
       .addEventCallback("pointUpEvent", "pointUpEvent", "sprite")
-      .addEventCallback("pointClickEvent", "pointClickEvent", "sprite"),
+      .addEventCallback("pointClickEvent", "pointClickEvent", "sprite")
+      .mockSpritePrototypeFunction("pointClick", "sprite", "pointClick"),
     )
     .placeholder()
     .placeholder()
