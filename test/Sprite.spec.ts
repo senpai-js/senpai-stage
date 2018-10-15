@@ -188,4 +188,24 @@ describe("Sprite tests", () => {
     // no logic is performed for narrowphase in generic sprites
     expect(label.narrowPhase(null)).toBe(label);
   });
+
+  test("expect setTexture to throw if texture does not exist", () => {
+    const { sprites } = stateTests.feed(t => t.addButton("button", x, y)).run();
+    const { button } = sprites;
+    expect(() => button.setTexture("Dummy_Texture")).toThrow();
+  });
+
+  test("expect setTexture to throw if texture does not exist", () => {
+    const { sprites } = stateTests.feed(t => t.addButton("button", x, y)).run();
+    const { button } = sprites;
+    expect(() => button.setTexture("Dummy_Texture")).toThrow();
+  });
+
+  test("expect setTexture to set the texture property", () => {
+    const texture = "Inactive_Hover_Selected";
+    const { sprites } = stateTests.feed(t => t.addButton("button", x, y)).run();
+    const { button } = sprites;
+    button.setTexture(texture);
+    expect(button.texture).toBe(texture);
+  });
 });
