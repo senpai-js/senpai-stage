@@ -76,6 +76,7 @@ export interface ISprite extends ISize {
   isHovering(point: IInteractionPoint, now: number): ISprite;
   isFocused(): ISprite;
   pointCollision(point: IInteractionPoint): boolean;
+  pointClick(point: IInteractionPoint): void;
   setTexture(texture: string): this;
   setZ(z: number): this;
   visible(alpha: number): this;
@@ -173,6 +174,10 @@ export class Sprite implements ISprite {
 
   public pointCollision(point: IInteractionPoint): boolean {
     return true;
+  }
+
+  public pointClick(point: IInteractionPoint): void {
+    // no op
   }
 
   public isHovering(point: IInteractionPoint, now: number): ISprite {

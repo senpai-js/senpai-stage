@@ -68,11 +68,9 @@ export class Checkbox extends Sprite implements ICheckbox {
     return this;
   }
 
-  public pointCollision(point: IInteractionPoint): boolean {
-    if (point.clicked && point.active === this) {
-      this.toggle();
-    }
-    return super.pointCollision(point);
+  public pointClick(point: IInteractionPoint): void {
+    this.toggle();
+    return super.pointClick(point);
   }
 
   public render(ctx: CanvasRenderingContext2D): void {

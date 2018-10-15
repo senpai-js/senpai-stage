@@ -379,6 +379,7 @@ export class InteractionManager extends Container implements IInteractionManager
       });
 
       if (point.hover === point.active) {
+        point.active.pointClick(point);
         point.active.pointClickEvent.emit({
           down: false,
           eventType: "PointClick",
