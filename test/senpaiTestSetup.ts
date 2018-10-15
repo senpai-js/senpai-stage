@@ -636,7 +636,10 @@ export class TestSetup {
 
   public mockStagePrototypeFunction(id: string, funcName: string): this {
     const stage: any = this.stage;
-    const cb = this.callbacks[id] || jest.fn();
+    const func = this.stage[funcName];
+    const cb = this.callbacks[id] || jest.fn(
+      (...args) => func.apply(this.stage, args),
+    );
     this.callbacks[id] = cb;
     stage[funcName] = cb;
     return this;
@@ -658,16 +661,16 @@ export class TestSetup {
 
   public dispatchTouchEvent(type: string, clientX: number, clientY: number): this {
     const { canvas } = this.stage;
+    const touch = {
+      clientX,
+      clientY,
+      identifier: 0,
+      target: canvas,
+    } as any;
     const evt = new TouchEvent(type, {
       bubbles: true,
-      touches: [
-        {
-          clientX,
-          clientY,
-          identifier: 0,
-          target: canvas,
-        } as any,
-      ],
+      changedTouches: [touch],
+      touches: [touch],
     });
     canvas.dispatchEvent(evt);
     return this;

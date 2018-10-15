@@ -95,7 +95,8 @@ describe("InteractionManager Raw Events", () => {
   });
 
   test("touch move event calls touchMove event", () => {
-    tests.mockStagePrototypeFunction("cb", "touchMove")
+    tests.dispatchTouchEvent("touchstart", 50, 50)
+      .mockStagePrototypeFunction("cb", "touchMove")
       .dispatchTouchEvent("touchmove", 50, 50);
 
     const { callbacks } = tests;
@@ -112,7 +113,9 @@ describe("InteractionManager Raw Events", () => {
   });
 
   test("touch end event calls touchEnd event", () => {
-    tests.mockStagePrototypeFunction("cb", "touchEnd")
+    tests
+      .dispatchTouchEvent("touchstart", 50, 50)
+      .mockStagePrototypeFunction("cb", "touchEnd")
       .dispatchTouchEvent("touchend", 50, 50);
 
     const { callbacks } = tests;
@@ -146,7 +149,9 @@ describe("InteractionManager Raw Events", () => {
   });
 
   test("touch cancel event calls touchCancel event", () => {
-    tests.mockStagePrototypeFunction("cb", "touchCancel")
+    tests
+      .dispatchTouchEvent("touchstart", 50, 50)
+      .mockStagePrototypeFunction("cb", "touchCancel")
       .dispatchTouchEvent("touchcancel", 50, 50);
 
     const { callbacks } = tests;
