@@ -200,4 +200,33 @@ describe("Button tests", () => {
 
     expect(stage.canvas.style.cursor).toStrictEqual(Cursor.pointer);
   });
+
+  test("stage update calls sprite update", () => {
+    const { sprites } = setup()
+      .addButton("button", x, y)
+      .mockSpritePrototypeFunction("cb", "button", "update")
+      .updateStage();
+
+    expect(sprites.button.update).toBeCalled();
+  });
+
+  test("stage render calls sprite render", () => {
+    const { sprites } = setup()
+      .addButton("button", x, y)
+      .mockSpritePrototypeFunction("cb", "button", "render")
+      .updateStage()
+      .renderStage();
+
+    expect(sprites.button.render).toBeCalled();
+  });
+
+  test("stage render calls sprite render with canvas context", () => {
+    const { sprites, stage } = setup()
+      .addButton("button", x, y)
+      .mockSpritePrototypeFunction("cb", "button", "render")
+      .updateStage()
+      .renderStage();
+    const fn: jest.Mock = sprites.button.render as any;
+    expect(fn.mock.calls[0][0]).toBe(stage.ctx);
+  });
 });

@@ -596,6 +596,26 @@ export class TestSetup {
     return this;
   }
 
+  public mockSpritePrototypeFunction(id: string, sprite: string, funcName: string): this {
+    if (!this.existsSprite(sprite)) {
+      throw new Error(`Cannot mock ${funcName} on sprite ${sprite}: sprite does not exist`);
+    }
+
+    const ctx: any = this.sprites[sprite];
+    const cb = this.callbacks[id] || jest.fn();
+    this.callbacks[id] = cb;
+    ctx[funcName] = cb;
+    return this;
+  }
+
+  public mockContextPrototypeFunction(id: string, funcName: string): this {
+    const ctx: any = this.stage.ctx;
+    const cb = this.callbacks[id] || jest.fn();
+    this.callbacks[id] = cb;
+    ctx[funcName] = cb;
+    return this;
+  }
+
   public mockStagePrototypeFunction(id: string, funcName: string): this {
     const stage: any = this.stage;
     const cb = this.callbacks[id] || jest.fn();
