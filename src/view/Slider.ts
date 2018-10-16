@@ -62,7 +62,6 @@ export class Slider extends Sprite implements ISlider {
     const sliderDistance = this.width - this.textures.Pill_Hover.width;
     const sliderValuePercent = (this.value - this.min) / (this.max - this.min);
     const valueX = sliderDistance * sliderValuePercent;
-    console.log(point.tx, valueX, this.textures.Pill_Hover.width);
     if (point.ty <= this.textures.Pill_Hover.height
         && point.ty >= 0
         && point.tx >= valueX
