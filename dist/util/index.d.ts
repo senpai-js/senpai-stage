@@ -1,3 +1,5 @@
+import { EaseFunc } from "../ease";
+import { CanvasMatrix2D } from "../matrix";
 import { ISprite } from "../view/Sprite";
 export interface IPoint {
     x: number;
@@ -177,5 +179,32 @@ export declare enum SpriteType {
     Sprite = 9
 }
 export interface IKeyable {
+    altKey: boolean;
+    ctrlKey: boolean;
     key: string;
+    shiftKey: boolean;
+}
+export declare enum KeyFrameEntryType {
+    Wait = 0,
+    Move = 1,
+    Repeat = 2
+}
+export interface IKeyFrameEntry {
+    previousAlpha: number;
+    alpha: number;
+    ease: EaseFunc;
+    type: KeyFrameEntryType;
+    from: CanvasMatrix2D;
+    to: CanvasMatrix2D;
+    start: number;
+    end: number;
+}
+export interface IWaitKeyFrame extends IKeyFrameEntry {
+    type: KeyFrameEntryType.Wait;
+}
+export interface IMoveKeyFrame extends IKeyFrameEntry {
+    type: KeyFrameEntryType.Move;
+}
+export interface IRepeatKeyFrame extends IKeyFrameEntry {
+    type: KeyFrameEntryType.Repeat;
 }

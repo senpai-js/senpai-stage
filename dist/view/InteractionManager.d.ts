@@ -1,4 +1,4 @@
-import { EventEmitter, IKeyDownEvent, IKeyUpEvent, IMouseDownEvent, IMouseMoveEvent, IMouseUpEvent, IPointDownEvent, IPointMoveEvent, IPointUpEvent, ITouchCancelEvent, ITouchEndEvent, ITouchMoveEvent, ITouchStartEvent } from "../events";
+import { EventEmitter, IKeyDownEvent, IKeyPressEvent, IKeyUpEvent, IMouseDownEvent, IMouseMoveEvent, IMouseUpEvent, IPointDownEvent, IPointMoveEvent, IPointUpEvent, ITouchCancelEvent, ITouchEndEvent, ITouchMoveEvent, ITouchStartEvent } from "../events";
 import { IInteractionPoint, IKeyable } from "../util";
 import { Container, IContainer, IContainerProps } from "./Container";
 import { ISprite } from "./Sprite";
@@ -10,9 +10,11 @@ interface IKeyIndex {
 }
 export interface IInteractionManager extends IContainer {
     canvas: HTMLCanvasElement;
+    ctx: CanvasRenderingContext2D;
     mousePoint: IInteractionPoint;
     touchPointIndex: IInteractionPointIndex;
     keyIndex: IKeyIndex;
+    insertMode: boolean;
     pointDownEvent: EventEmitter<IPointDownEvent>;
     pointUpEvent: EventEmitter<IPointUpEvent>;
     pointMoveEvent: EventEmitter<IPointMoveEvent>;
@@ -25,6 +27,7 @@ export interface IInteractionManager extends IContainer {
     touchStartEvent: EventEmitter<ITouchStartEvent>;
     keyDownEvent: EventEmitter<IKeyDownEvent>;
     keyUpEvent: EventEmitter<IKeyUpEvent>;
+    keyPressEvent: EventEmitter<IKeyPressEvent>;
     hookEvents(): void;
     dispose(): void;
     createInteractionPoint(id: string, type: "Touch" | "Mouse"): IInteractionPoint;
@@ -43,6 +46,7 @@ export interface IInteractionManager extends IContainer {
     touchCancel(event: TouchEvent): void;
     keyDown(event: KeyboardEvent | IKeyable): void;
     keyUp(event: KeyboardEvent | IKeyable): void;
+    keyPress(event: KeyboardEvent | IKeyable): void;
     setFocus(target: ISprite): void;
     getFocusedSprite(): void;
 }
@@ -57,6 +61,7 @@ export declare class InteractionManager extends Container implements IInteractio
     touchPointIndex: IInteractionPointIndex;
     keyIndex: IKeyIndex;
     mousePoint: IInteractionPoint;
+    insertMode: boolean;
     pointDownEvent: EventEmitter<IPointDownEvent>;
     pointUpEvent: EventEmitter<IPointUpEvent>;
     pointMoveEvent: EventEmitter<IPointMoveEvent>;
@@ -69,6 +74,7 @@ export declare class InteractionManager extends Container implements IInteractio
     touchStartEvent: EventEmitter<ITouchStartEvent>;
     keyDownEvent: EventEmitter<IKeyDownEvent>;
     keyUpEvent: EventEmitter<IKeyUpEvent>;
+    keyPressEvent: EventEmitter<IKeyPressEvent>;
     private events;
     private keyboardEvents;
     constructor(props: IInteractionManagerProps);
@@ -91,6 +97,7 @@ export declare class InteractionManager extends Container implements IInteractio
     hoverCheck(now: number): void;
     keyUp(e: KeyboardEvent | IKeyable): void;
     keyDown(e: KeyboardEvent | IKeyable): void;
+    keyPress(e: KeyboardEvent | IKeyable): void;
     setFocus(target: ISprite): void;
     getFocusedSprite(): ISprite;
 }

@@ -1,5 +1,5 @@
 import { EventEmitter, IValueChangeEvent } from "../events";
-import { IInteractionPoint, SpriteType, TextAlign, TextBaseline } from "../util";
+import { Cursor, IInteractionPoint, SpriteType, TextAlign, TextBaseline } from "../util";
 import { ISprite, ISpriteProps, Sprite } from "./Sprite";
 export interface ICheckbox extends ISprite {
     checked: boolean;
@@ -32,9 +32,10 @@ export declare class Checkbox extends Sprite implements ICheckbox {
     textAlign: TextAlign;
     textBaseline: TextBaseline;
     checkedChangeEvent: EventEmitter<IValueChangeEvent<boolean>>;
+    cursor: Cursor;
     constructor(props: ICheckboxProps);
     toggle(): this;
-    pointCollision(point: IInteractionPoint): boolean;
+    pointClick(point: IInteractionPoint): void;
     render(ctx: CanvasRenderingContext2D): void;
     update(): void;
     setText(text: string): this;

@@ -54,6 +54,7 @@ export declare class Interpreter extends Stage implements IInterpreter {
     quitEvent: EventEmitter<IQuitEvent>;
     persist: IJournalData;
     data: IJournalData;
+    stateIndex: number;
     private flags;
     private scripts;
     private journal;
@@ -64,6 +65,8 @@ export declare class Interpreter extends Stage implements IInterpreter {
     getFlag(flag: string): JournalValue;
     setFlag(flag: string, value: JournalValue): JournalValue;
     newGame(): void;
+    addJournalEntry(name: string, ...props: JournalValue[]): void;
     advance(): void;
+    previous(): void;
 }
 export {};
