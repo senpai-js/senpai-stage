@@ -1,4 +1,5 @@
 import { IValueChangeEvent } from "../src/events";
+import { Cursor } from "../src/util";
 import { ISlider } from "../src/view/Slider";
 import { setup, TestSetup } from "./senpaiTestSetup";
 
@@ -75,7 +76,6 @@ describe("Slider tests", () => {
       .run();
     const ip = points.ip;
     const slider = sprites.slider as ISlider;
-    console.log("should fail");
     expect(slider.narrowPhase(ip)).toBe(undefined);
   });
 
@@ -95,7 +95,7 @@ describe("Slider tests", () => {
       .run();
     const ip = points.ip;
     const slider = sprites.slider as ISlider;
-    expect(slider.cursor).toBe("auto");
+    expect(stage.canvas.style.cursor).toBe("");
   });
 
   test("Hover over pill changes 'cursor' property to 'pointer'", () => {

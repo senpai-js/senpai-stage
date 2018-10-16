@@ -100,6 +100,7 @@ export class TextInput extends Sprite implements ITextInput {
   }
 
   public isHovering(point: IInteractionPoint, now: number): ISprite {
+    this.interpolate(now);
     transformPoint(point, this.inverse);
     if (this.broadPhase(point)) {
       return this.narrowPhase(point);

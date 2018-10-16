@@ -56,21 +56,25 @@ export class Slider extends Sprite implements ISlider {
       return this;
     }
 
+    if (this.pointInPill(point)) {
+      return this;
+    }
+  }
+
+  public pointInPill(point: IInteractionPoint): boolean {
     /*
      * NOTE: this checks if the cursor is strictly hovering over the pill
      */
     const sliderDistance = this.width - this.textures.Pill_Hover.width;
     const sliderValuePercent = (this.value - this.min) / (this.max - this.min);
     const valueX = sliderDistance * sliderValuePercent;
-    if (point.ty <= this.textures.Pill_Hover.height
-        && point.ty >= 0
-        && point.tx >= valueX
-        && point.tx <= valueX + this.textures.Pill_Hover.width) {
-      return this;
-    }
+    return point.ty <= this.textures.Pill_Hover.height
+      && point.ty >= 0
+      && point.tx >= valueX
+      && point.tx <= valueX + this.textures.Pill_Hover.width;
   }
-
   public isHovering(point: IInteractionPoint, now: number): ISprite {
+    this.interpolate(now);
     transformPoint(point, this.inverse);
     if (this.broadPhase(point)) {
       return this.narrowPhase(point);
