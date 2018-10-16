@@ -99,19 +99,19 @@ export class Panel extends Sprite implements IPanel {
   public update(): void {
     this.hover = false;
     if (!this.bottomCenterPattern && this.textures.Bottom_Center) {
-      this.bottomCenterPattern = tmpctx.createPattern(this.textures.Bottom_Center, "repeat-x");
+      this.bottomCenterPattern = tmpctx.createPattern(this.textures.Bottom_Center as any, "repeat-x");
     }
     if (!this.topCenterPattern && this.textures.Top_Center) {
-      this.topCenterPattern = tmpctx.createPattern(this.textures.Top_Center, "repeat-x");
+      this.topCenterPattern = tmpctx.createPattern(this.textures.Top_Center as any, "repeat-x");
     }
     if (!this.middleLeftPattern && this.textures.Middle_Left) {
-      this.middleLeftPattern = tmpctx.createPattern(this.textures.Middle_Left, "repeat-y");
+      this.middleLeftPattern = tmpctx.createPattern(this.textures.Middle_Left as any, "repeat-y");
     }
     if (!this.middleRightPattern && this.textures.Middle_Right) {
-      this.middleRightPattern = tmpctx.createPattern(this.textures.Middle_Right, "repeat-y");
+      this.middleRightPattern = tmpctx.createPattern(this.textures.Middle_Right as any, "repeat-y");
     }
     if (!this.middleCenterPattern && this.textures.Middle_Center) {
-      this.middleCenterPattern = tmpctx.createPattern(this.textures.Middle_Center, "repeat");
+      this.middleCenterPattern = tmpctx.createPattern(this.textures.Middle_Center as any, "repeat");
     }
     if (
       this.textures.Top_Left
