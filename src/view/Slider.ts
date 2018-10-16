@@ -62,13 +62,13 @@ export class Slider extends Sprite implements ISlider {
     const sliderDistance = this.width - this.textures.Pill_Hover.width;
     const sliderValuePercent = (this.value - this.min) / (this.max - this.min);
     const valueX = sliderDistance * sliderValuePercent;
-
+    console.log(point.tx, valueX, this.textures.Pill_Hover.width);
     if (point.ty <= this.textures.Pill_Hover.height
         && point.ty >= 0
         && point.tx >= valueX
         && point.tx <= valueX + this.textures.Pill_Hover.width) {
-        return this;
-      }
+      return this;
+    }
   }
 
   public isHovering(point: IInteractionPoint, now: number): ISprite {
@@ -109,7 +109,8 @@ export class Slider extends Sprite implements ISlider {
       this.height = this.textures.Pill_Hover.height;
     }
     if (!this.sliderPattern && this.textures.Line) {
-      this.sliderPattern = tempctx.createPattern(this.textures.Line, "repeat-x");
+      // createPattern does not accept ImageBitmap in typescript just yet
+      this.sliderPattern = tempctx.createPattern(this.textures.Line as any, "repeat-x");
     }
     this.pillTexture = this.active
       ? this.textures.Pill_Active

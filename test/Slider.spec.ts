@@ -75,7 +75,7 @@ describe("Slider tests", () => {
       .run();
     const ip = points.ip;
     const slider = sprites.slider as ISlider;
-
+    console.log("should fail");
     expect(slider.narrowPhase(ip)).toBe(undefined);
   });
 

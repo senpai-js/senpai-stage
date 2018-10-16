@@ -426,6 +426,13 @@ export class TestSetup {
       .attr("Cap")
       .attr("Left", "Right")
       .build();
+    const t: any = textures;
+    t.Pill_Active.height
+       = t.Pill_Hover.height
+       = t.Pill.height = 20;
+    t.Pill_Active.width
+       = t.Pill_Hover.width
+       = t.Pill.width = 20;
 
     this.sprites[id] = new Slider({
       definition: null,
@@ -433,6 +440,7 @@ export class TestSetup {
       position: sliderPos,
       source: null,
       textures,
+      value: 0,
       width: 100,
     });
     this.stage.addSprite(this.sprites[id]);
