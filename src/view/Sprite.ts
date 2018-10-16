@@ -42,6 +42,7 @@ export interface ISprite extends ISize {
   interpolatedAlpha: number;
   previousAlpha: number;
   z: number;
+  parentHoverCheck: boolean;
 
   // animation
   textures: ITextureMap;
@@ -134,6 +135,7 @@ export class Sprite implements ISprite {
   public tabIndex: number = 0;
   public width: number = 0;
   public height: number = 0;
+  public parentHoverCheck: boolean = true;
   public pointDownEvent: EventEmitter<IPointDownEvent> = new EventEmitter<IPointDownEvent>();
   public pointUpEvent: EventEmitter<IPointUpEvent> = new EventEmitter<IPointUpEvent>();
   public pointMoveEvent: EventEmitter<IPointMoveEvent> = new EventEmitter<IPointMoveEvent>();
@@ -185,13 +187,15 @@ export class Sprite implements ISprite {
 
   public isHovering(point: IInteractionPoint, now: number): ISprite {
     this.interpolate(now);
-    let parent: ISprite = this.parent;
-    while (parent) {
-      transformPoint(point, parent.inverse);
-      if (parent.broadPhase(point) && parent.narrowPhase(point)) {
-        parent = parent.parent;
-      } else {
-        return null;
+    if (this.parentHoverCheck) {
+      let parent: ISprite = this.parent;
+      while (parent) {
+        transformPoint(point, parent.inverse);
+        if (parent.broadPhase(point) && parent.narrowPhase(point)) {
+          parent = parent.parent;
+        } else {
+          return null;
+        }
       }
     }
     transformPoint(point, this.inverse);

@@ -64,7 +64,7 @@ export class TextInput extends Sprite implements ITextInput {
   public selectionStart: number = -1;
   public frameCount: number = 0;
   public cursor: Cursor = Cursor.text;
-
+  public parentHoverCheck: boolean = false;
   public showCaret: boolean = true;
   private focusedMidPattern: CanvasPattern = null;
   private unfocusedMidPattern: CanvasPattern = null;
@@ -97,14 +97,6 @@ export class TextInput extends Sprite implements ITextInput {
       && point.ty < (this.height - this.padding.bottom)
       ? this
       : null;
-  }
-
-  public isHovering(point: IInteractionPoint, now: number): ISprite {
-    this.interpolate(now);
-    transformPoint(point, this.inverse);
-    if (this.broadPhase(point)) {
-      return this.narrowPhase(point);
-    }
   }
 
   public update(): void {

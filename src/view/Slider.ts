@@ -28,7 +28,7 @@ export class Slider extends Sprite implements ISlider {
   public min: number = 0;
   public width: number = 100;
   public height: number = 0;
-
+  public parentHoverCheck: boolean = false;
   public valueChangeEvent: EventEmitter<IValueChangeEvent<number>> = new EventEmitter<IValueChangeEvent<number>>();
   public cursor: Cursor = Cursor.pointer;
 
@@ -72,13 +72,6 @@ export class Slider extends Sprite implements ISlider {
       && point.ty >= 0
       && point.tx >= valueX
       && point.tx <= valueX + this.textures.Pill_Hover.width;
-  }
-  public isHovering(point: IInteractionPoint, now: number): ISprite {
-    this.interpolate(now);
-    transformPoint(point, this.inverse);
-    if (this.broadPhase(point)) {
-      return this.narrowPhase(point);
-    }
   }
 
   public pointCollision(point: IInteractionPoint): boolean {

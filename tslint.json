@@ -5,7 +5,8 @@
     "no-console": false,
     "no-trailing-whitespace": true,
     "no-empty-interface": false,
-    "arrow-parens": false
+    "arrow-parens": false,
+    "member-ordering": [true, { "order": "fields-first" }]
   },
   "typedef-whitespace": [
     true,
