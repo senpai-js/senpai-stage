@@ -13,7 +13,7 @@
     "build": "run-s tslint test microbundle",
     "microbundle": "microbundle",
     "tslint": "tslint --fix --project ./",
-    "test": "jest",
+    "test": "jest --watch",
     "live-test": "parcel ./parcel/index.html --out-dir parcel_build --no-source-maps"
   },
   "jest": {
